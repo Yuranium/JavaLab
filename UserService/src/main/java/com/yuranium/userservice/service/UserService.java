@@ -1,6 +1,6 @@
 package com.yuranium.userservice.service;
 
-import com.yuranium.userservice.UserEntityNotFoundException;
+import com.yuranium.userservice.util.exception.UserEntityNotFoundException;
 import com.yuranium.userservice.mapper.UserMapper;
 import com.yuranium.userservice.models.dto.UserDto;
 import com.yuranium.userservice.models.dto.UserInputDto;
