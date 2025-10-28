@@ -6,13 +6,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "user")
+@Table(name = "\"user\"")
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserEntity
@@ -21,6 +22,7 @@ public class UserEntity
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private RoleType role;
 
@@ -39,6 +41,7 @@ public class UserEntity
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
+    @CreationTimestamp
     @Column(name = "date_registration", columnDefinition = "TIMESTAMP")
     private LocalDateTime dateRegistration;
 
