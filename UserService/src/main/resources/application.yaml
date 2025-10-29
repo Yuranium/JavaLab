@@ -16,3 +16,11 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: none
+
+backblaze:
+  b2:
+    endpoint: ${BACKBLAZE_ENDPOINT}
+    region: ${BACKBLAZE_REGION}
+    bucket-name: java-lab
+    access-key: ${BACKBLAZE_ACCESS_KEY}
+    application-key: ${BACKBLAZE_APP_KEY}
