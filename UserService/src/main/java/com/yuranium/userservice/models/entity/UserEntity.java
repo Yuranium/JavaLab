@@ -19,12 +19,13 @@ import java.time.LocalDateTime;
 public class UserEntity
 {
     @Id
+    @Column(name = "id_user", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
-    private RoleType role;
+    private RoleType role = RoleType.USER_ROLE;
 
     @Column(name = "username", nullable = false)
     private String username;
@@ -46,10 +47,10 @@ public class UserEntity
     private LocalDateTime dateRegistration;
 
     @Column(name = "last_login", columnDefinition = "TIMESTAMP")
-    private LocalDateTime lastLogin;
+    private LocalDateTime lastLogin = LocalDateTime.now();
 
     @Column(name = "activity")
-    private Boolean activity;
+    private Boolean activity = false;
 
     @Column(name = "avatar_link")
     private String avatar;

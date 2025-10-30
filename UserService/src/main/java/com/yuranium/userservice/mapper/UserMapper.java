@@ -1,21 +1,21 @@
 package com.yuranium.userservice.mapper;
 
-import com.yuranium.userservice.models.dto.UserDto;
-import com.yuranium.userservice.models.dto.UserInputDto;
+import com.yuranium.userservice.models.dto.UserResponseDto;
+import com.yuranium.userservice.models.dto.UserRequestDto;
 import com.yuranium.userservice.models.entity.UserEntity;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface UserMapper
 {
-    UserEntity toEntity(UserDto userDto);
+    UserResponseDto toResponseDto(UserEntity userEntity);
 
-    UserDto toDto(UserEntity userEntity);
+    Iterable<UserResponseDto> toResponseDto(Iterable<UserEntity> userEntityList);
 
-    Iterable<UserDto> toDto(Iterable<UserEntity> userEntityList);
+    Iterable<UserEntity> toEntity(Iterable<UserRequestDto> userDtoList);
 
-    Iterable<UserEntity> toEntity(Iterable<UserDto> userDtoList);
-
-    UserEntity toEntity(UserInputDto userInputDto);
+    @Mapping(target = "avatar", ignore = true)
+    UserEntity toEntity(UserRequestDto userRequestDto);
 }

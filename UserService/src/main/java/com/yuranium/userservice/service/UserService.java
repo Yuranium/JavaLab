@@ -1,9 +1,9 @@
 package com.yuranium.userservice.service;
 
+import com.yuranium.userservice.models.dto.UserRequestDto;
+import com.yuranium.userservice.models.dto.UserResponseDto;
 import com.yuranium.userservice.util.exception.UserEntityNotFoundException;
 import com.yuranium.userservice.mapper.UserMapper;
-import com.yuranium.userservice.models.dto.UserDto;
-import com.yuranium.userservice.models.dto.UserInputDto;
 import com.yuranium.userservice.models.entity.UserEntity;
 import com.yuranium.userservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,22 +15,24 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserService
 {
+    private final FileService fileService;
+
     private final UserRepository userRepository;
 
     private final UserMapper userMapper;
 
     @Transactional(readOnly = true)
-    public Iterable<UserDto> getUsers(PageRequest pageRequest)
+    public Iterable<UserResponseDto> getUsers(PageRequest pageRequest)
     {
-        return userMapper.toDto(
+        return userMapper.toResponseDto(
                 userRepository.findAll(pageRequest).getContent()
         );
     }
 
     @Transactional(readOnly = true)
-    public UserDto getUser(Long id)
+    public UserResponseDto getUser(Long id)
     {
-        return userMapper.toDto(userRepository.findById(id)
+        return userMapper.toResponseDto(userRepository.findById(id)
                 .orElseThrow(() -> new UserEntityNotFoundException(
                         "User with id=%d not found.".formatted(id)
                 ))
@@ -38,21 +40,22 @@ public class UserService
     }
 
     @Transactional
-    public UserDto createUser(UserInputDto userDto) // todo
+    public UserResponseDto createUser(UserRequestDto userDto)
     {
         UserEntity userEntity = userMapper.toEntity(userDto);
-        return userMapper.toDto(userRepository.save(userEntity));
+        userEntity.setAvatar(fileService.uploadFile(userDto.avatar()));
+        return userMapper.toResponseDto(userRepository.save(userEntity));
     }
 
     @Transactional
-    public UserDto updateUser(Long id, UserInputDto userDto) // todo
+    public UserResponseDto updateUser(Long id, UserRequestDto userDto) // todo
     {
         UserEntity userEntity = userRepository.findById(id)
                 .orElseThrow(() -> new UserEntityNotFoundException(
                         "User with id=%d not found.".formatted(id)
                 ));
 
-        return userMapper.toDto(
+        return userMapper.toResponseDto(
                 userRepository.save(userMapper.toEntity(userDto))
         );
     }

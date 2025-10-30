@@ -1,7 +1,7 @@
 package com.yuranium.userservice.controller;
 
-import com.yuranium.userservice.models.dto.UserDto;
-import com.yuranium.userservice.models.dto.UserInputDto;
+import com.yuranium.userservice.models.dto.UserRequestDto;
+import com.yuranium.userservice.models.dto.UserResponseDto;
 import com.yuranium.userservice.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -18,7 +18,7 @@ public class UserController
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<Iterable<UserDto>> getUsers(
+    public ResponseEntity<Iterable<UserResponseDto>> getUsers(
             @RequestParam("page") Integer page,
             @RequestParam("size") Integer size
     )
@@ -30,7 +30,7 @@ public class UserController
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserDto> getUser(@PathVariable Long id)
+    public ResponseEntity<UserResponseDto> getUser(@PathVariable Long id)
     {
         return new ResponseEntity<>(
                 userService.getUser(id),
@@ -39,7 +39,7 @@ public class UserController
     }
 
     @PostMapping
-    public ResponseEntity<UserDto> createUser(@RequestBody UserInputDto userDto)
+    public ResponseEntity<UserResponseDto> createUser(@ModelAttribute UserRequestDto userDto)
     {
         return new ResponseEntity<>(
                 userService.createUser(userDto),
@@ -48,9 +48,9 @@ public class UserController
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<UserDto> updateUser(
+    public ResponseEntity<UserResponseDto> updateUser(
             @PathVariable Long id,
-            @RequestBody UserInputDto userDto
+            @ModelAttribute UserRequestDto userDto
     )
     {
         return new ResponseEntity<>(
