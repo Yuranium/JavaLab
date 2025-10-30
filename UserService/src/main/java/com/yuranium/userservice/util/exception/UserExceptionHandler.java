@@ -19,4 +19,14 @@ public class UserExceptionHandler
                         exc.getMessage())
                 );
     }
+
+    @ExceptionHandler(UserEntityNotCreatedException.class)
+    public ResponseEntity<ExceptionBody> handleException(UserEntityNotCreatedException exc)
+    {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ExceptionBody(HttpStatus.INTERNAL_SERVER_ERROR,
+                        LocalDateTime.now(),
+                        exc.getMessage())
+                );
+    }
 }

@@ -2,11 +2,11 @@ package com.yuranium.userservice.service;
 
 import com.yuranium.userservice.config.s3.BackblazeConfig;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.time.LocalDateTime;
@@ -24,8 +24,7 @@ public class FileService
 
     private final BackblazeConfig backblazeConfig;
 
-    @SneakyThrows
-    public String uploadFile(MultipartFile file)
+    public String uploadFile(MultipartFile file) throws Exception
     {
         if (file == null || file.isEmpty())
             return null;
@@ -47,6 +46,15 @@ public class FileService
                 RequestBody.fromBytes(file.getBytes()));
 
         return generateFileUrl(key);
+    }
+
+    public void deleteFile(String fileName)
+    {
+        DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+                .bucket(backblazeConfig.getBucketName())
+                .key(fileName)
+                .build();
+        s3Client.deleteObject(deleteObjectRequest);
     }
 
 //    public byte[] downloadFile(String fileKey)

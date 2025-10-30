@@ -2,6 +2,7 @@ package com.yuranium.userservice.service;
 
 import com.yuranium.userservice.models.dto.UserRequestDto;
 import com.yuranium.userservice.models.dto.UserResponseDto;
+import com.yuranium.userservice.util.exception.UserEntityNotCreatedException;
 import com.yuranium.userservice.util.exception.UserEntityNotFoundException;
 import com.yuranium.userservice.mapper.UserMapper;
 import com.yuranium.userservice.models.entity.UserEntity;
@@ -42,9 +43,22 @@ public class UserService
     @Transactional
     public UserResponseDto createUser(UserRequestDto userDto)
     {
-        UserEntity userEntity = userMapper.toEntity(userDto);
-        userEntity.setAvatar(fileService.uploadFile(userDto.avatar()));
-        return userMapper.toResponseDto(userRepository.save(userEntity));
+        String uploadedAvatarUrl = null;
+        try
+        {
+            uploadedAvatarUrl = fileService.uploadFile(userDto.avatar());
+
+            UserEntity userEntity = userMapper.toEntity(userDto);
+            userEntity.setAvatar(uploadedAvatarUrl);
+            UserEntity savedUser = userRepository.save(userEntity);
+
+            return userMapper.toResponseDto(savedUser);
+        } catch (Exception exc)
+        {
+            if (uploadedAvatarUrl != null)
+                fileService.deleteFile(uploadedAvatarUrl);
+            throw new UserEntityNotCreatedException(exc.getMessage());
+        }
     }
 
     @Transactional
