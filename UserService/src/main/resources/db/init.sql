@@ -11,6 +11,6 @@ CREATE TABLE IF NOT EXISTS public.user
     password          VARCHAR(100) NOT NULL,
     email             VARCHAR(50)  NOT NULL UNIQUE,
     date_registration TIMESTAMP    NOT NULL DEFAULT current_timestamp,
-    last_login        TIMESTAMP    NOT NULL DEFAULT current_timestamp,
+    last_login        TIMESTAMP,
     activity          BOOLEAN      NOT NULL DEFAULT FALSE::BOOLEAN
 );

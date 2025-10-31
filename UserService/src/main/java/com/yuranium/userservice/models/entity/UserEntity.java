@@ -47,7 +47,7 @@ public class UserEntity
     private LocalDateTime dateRegistration;
 
     @Column(name = "last_login", columnDefinition = "TIMESTAMP")
-    private LocalDateTime lastLogin = LocalDateTime.now();
+    private LocalDateTime lastLogin;
 
     @Column(name = "activity")
     private Boolean activity = false;
