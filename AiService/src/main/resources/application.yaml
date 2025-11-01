@@ -1,3 +1,37 @@
+server:
+  port: 8080
+
 spring:
   application:
     name: AiService
+
+
+  datasource:
+    url: jdbc:postgresql://${PG_ENDPOINT:localhost:5433}/${PG_DATABASE}
+    username: ${PG_USERNAME}
+    password: ${PG_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    open-in-view: false
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+
+  ai:
+    ollama:
+      base-url: http://${AI_ENDPOINT:localhost:11434}
+      chat:
+        model: deepseek-r1:1.5b
+        options:
+          temperature: 0.7
+    chat:
+      memory:
+        repository:
+          jdbc:
+            initialize-schema: always
+
+logging:
+  level:
+    org.springframework: INFO
+    com.wenn.aiservice: DEBUG
