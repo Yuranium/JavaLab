@@ -56,4 +56,14 @@ public class UserEntity
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<AuthEntity> authMethods = new ArrayList<>();
+
+    @PrePersist
+    public void prePersist()
+    {
+        if (name.isBlank())
+            name = null;
+
+        if (lastName.isBlank())
+            lastName = null;
+    }
 }

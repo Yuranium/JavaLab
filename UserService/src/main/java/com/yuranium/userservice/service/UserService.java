@@ -1,12 +1,12 @@
 package com.yuranium.userservice.service;
 
+import com.yuranium.userservice.mapper.UserMapper;
 import com.yuranium.userservice.models.dto.UserRequestDto;
 import com.yuranium.userservice.models.dto.UserResponseDto;
-import com.yuranium.userservice.util.exception.UserEntityNotCreatedException;
-import com.yuranium.userservice.util.exception.UserEntityNotFoundException;
-import com.yuranium.userservice.mapper.UserMapper;
 import com.yuranium.userservice.models.entity.UserEntity;
 import com.yuranium.userservice.repository.UserRepository;
+import com.yuranium.userservice.util.exception.UserEntityNotCreatedException;
+import com.yuranium.userservice.util.exception.UserEntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -17,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService
 {
     private final FileService fileService;
+
+    private final AuthService authService;
 
     private final UserRepository userRepository;
 
@@ -51,6 +53,7 @@ public class UserService
             UserEntity userEntity = userMapper.toEntity(userDto);
             userEntity.setAvatar(uploadedAvatarUrl);
             UserEntity savedUser = userRepository.save(userEntity);
+            authService.setAuthForLocalUser(savedUser, userDto);
 
             return userMapper.toResponseDto(savedUser);
         } catch (Exception exc)
