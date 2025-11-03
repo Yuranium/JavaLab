@@ -9,6 +9,8 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -36,9 +38,6 @@ public class UserEntity
     @Column(name = "last_name")
     private String lastName;
 
-    @Column(name = "password", nullable = false)
-    private String password;
-
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
@@ -54,4 +53,17 @@ public class UserEntity
 
     @Column(name = "avatar_link")
     private String avatar;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<AuthEntity> authMethods = new ArrayList<>();
+
+    @PrePersist
+    public void prePersist()
+    {
+        if (name.isBlank())
+            name = null;
+
+        if (lastName.isBlank())
+            lastName = null;
+    }
 }

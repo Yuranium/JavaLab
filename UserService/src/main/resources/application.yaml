@@ -24,3 +24,8 @@ backblaze:
     bucket-name: java-lab
     access-key: ${BACKBLAZE_ACCESS_KEY}
     application-key: ${BACKBLAZE_APP_KEY}
+
+auth:
+  jwt:
+    secret: ${JWT_SECRET}
+    lifetime: ${JWT_LIFETIME:7d}
