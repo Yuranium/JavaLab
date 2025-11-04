@@ -27,7 +27,7 @@ public class UserEntity
 
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
-    private RoleType role = RoleType.USER_ROLE;
+    private RoleType role = RoleType.ROLE_USER;
 
     @Column(name = "username", nullable = false)
     private String username;

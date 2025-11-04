@@ -1,19 +1,18 @@
 package com.yuranium.userservice.util.security;
 
+import com.yuranium.userservice.enums.RoleType;
+import com.yuranium.userservice.models.entity.UserEntity;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.time.Duration;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Component
@@ -27,12 +26,10 @@ public class JwtUtil
 
     private final SecretKey secretKey;
 
-    public String generateToken(UserDetails user)
+    public String generateToken(UserEntity user)
     {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("roles", user.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .toList());
+        claims.put("role", user.getRole().name());
 
         Date issuedDate = new Date();
         Date expiredDate = new Date(issuedDate.getTime() + jwtLifetime.toMillis());
@@ -51,9 +48,10 @@ public class JwtUtil
         return getAllClaims(token).getSubject();
     }
 
-    public List<String> getRoles(String token)
+    public RoleType getRole(String token)
     {
-        return getAllClaims(token).get("roles", List.class);
+        return RoleType.valueOf(getAllClaims(token)
+                .get("role", String.class));
     }
 
     public Claims getAllClaims(String token)
@@ -73,8 +71,7 @@ public class JwtUtil
         try
         {
             token = authHeader.substring(BEARER_PREFIX.length());
-            getUsername(token);
-            getRoles(token);
+            getAllClaims(token);
 
         } catch (JwtException | IllegalArgumentException exc)
         {

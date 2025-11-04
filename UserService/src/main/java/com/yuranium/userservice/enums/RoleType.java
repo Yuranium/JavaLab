@@ -1,6 +1,14 @@
 package com.yuranium.userservice.enums;
 
-public enum RoleType
+import org.springframework.security.core.GrantedAuthority;
+
+public enum RoleType implements GrantedAuthority
 {
-    USER_ROLE, ADMIN_ROLE
+    ROLE_USER, ROLE_ADMIN;
+
+    @Override
+    public String getAuthority()
+    {
+        return name();
+    }
 }

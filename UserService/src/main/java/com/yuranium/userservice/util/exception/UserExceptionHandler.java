@@ -29,4 +29,14 @@ public class UserExceptionHandler
                         exc.getMessage())
                 );
     }
+
+    @ExceptionHandler(PasswordMissingException.class)
+    public ResponseEntity<ExceptionBody> handleException(PasswordMissingException exc)
+    {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ExceptionBody(HttpStatus.UNAUTHORIZED,
+                        LocalDateTime.now(),
+                        exc.getMessage())
+                );
+    }
 }
