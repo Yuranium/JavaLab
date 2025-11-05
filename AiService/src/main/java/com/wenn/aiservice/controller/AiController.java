@@ -6,6 +6,7 @@ import com.wenn.aiservice.service.HistoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,6 +21,13 @@ public class AiController {
         String response = chatService.chat(request.userId(), request.message());
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/chat/stream")
+    public ResponseEntity<Flux<String>> chatStream(@RequestBody ChatDto request) {
+        Flux<String> response = chatService.streamChat(request.userId(), request.message());
+        return ResponseEntity.ok(response);
+    }
+
 
     @GetMapping("/history/{id}")
     public ResponseEntity<?> getHistory(@PathVariable("id") String userId) {
