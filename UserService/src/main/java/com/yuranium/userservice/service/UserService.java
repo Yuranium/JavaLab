@@ -4,6 +4,7 @@ import com.yuranium.userservice.mapper.UserMapper;
 import com.yuranium.userservice.models.CustomUserDetails;
 import com.yuranium.userservice.models.dto.UserRequestDto;
 import com.yuranium.userservice.models.dto.UserResponseDto;
+import com.yuranium.userservice.models.dto.UserUpdateDto;
 import com.yuranium.userservice.models.entity.AuthEntity;
 import com.yuranium.userservice.models.entity.UserEntity;
 import com.yuranium.userservice.repository.UserRepository;
@@ -18,6 +19,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Service
@@ -63,6 +65,7 @@ public class UserService implements UserDetailsService
             UserEntity savedUser = userRepository.save(userEntity);
             authService.setAuthForLocalUser(savedUser, userDto);
 
+            // kafkaTemplate.send(savedUser);
             return userMapper.toResponseDto(savedUser);
         } catch (Exception exc)
         {
@@ -73,21 +76,32 @@ public class UserService implements UserDetailsService
     }
 
     @Transactional
-    public UserResponseDto updateUser(Long id, UserRequestDto userDto) // todo
+    public UserResponseDto updateUser(Long id, UserUpdateDto userDto) // todo
     {
         UserEntity userEntity = userRepository.findById(id)
                 .orElseThrow(() -> new UserEntityNotFoundException(
                         "User with id=%d not found.".formatted(id)
                 ));
 
+        userEntity.setName(userDto.name());
+        userEntity.setLastName(userDto.lastName());
+        userEntity.setAvatar(fileService.updateFile(
+                userEntity.getAvatar(), userDto.avatar())
+        );
+
         return userMapper.toResponseDto(
-                userRepository.save(userMapper.toEntity(userDto))
+                userRepository.save(userEntity)
         );
     }
 
     @Transactional
     public void deleteUser(Long id)
     {
+        UserEntity userEntity = userRepository.findById(id)
+                .orElseThrow(() -> new UserEntityNotFoundException(
+                        "User with id=%d not found.".formatted(id)
+                ));
+        fileService.deleteFile(userEntity.getAvatar());
         userRepository.deleteById(id);
     }
 
@@ -119,5 +133,18 @@ public class UserService implements UserDetailsService
                         "The user with username=%s was not found".formatted(username)
                         )
                 );
+    }
+
+    @Transactional(readOnly = true)
+    public void activateUser(Long id)
+    {
+        UserEntity userEntity = userRepository.findById(id)
+                .orElseThrow(() -> new UserEntityNotFoundException(
+                        "User with id=%d not found.".formatted(id)
+                ));
+
+        userEntity.setActivity(true);
+        userEntity.setLastLogin(LocalDateTime.now());
+        userRepository.save(userEntity);
     }
 }

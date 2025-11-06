@@ -2,6 +2,7 @@ package com.yuranium.userservice.controller;
 
 import com.yuranium.userservice.models.dto.UserRequestDto;
 import com.yuranium.userservice.models.dto.UserResponseDto;
+import com.yuranium.userservice.models.dto.UserUpdateDto;
 import com.yuranium.userservice.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -50,7 +51,7 @@ public class UserController
     @PatchMapping("/{id}")
     public ResponseEntity<UserResponseDto> updateUser(
             @PathVariable Long id,
-            @ModelAttribute UserRequestDto userDto
+            @ModelAttribute UserUpdateDto userDto
     )
     {
         return new ResponseEntity<>(
@@ -63,6 +64,13 @@ public class UserController
     public ResponseEntity<?> deleteUser(@PathVariable Long id)
     {
         userService.deleteUser(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/activate")
+    public ResponseEntity<?> activateUser(@RequestParam Long id)
+    {
+        userService.activateUser(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

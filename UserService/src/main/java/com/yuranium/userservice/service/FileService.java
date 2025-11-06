@@ -2,11 +2,13 @@ package com.yuranium.userservice.service;
 
 import com.yuranium.userservice.config.s3.BackblazeConfig;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.time.LocalDateTime;
@@ -50,11 +52,15 @@ public class FileService
 
     public void deleteFile(String fileName)
     {
-        DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
-                .bucket(backblazeConfig.getBucketName())
-                .key(fileName)
-                .build();
-        s3Client.deleteObject(deleteObjectRequest);
+        try
+        {
+            DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+                    .bucket(backblazeConfig.getBucketName())
+                    .key(fileName)
+                    .build();
+            s3Client.deleteObject(deleteObjectRequest);
+
+        } catch (NoSuchKeyException ignored) {}
     }
 
 //    public byte[] downloadFile(String fileKey)
@@ -67,6 +73,16 @@ public class FileService
 //        ResponseBytes<GetObjectResponse> objectBytes = s3Client.getObjectAsBytes(getObjectRequest);
 //        return objectBytes.asByteArray();
 //    }
+
+    @SneakyThrows
+    public String updateFile(String fileName, MultipartFile file)
+    {
+        if (fileName == null || fileName.isEmpty() || file == null || file.isEmpty())
+            return null;
+
+        deleteFile(fileName);
+        return uploadFile(file);
+    }
 
     private String generateFileUrl(String fileKey)
     {
