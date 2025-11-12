@@ -16,7 +16,10 @@ spring:
     open-in-view: false
     show-sql: true
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
   ai:
     ollama:
@@ -24,12 +27,9 @@ spring:
       chat:
         model: deepseek-r1:1.5b
         options:
-          temperature: 0.7
-    chat:
-      memory:
-        repository:
-          jdbc:
-            initialize-schema: always
+          temperature: 0.3
+app:
+  maxMessages: 10
 
 logging:
   level:

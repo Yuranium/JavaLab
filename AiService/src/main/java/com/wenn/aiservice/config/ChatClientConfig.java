@@ -1,11 +1,12 @@
 package com.wenn.aiservice.config;
 
+import com.wenn.aiservice.service.AiChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.memory.ChatMemory;
-import org.springframework.ai.chat.memory.MessageWindowChatMemory;
-import org.springframework.ai.chat.memory.repository.jdbc.JdbcChatMemoryRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -14,26 +15,30 @@ import org.springframework.context.annotation.Configuration;
 @RequiredArgsConstructor
 public class ChatClientConfig {
 
-    private final JdbcChatMemoryRepository chatMemoryRepository;
+    private final AiChatService aiChatService;
+
+
+    @Value("${app.maxMessages}")
+    private int maxMessage;
 
     @Bean
-    public ChatMemory chatMemory() {
+    public ChatClient chatClient(ChatClient.Builder chatClientBuilder) {
 
-        return MessageWindowChatMemory.builder()
-                .chatMemoryRepository(chatMemoryRepository)
-                .maxMessages(100)
+        return chatClientBuilder
+                .defaultAdvisors(addPostgresAdvisor(1))
                 .build();
     }
 
-    @Bean
-    public ChatClient chatClient(ChatClient.Builder chatClientBuilder, ChatMemory chatMemory) {
-
-        var memoryAdvisor = MessageChatMemoryAdvisor
-                .builder(chatMemory)
+    private Advisor addPostgresAdvisor(int order) {
+        return MessageChatMemoryAdvisor.builder(getPostgresChatMemory())
+                .order(order)
                 .build();
+    }
 
-        return chatClientBuilder
-                .defaultAdvisors(memoryAdvisor)
+    private ChatMemory getPostgresChatMemory() {
+        return CustomPostgresChatMemory.builder()
+                .maxMessages(maxMessage)
+                .aiChatService(aiChatService)
                 .build();
     }
 }
