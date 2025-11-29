@@ -1,5 +1,6 @@
 package com.yuranium.userservice.models.dto;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 public record UserResponseDto(
@@ -16,4 +17,5 @@ public record UserResponseDto(
         LocalDateTime lastLogin,
 
         Boolean activity
-) {}
+
+) implements Serializable {}

@@ -2,6 +2,8 @@ package com.yuranium.userservice.models.dto;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.Serializable;
+
 public record UserRequestDto(
         String username,
 
@@ -14,4 +16,5 @@ public record UserRequestDto(
         String email,
 
         MultipartFile avatar
-) {}
+
+) implements Serializable {}

@@ -12,8 +12,12 @@ import org.springframework.context.annotation.Configuration;
 public class BackblazeConfig
 {
     private String endpoint;
+
     private String region;
+
     private String bucketName;
+
     private String accessKey;
+
     private String applicationKey;
 }
