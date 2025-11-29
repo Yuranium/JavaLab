@@ -17,6 +17,17 @@ spring:
     hibernate:
       ddl-auto: none
 
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      retries: 100
+      properties:
+        enable:
+          idempotence: true
+      acks: all
+
 backblaze:
   b2:
     endpoint: ${BACKBLAZE_ENDPOINT}
@@ -29,3 +40,7 @@ auth:
   jwt:
     secret: ${JWT_SECRET}
     lifetime: ${JWT_LIFETIME:7d}
+
+kafka:
+  topic-names:
+    user-registered: ${USER_CREATED_TOPIC}

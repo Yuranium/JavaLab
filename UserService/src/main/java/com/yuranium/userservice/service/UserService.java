@@ -8,6 +8,7 @@ import com.yuranium.userservice.models.dto.UserUpdateDto;
 import com.yuranium.userservice.models.entity.AuthEntity;
 import com.yuranium.userservice.models.entity.UserEntity;
 import com.yuranium.userservice.repository.UserRepository;
+import com.yuranium.userservice.service.kafka.KafkaSender;
 import com.yuranium.userservice.util.exception.PasswordMissingException;
 import com.yuranium.userservice.util.exception.UserEntityNotCreatedException;
 import com.yuranium.userservice.util.exception.UserEntityNotFoundException;
@@ -33,6 +34,8 @@ public class UserService implements UserDetailsService
     private final UserRepository userRepository;
 
     private final UserMapper userMapper;
+
+    private final KafkaSender kafkaSender;
 
     @Transactional(readOnly = true)
     public Iterable<UserResponseDto> getUsers(PageRequest pageRequest)
@@ -65,7 +68,7 @@ public class UserService implements UserDetailsService
             UserEntity savedUser = userRepository.save(userEntity);
             authService.setAuthForLocalUser(savedUser, userDto);
 
-            // kafkaTemplate.send(savedUser);
+            kafkaSender.sendUserRegisteredEvent(authService.generateAuthCode());
             return userMapper.toResponseDto(savedUser);
         } catch (Exception exc)
         {

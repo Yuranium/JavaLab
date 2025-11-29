@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 @RequiredArgsConstructor
@@ -28,5 +29,10 @@ public class AuthService
         authRepository.save(authEntity);
         user.setAuthMethods(List.of(authEntity));
         return authEntity;
+    }
+
+    public Integer generateAuthCode()
+    {
+        return ThreadLocalRandom.current().nextInt(100000, 1000000);
     }
 }
