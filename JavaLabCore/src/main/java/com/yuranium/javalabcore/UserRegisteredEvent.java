@@ -1,4 +1,4 @@
-package com.yuranium.userservice.models.dto.event;
+package com.yuranium.javalabcore;
 
 import java.io.Serializable;
 

@@ -1,11 +1,11 @@
 package com.yuranium.userservice.service;
 
+import com.yuranium.javalabcore.UserRegisteredEvent;
 import com.yuranium.userservice.mapper.UserMapper;
 import com.yuranium.userservice.models.CustomUserDetails;
 import com.yuranium.userservice.models.dto.UserRequestDto;
 import com.yuranium.userservice.models.dto.UserResponseDto;
 import com.yuranium.userservice.models.dto.UserUpdateDto;
-import com.yuranium.userservice.models.dto.event.UserRegisteredEvent;
 import com.yuranium.userservice.models.entity.AuthEntity;
 import com.yuranium.userservice.models.entity.UserEntity;
 import com.yuranium.userservice.repository.UserRepository;
