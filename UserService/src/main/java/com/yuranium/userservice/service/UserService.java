@@ -5,6 +5,7 @@ import com.yuranium.userservice.models.CustomUserDetails;
 import com.yuranium.userservice.models.dto.UserRequestDto;
 import com.yuranium.userservice.models.dto.UserResponseDto;
 import com.yuranium.userservice.models.dto.UserUpdateDto;
+import com.yuranium.userservice.models.dto.event.UserRegisteredEvent;
 import com.yuranium.userservice.models.entity.AuthEntity;
 import com.yuranium.userservice.models.entity.UserEntity;
 import com.yuranium.userservice.repository.UserRepository;
@@ -68,7 +69,10 @@ public class UserService implements UserDetailsService
             UserEntity savedUser = userRepository.save(userEntity);
             authService.setAuthForLocalUser(savedUser, userDto);
 
-            kafkaSender.sendUserRegisteredEvent(authService.generateAuthCode());
+            kafkaSender.sendUserRegisteredEvent(new UserRegisteredEvent(
+                    savedUser.getId(), savedUser.getUsername(),
+                    savedUser.getEmail(), authService.generateAuthCode()
+            ));
             return userMapper.toResponseDto(savedUser);
         } catch (Exception exc)
         {
