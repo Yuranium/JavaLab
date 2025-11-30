@@ -16,6 +16,8 @@ spring:
           json:
             trusted:
               packages: com.yuranium.javalabcore
+    properties:
+      telemetry.enabled: false
 
 
   mail:

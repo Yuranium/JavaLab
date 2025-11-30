@@ -24,7 +24,7 @@ public class EmailService {
             helper.setText(html, true);
             helper.setTo(toEmail);
             helper.setSubject("Код подтверждения — JavaLab");
-            helper.setFrom("vladyr55555@gmail.com");
+            helper.setFrom("vladyr55555@gmail.com"); // todo в переменные
             mailSender.send(msg);
         } catch (Exception ex) {
             throw new EmailSendException("Failed to send email to " + toEmail + ": " + ex.getMessage(), ex);
