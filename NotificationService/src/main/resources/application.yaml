@@ -1,3 +1,35 @@
+server:
+  port: 8082
+
 spring:
   application:
     name: NotificationService
+
+  kafka:
+    consumer:
+      bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      group-id: ${KAFKA_CONSUMER_GROUP}
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: com.yuranium.javalabcore
+
+
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+kafka:
+  topic-names:
+    user-registered: ${KAFKA_TOPIC_USER_REGISTERED}
