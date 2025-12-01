@@ -21,7 +21,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Service
@@ -143,18 +142,5 @@ public class UserService implements UserDetailsService
                         "The user with username=%s was not found".formatted(username)
                         )
                 );
-    }
-
-    @Transactional(readOnly = true)
-    public void activateUser(Long id)
-    {
-        UserEntity userEntity = userRepository.findById(id)
-                .orElseThrow(() -> new UserEntityNotFoundException(
-                        "User with id=%d not found.".formatted(id)
-                ));
-
-        userEntity.setActivity(true);
-        userEntity.setLastLogin(LocalDateTime.now());
-        userRepository.save(userEntity);
     }
 }

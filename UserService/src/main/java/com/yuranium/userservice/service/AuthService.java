@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
@@ -53,11 +54,17 @@ public class AuthService
         codeRepository.save(confirmEntity);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public void sendConfirmCode(UserRegisteredEvent event)
     {
         if (userRepository.findById(event.id()).isPresent())
-            kafkaSender.sendUserRegisteredEvent(event);
+        {
+            Integer confirmCode = generateAuthCode();
+            createConfirmCode(event.id(), confirmCode);
+            kafkaSender.sendUserRegisteredEvent(new UserRegisteredEvent(
+                    event.id(), event.username(), event.email(), confirmCode
+            ));
+        }
         else throw new UserEntityNotFoundException(
                 "User with id=%d not found.".formatted(event.id())
         );
@@ -74,6 +81,7 @@ public class AuthService
                             "User with id=%d not found.".formatted(userId)
                     ));
             userEntity.setActivity(true);
+            userEntity.setLastLogin(LocalDateTime.now());
             userRepository.save(userEntity);
             codeRepository.delete(confirmCode.get());
             return true;
