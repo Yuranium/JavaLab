@@ -1,6 +1,8 @@
 package com.yuranium.userservice.controller;
 
+import com.yuranium.javalabcore.UserRegisteredEvent;
 import com.yuranium.userservice.models.dto.UserLoginDto;
+import com.yuranium.userservice.service.AuthService;
 import com.yuranium.userservice.service.UserService;
 import com.yuranium.userservice.util.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,8 @@ public class AuthController
 
     private final UserService userService;
 
+    private final AuthService authService;
+
     @GetMapping("/validate")
     public ResponseEntity<Map<String, Boolean>> validateToken(
             @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader)
@@ -46,6 +50,24 @@ public class AuthController
                 Map.of("token", jwtUtil.generateToken(
                         userService.getUserByUsername(userLogin.username()))
                 ),
+                HttpStatus.OK
+        );
+    }
+
+//    @PostMapping("/send-confirmation-code")
+//    public ResponseEntity<Integer> createConfirmationCode(@RequestBody UserRegisteredEvent event)
+//    {
+//        return new ResponseEntity<>(
+//                authService.sendConfirmCode(event),
+//                HttpStatus.OK
+//        );
+//    }
+
+    @PostMapping("/verify-code")
+    public ResponseEntity<?> validateConfirmationCode(@RequestParam Long userId, @RequestParam String code)
+    {
+        return new ResponseEntity<>(
+                Map.of("accountVerified", authService.verifyCode(userId, code)),
                 HttpStatus.OK
         );
     }
