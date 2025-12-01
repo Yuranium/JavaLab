@@ -54,17 +54,15 @@ public class AuthController
         );
     }
 
-//    @PostMapping("/send-confirmation-code")
-//    public ResponseEntity<Integer> createConfirmationCode(@RequestBody UserRegisteredEvent event)
-//    {
-//        return new ResponseEntity<>(
-//                authService.sendConfirmCode(event),
-//                HttpStatus.OK
-//        );
-//    }
+    @PostMapping("/send-confirmation-code")
+    public ResponseEntity<Integer> createConfirmationCode(@RequestBody UserRegisteredEvent event)
+    {
+        authService.sendConfirmCode(event);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
     @PostMapping("/verify-code")
-    public ResponseEntity<?> validateConfirmationCode(@RequestParam Long userId, @RequestParam String code)
+    public ResponseEntity<?> validateConfirmationCode(@RequestParam Long userId, @RequestParam Integer code)
     {
         return new ResponseEntity<>(
                 Map.of("accountVerified", authService.verifyCode(userId, code)),

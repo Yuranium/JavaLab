@@ -69,10 +69,13 @@ public class UserService implements UserDetailsService
             UserEntity savedUser = userRepository.save(userEntity);
             authService.setAuthForLocalUser(savedUser, userDto);
 
+            Integer confirmCode = authService.generateAuthCode();
             kafkaSender.sendUserRegisteredEvent(new UserRegisteredEvent(
                     savedUser.getId(), savedUser.getUsername(),
-                    savedUser.getEmail(), authService.generateAuthCode()
+                    savedUser.getEmail(), confirmCode
             ));
+
+            authService.createConfirmCode(savedUser.getId(), confirmCode);
             return userMapper.toResponseDto(savedUser);
         } catch (Exception exc)
         {

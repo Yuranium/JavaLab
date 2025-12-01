@@ -1,5 +1,6 @@
 package com.yuranium.userservice.service;
 
+import com.yuranium.javalabcore.UserRegisteredEvent;
 import com.yuranium.userservice.models.dto.UserRequestDto;
 import com.yuranium.userservice.models.entity.AuthEntity;
 import com.yuranium.userservice.models.entity.ConfirmationCodeEntity;
@@ -7,6 +8,7 @@ import com.yuranium.userservice.models.entity.UserEntity;
 import com.yuranium.userservice.repository.AuthRepository;
 import com.yuranium.userservice.repository.ConfirmCodeRepository;
 import com.yuranium.userservice.repository.UserRepository;
+import com.yuranium.userservice.service.kafka.KafkaSender;
 import com.yuranium.userservice.util.exception.UserEntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,6 +31,8 @@ public class AuthService
 
     private final ConfirmCodeRepository codeRepository;
 
+    private final KafkaSender kafkaSender;
+
     @Transactional
     public AuthEntity setAuthForLocalUser(UserEntity user, UserRequestDto userDto)
     {
@@ -40,13 +44,27 @@ public class AuthService
         return authEntity;
     }
 
-    public Integer generateAuthCode()
+    @Transactional
+    public void createConfirmCode(Long userId, Integer confirmCode)
     {
-        return ThreadLocalRandom.current().nextInt(100000, 1000000);
+        ConfirmationCodeEntity confirmEntity = new ConfirmationCodeEntity();
+        confirmEntity.setUserId(userId);
+        confirmEntity.setCode(confirmCode);
+        codeRepository.save(confirmEntity);
+    }
+
+    @Transactional(readOnly = true)
+    public void sendConfirmCode(UserRegisteredEvent event)
+    {
+        if (userRepository.findById(event.id()).isPresent())
+            kafkaSender.sendUserRegisteredEvent(event);
+        else throw new UserEntityNotFoundException(
+                "User with id=%d not found.".formatted(event.id())
+        );
     }
 
     @Transactional
-    public Boolean verifyCode(Long userId, String code)
+    public Boolean verifyCode(Long userId, Integer code)
     {
         Optional<ConfirmationCodeEntity> confirmCode = codeRepository.findByUserIdAndCode(userId, code);
         if (confirmCode.isPresent())
@@ -61,5 +79,10 @@ public class AuthService
             return true;
         }
         else return false;
+    }
+
+    public Integer generateAuthCode()
+    {
+        return ThreadLocalRandom.current().nextInt(100000, 1000000);
     }
 }

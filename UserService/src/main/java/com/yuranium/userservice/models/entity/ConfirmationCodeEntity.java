@@ -23,5 +23,5 @@ public class ConfirmationCodeEntity
     private Long userId;
 
     @Column(name = "confirmation_code")
-    private String code;
+    private Integer code;
 }
