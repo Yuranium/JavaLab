@@ -19,9 +19,9 @@ public class ConfirmationCodeEntity
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id")
+    @Column(name = "id_user")
     private Long userId;
 
-    @Column(name = "confirmation_code")
+    @Column(name = "code")
     private Integer code;
 }

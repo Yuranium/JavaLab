@@ -48,7 +48,7 @@ public class AuthController
 
         return new ResponseEntity<>(
                 Map.of("token", jwtUtil.generateToken(
-                        userService.getUserByUsername(userLogin.username()))
+                        userService.loginToUserAccount(userLogin.username()))
                 ),
                 HttpStatus.OK
         );
@@ -61,11 +61,11 @@ public class AuthController
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping("/verify-code")
+    @PostMapping("/verify-account")
     public ResponseEntity<?> validateConfirmationCode(@RequestParam Long userId, @RequestParam Integer code)
     {
         return new ResponseEntity<>(
-                Map.of("accountVerified", authService.verifyCode(userId, code)),
+                Map.of("accountVerified", authService.verifyAccount(userId, code)),
                 HttpStatus.OK
         );
     }

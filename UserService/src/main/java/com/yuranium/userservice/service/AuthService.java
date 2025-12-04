@@ -71,7 +71,7 @@ public class AuthService
     }
 
     @Transactional
-    public Boolean verifyCode(Long userId, Integer code)
+    public Boolean verifyAccount(Long userId, Integer code)
     {
         Optional<ConfirmationCodeEntity> confirmCode = codeRepository.findByUserIdAndCode(userId, code);
         if (confirmCode.isPresent())
