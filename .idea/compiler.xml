@@ -39,6 +39,15 @@
         <module name="NotificationService" />
         <module name="AiService" />
       </profile>
+      <profile name="Annotation profile for TaskService" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.42/lombok-1.18.42.jar" />
+        </processorPath>
+        <module name="TaskService" />
+      </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
@@ -47,6 +56,7 @@
       <module name="JavaLabCore" options="-parameters" />
       <module name="NotificationService" options="-parameters" />
       <module name="ProgressService" options="-parameters" />
+      <module name="TaskService" options="-parameters" />
       <module name="UserService" options="-parameters" />
     </option>
   </component>
