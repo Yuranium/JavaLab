@@ -1,3 +1,6 @@
+CREATE DATABASE user_service_main;
+\c user_service_main;
+
 DROP TABLE IF EXISTS public.user, auth CASCADE;
 
 CREATE TABLE IF NOT EXISTS public.user
@@ -25,4 +28,4 @@ CREATE TABLE IF NOT EXISTS auth
 
     UNIQUE (auth_type, auth_provider_id),
     UNIQUE (id_user, auth_type)
-)
+);

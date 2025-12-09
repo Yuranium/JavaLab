@@ -1,3 +1,12 @@
 spring:
   application:
     name: TaskService
+
+  datasource:
+    url: jdbc:postgresql://${PG_ENDPOINT:localhost:5432}/${PG_DATABASE}
+    username: ${PG_USERNAME}
+    password: ${PG_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jooq:
+    sql-dialect: postgres

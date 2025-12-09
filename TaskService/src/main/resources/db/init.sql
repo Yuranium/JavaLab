@@ -1,3 +1,6 @@
+CREATE DATABASE task_service_main;
+\c task_service_main;
+
 DROP TABLE IF EXISTS task, category, starter_code, test_case, task_category CASCADE;
 
 CREATE TABLE IF NOT EXISTS task
