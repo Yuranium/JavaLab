@@ -66,11 +66,4 @@ public class UserController
         userService.deleteUser(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
-    @GetMapping("/activate")
-    public ResponseEntity<?> activateUser(@RequestParam Long id)
-    {
-        userService.activateUser(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
 }

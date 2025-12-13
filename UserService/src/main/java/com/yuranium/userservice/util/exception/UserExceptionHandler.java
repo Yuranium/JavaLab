@@ -14,29 +14,39 @@ public class UserExceptionHandler
     public ResponseEntity<ExceptionBody> handleException(UserEntityNotFoundException exc)
     {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ExceptionBody(HttpStatus.NOT_FOUND,
-                        LocalDateTime.now(),
-                        exc.getMessage())
-                );
+                .body(createExceptionBody(HttpStatus.NOT_FOUND, exc.getMessage()));
     }
 
     @ExceptionHandler(UserEntityNotCreatedException.class)
     public ResponseEntity<ExceptionBody> handleException(UserEntityNotCreatedException exc)
     {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ExceptionBody(HttpStatus.INTERNAL_SERVER_ERROR,
-                        LocalDateTime.now(),
-                        exc.getMessage())
-                );
+                .body(createExceptionBody(HttpStatus.INTERNAL_SERVER_ERROR, exc.getMessage()));
     }
 
     @ExceptionHandler(PasswordMissingException.class)
     public ResponseEntity<ExceptionBody> handleException(PasswordMissingException exc)
     {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(new ExceptionBody(HttpStatus.UNAUTHORIZED,
-                        LocalDateTime.now(),
-                        exc.getMessage())
-                );
+                .body(createExceptionBody(HttpStatus.UNAUTHORIZED, exc.getMessage()));
+    }
+
+    @ExceptionHandler(ConfirmationCodeNotFoundException.class)
+    public ResponseEntity<ExceptionBody> handleException(ConfirmationCodeNotFoundException exc)
+    {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(createExceptionBody(HttpStatus.NOT_FOUND, exc.getMessage()));
+    }
+
+    @ExceptionHandler(ConfirmationCodeExpiredException.class)
+    public ResponseEntity<ExceptionBody> handleException(ConfirmationCodeExpiredException exc)
+    {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(createExceptionBody(HttpStatus.BAD_REQUEST, exc.getMessage()));
+    }
+
+    private ExceptionBody createExceptionBody(HttpStatus status, String message)
+    {
+        return new ExceptionBody(status, LocalDateTime.now(), message);
     }
 }

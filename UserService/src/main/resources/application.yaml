@@ -41,6 +41,9 @@ auth:
     secret: ${JWT_SECRET}
     lifetime: ${JWT_LIFETIME:7d}
 
+  confirmation-code:
+    lifetime: 15m
+
 kafka:
   topic-names:
     user-registered: ${USER_CREATED_TOPIC}

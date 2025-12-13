@@ -69,10 +69,13 @@ public class UserService implements UserDetailsService
             UserEntity savedUser = userRepository.save(userEntity);
             authService.setAuthForLocalUser(savedUser, userDto);
 
+            Integer confirmCode = authService.generateAuthCode();
             kafkaSender.sendUserRegisteredEvent(new UserRegisteredEvent(
                     savedUser.getId(), savedUser.getUsername(),
-                    savedUser.getEmail(), authService.generateAuthCode()
+                    savedUser.getEmail(), confirmCode
             ));
+
+            authService.createConfirmCode(savedUser.getId(), confirmCode);
             return userMapper.toResponseDto(savedUser);
         } catch (Exception exc)
         {
@@ -132,26 +135,15 @@ public class UserService implements UserDetailsService
         );
     }
 
-    @Transactional(readOnly = true)
-    public UserEntity getUserByUsername(String username)
+    @Transactional
+    public UserEntity loginToUserAccount(String username)
     {
-        return userRepository.findByUsername(username)
+        UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException(
-                        "The user with username=%s was not found".formatted(username)
+                                "The user with username=%s was not found".formatted(username)
                         )
                 );
-    }
-
-    @Transactional(readOnly = true)
-    public void activateUser(Long id)
-    {
-        UserEntity userEntity = userRepository.findById(id)
-                .orElseThrow(() -> new UserEntityNotFoundException(
-                        "User with id=%d not found.".formatted(id)
-                ));
-
-        userEntity.setActivity(true);
-        userEntity.setLastLogin(LocalDateTime.now());
-        userRepository.save(userEntity);
+        user.setLastLogin(LocalDateTime.now());
+        return userRepository.save(user);
     }
 }
