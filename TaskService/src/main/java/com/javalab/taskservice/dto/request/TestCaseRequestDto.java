@@ -1,4 +1,4 @@
-package com.javalab.taskservice.dto;
+package com.javalab.taskservice.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

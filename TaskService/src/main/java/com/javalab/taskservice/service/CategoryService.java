@@ -1,6 +1,6 @@
 package com.javalab.taskservice.service;
 
-import com.javalab.taskservice.dto.CategoryResponseDto;
+import com.javalab.taskservice.dto.response.CategoryResponseDto;
 import com.javalab.taskservice.mapper.CategoryMapper;
 import com.javalab.taskservice.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;

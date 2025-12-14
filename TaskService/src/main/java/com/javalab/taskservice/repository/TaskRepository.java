@@ -1,6 +1,6 @@
 package com.javalab.taskservice.repository;
 
-import com.javalab.taskservice.dto.TaskRequestDto;
+import com.javalab.taskservice.dto.request.TaskRequestDto;
 import com.javalab.taskservice.tables.records.TaskRecord;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;

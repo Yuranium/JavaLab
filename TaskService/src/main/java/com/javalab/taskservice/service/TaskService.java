@@ -1,7 +1,8 @@
 package com.javalab.taskservice.service;
 
-import com.javalab.taskservice.dto.TaskRequestDto;
-import com.javalab.taskservice.dto.TaskResponseDto;
+import com.javalab.taskservice.dto.response.TaskCreatedResponseDto;
+import com.javalab.taskservice.dto.request.TaskRequestDto;
+import com.javalab.taskservice.dto.response.TaskResponseDto;
 import com.javalab.taskservice.mapper.TaskMapper;
 import com.javalab.taskservice.repository.TaskRepository;
 import com.javalab.taskservice.tables.records.TaskRecord;
@@ -21,6 +22,8 @@ public class TaskService
 
     private final CategoryService categoryService;
 
+    private final StarterCodeService starterCodeService;
+
     public Collection<TaskResponseDto> getAllTasks(Integer page, Integer size)
     {
         return taskRepository.getAllTasks(page, size)
@@ -37,11 +40,15 @@ public class TaskService
         ));
     }
 
-    public TaskResponseDto createTask(TaskRequestDto taskDto)
+    public TaskCreatedResponseDto createTask(TaskRequestDto taskDto)
     {
         TaskRecord savedTask = taskRepository.saveTask(taskDto);
-        categoryService.saveCategory(savedTask.getIdTask(), taskDto.categories());
-        return taskMapper.toResponseDto(savedTask);
+
+        return new TaskCreatedResponseDto( // todo изменить логику. Удалить TaskCreatedResponseDto
+                taskMapper.toResponseDto(savedTask),
+                categoryService.saveCategory(savedTask.getIdTask(), taskDto.categories()),
+                starterCodeService.createStarterCode(savedTask.getIdTask(), taskDto.starterCode())
+        );
     }
 
     public TaskResponseDto updateTask(Long id, TaskRequestDto taskDto)

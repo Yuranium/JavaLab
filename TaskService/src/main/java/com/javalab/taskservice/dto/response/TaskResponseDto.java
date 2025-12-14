@@ -1,4 +1,4 @@
-package com.javalab.taskservice.dto;
+package com.javalab.taskservice.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -6,11 +6,19 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record CategoryResponseDto(
+public record TaskResponseDto(
+        Long idTask,
+
         String title,
 
         String description,
 
-        LocalDateTime createdAt
+        String difficulty,
+
+        LocalDateTime createdAt,
+
+        LocalDateTime updatedAt,
+
+        Long idAuthor
 
 ) implements Serializable {}

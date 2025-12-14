@@ -1,7 +1,8 @@
 package com.javalab.taskservice.controller;
 
-import com.javalab.taskservice.dto.TaskRequestDto;
-import com.javalab.taskservice.dto.TaskResponseDto;
+import com.javalab.taskservice.dto.response.TaskCreatedResponseDto;
+import com.javalab.taskservice.dto.request.TaskRequestDto;
+import com.javalab.taskservice.dto.response.TaskResponseDto;
 import com.javalab.taskservice.enums.DifficultyType;
 import com.javalab.taskservice.service.CategoryService;
 import com.javalab.taskservice.service.TaskService;
@@ -46,7 +47,7 @@ public class TaskController
     }
 
     @PostMapping
-    public ResponseEntity<@NonNull TaskResponseDto> createTask(@RequestBody TaskRequestDto taskDto)
+    public ResponseEntity<@NonNull TaskCreatedResponseDto> createTask(@RequestBody TaskRequestDto taskDto)
     {
         return new ResponseEntity<>(
                 taskService.createTask(taskDto),
@@ -86,10 +87,7 @@ public class TaskController
     }
 
     @GetMapping("/difficulty")
-    public ResponseEntity<?> getDifficulties(
-            @RequestParam(value = "page", defaultValue = "0") Integer page,
-            @RequestParam(value = "size", defaultValue = "30") Integer size
-    )
+    public ResponseEntity<?> getDifficulties()
     {
         return new ResponseEntity<>(
                 List.of(DifficultyType.values()),

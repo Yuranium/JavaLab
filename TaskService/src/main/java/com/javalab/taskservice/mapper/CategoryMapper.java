@@ -1,6 +1,6 @@
 package com.javalab.taskservice.mapper;
 
-import com.javalab.taskservice.dto.CategoryResponseDto;
+import com.javalab.taskservice.dto.response.CategoryResponseDto;
 import com.javalab.taskservice.tables.records.CategoryRecord;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;

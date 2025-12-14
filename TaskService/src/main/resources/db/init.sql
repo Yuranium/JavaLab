@@ -18,15 +18,15 @@ CREATE TABLE IF NOT EXISTS category
 (
     id_category BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     title       VARCHAR(127) UNIQUE NOT NULL,
-    description TEXT NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT current_timestamp
+    description TEXT                NOT NULL,
+    created_at  TIMESTAMP           NOT NULL DEFAULT current_timestamp
 );
 
 CREATE TABLE IF NOT EXISTS starter_code
 (
     id_code    BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     code       TEXT,
-    is_default BOOLEAN NOT NULL DEFAULT true,
+    is_default BOOLEAN DEFAULT true,
     id_task    BIGINT UNIQUE REFERENCES task (id_task) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -48,8 +48,31 @@ CREATE TABLE IF NOT EXISTS task_category
 CREATE INDEX IF NOT EXISTS author_id_idx ON task (id_author);
 
 INSERT INTO category(title, description)
-VALUES
-('JAVA_CORE', 'Основы языка, ООП, синтаксис, примитивные типы, исключения'),
-('JAVA_COLLECTIONS', 'Работа со структурами данных: List, Set, Map, их реализациями'),
-('JAVA_LAMBDAS', 'Лямбда-выражения, функциональные интерфейсы, ссылки на методы и конструкторы'),
-('JAVA_STREAM_API', 'Функциональная обработка коллекций: filter, map, reduce, лямбда-выражения');
+VALUES ('JAVA_CORE', 'Основы языка, ООП, синтаксис, примитивные типы, исключения'),
+       ('JAVA_COLLECTIONS', 'Работа со структурами данных: List, Set, Map, их реализациями'),
+       ('JAVA_LAMBDAS', 'Лямбда-выражения, функциональные интерфейсы, ссылки на методы и конструкторы'),
+       ('JAVA_STREAM_API', 'Функциональная обработка коллекций: filter, map, reduce, лямбда-выражения');
+
+CREATE OR REPLACE FUNCTION set_default_starter_code()
+    RETURNS TRIGGER AS
+$$
+BEGIN
+    IF NEW.is_default OR NEW.is_default IS NULL THEN
+        NEW.is_default = true;
+        NEW.code :=
+                'public class Main {
+                    public static void main(String[] args) {
+                        System.out.println("Hello, World!");
+                    }
+                }';
+    END IF;
+    RETURN NEW;
+END;
+$$
+    LANGUAGE plpgsql;
+
+CREATE TRIGGER check_starter_code
+    BEFORE INSERT
+    ON starter_code
+    FOR EACH ROW
+EXECUTE FUNCTION set_default_starter_code();

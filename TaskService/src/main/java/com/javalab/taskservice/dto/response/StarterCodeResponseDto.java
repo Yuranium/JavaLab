@@ -1,8 +1,8 @@
-package com.javalab.taskservice.dto;
+package com.javalab.taskservice.dto.response;
 
 import java.io.Serializable;
 
-public record StarterCodeRequestDto(
+public record StarterCodeResponseDto(
         String code,
 
         Boolean isDefault
