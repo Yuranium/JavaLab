@@ -4,9 +4,12 @@ import com.javalab.taskservice.dto.TaskRequestDto;
 import com.javalab.taskservice.dto.TaskResponseDto;
 import com.javalab.taskservice.mapper.TaskMapper;
 import com.javalab.taskservice.repository.TaskRepository;
+import com.javalab.taskservice.tables.records.TaskRecord;
 import com.javalab.taskservice.util.exception.TaskNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.Collection;
 
 @Service
 @RequiredArgsConstructor
@@ -16,7 +19,9 @@ public class TaskService
 
     private final TaskMapper taskMapper;
 
-    public Iterable<TaskResponseDto> getAllTasks(Integer page, Integer size)
+    private final CategoryService categoryService;
+
+    public Collection<TaskResponseDto> getAllTasks(Integer page, Integer size)
     {
         return taskRepository.getAllTasks(page, size)
                 .map(taskMapper::toResponseDto);
@@ -34,9 +39,9 @@ public class TaskService
 
     public TaskResponseDto createTask(TaskRequestDto taskDto)
     {
-        return taskMapper.toResponseDto(
-                taskRepository.saveTask(taskDto)
-        );
+        TaskRecord savedTask = taskRepository.saveTask(taskDto);
+        categoryService.saveCategory(savedTask.getIdTask(), taskDto.categories());
+        return taskMapper.toResponseDto(savedTask);
     }
 
     public TaskResponseDto updateTask(Long id, TaskRequestDto taskDto)

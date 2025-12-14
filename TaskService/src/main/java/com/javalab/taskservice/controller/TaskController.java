@@ -2,6 +2,7 @@ package com.javalab.taskservice.controller;
 
 import com.javalab.taskservice.dto.TaskRequestDto;
 import com.javalab.taskservice.dto.TaskResponseDto;
+import com.javalab.taskservice.enums.DifficultyType;
 import com.javalab.taskservice.service.CategoryService;
 import com.javalab.taskservice.service.TaskService;
 import lombok.NonNull;
@@ -9,6 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Collection;
+import java.util.List;
 
 @RestController
 @CrossOrigin("*")
@@ -21,7 +25,7 @@ public class TaskController
     private final CategoryService categoryService;
 
     @GetMapping
-    public ResponseEntity<@NonNull Iterable<TaskResponseDto>> getAllTasks(
+    public ResponseEntity<@NonNull Collection<TaskResponseDto>> getAllTasks(
             @RequestParam("page") Integer page,
             @RequestParam("size") Integer size
     )
@@ -77,6 +81,18 @@ public class TaskController
     {
         return new ResponseEntity<>(
                 categoryService.getCategories(page, size),
+                HttpStatus.OK
+        );
+    }
+
+    @GetMapping("/difficulty")
+    public ResponseEntity<?> getDifficulties(
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "size", defaultValue = "30") Integer size
+    )
+    {
+        return new ResponseEntity<>(
+                List.of(DifficultyType.values()),
                 HttpStatus.OK
         );
     }

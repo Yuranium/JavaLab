@@ -1,9 +1,12 @@
 package com.javalab.taskservice.service;
 
 import com.javalab.taskservice.dto.CategoryResponseDto;
+import com.javalab.taskservice.mapper.CategoryMapper;
 import com.javalab.taskservice.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.Collection;
 
 @Service
 @RequiredArgsConstructor
@@ -11,8 +14,19 @@ public class CategoryService
 {
     private final CategoryRepository categoryRepository;
 
-    public Iterable<CategoryResponseDto> getCategories(Integer page, Integer size)
+    private final CategoryMapper categoryMapper;
+
+    public Collection<CategoryResponseDto> getCategories(Integer page, Integer size)
     {
         return categoryRepository.getCategories(page, size);
+    }
+
+    public Collection<CategoryResponseDto> saveCategory(
+            Long taskId, Collection<String> categories
+    )
+    {
+        return categoryMapper.toResponseDto(
+                categoryRepository.saveCategories(taskId, categories)
+        );
     }
 }

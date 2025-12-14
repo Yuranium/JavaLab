@@ -3,6 +3,7 @@ package com.javalab.taskservice.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.io.Serializable;
+import java.util.Collection;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record TaskRequestDto(
@@ -12,6 +13,12 @@ public record TaskRequestDto(
 
         String difficulty,
 
-        Long idAuthor
+        Long idAuthor,
+
+        StarterCodeRequestDto starterCode,
+
+        Collection<String> categories,
+
+        Collection<TestCaseRequestDto> testCases
 
 ) implements Serializable {}

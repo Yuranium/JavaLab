@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS task
 CREATE TABLE IF NOT EXISTS category
 (
     id_category BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    title       VARCHAR(127) NOT NULL,
+    title       VARCHAR(127) UNIQUE NOT NULL,
     description TEXT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT current_timestamp
 );
