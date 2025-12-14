@@ -29,15 +29,15 @@ public class TaskController
         );
     }
 
-    //    @GetMapping("/{id}")
-//    public ResponseEntity<TaskResponseDto> getTask(@PathVariable Long id)
-//    {
-//        return new ResponseEntity<>(
-//                taskService.getTask(id),
-//                HttpStatus.OK
-//        );
-//    }
-//
+    @GetMapping("/{id}")
+    public ResponseEntity<@NonNull TaskResponseDto> getTask(@PathVariable Long id)
+    {
+        return new ResponseEntity<>(
+                taskService.getTask(id),
+                HttpStatus.OK
+        );
+    }
+
     @PostMapping
     public ResponseEntity<@NonNull TaskResponseDto> createTask(@RequestBody TaskRequestDto taskDto)
     {
@@ -46,23 +46,23 @@ public class TaskController
                 HttpStatus.CREATED
         );
     }
-//
-//    @PatchMapping("/{id}")
-//    public ResponseEntity<TaskResponseDto> updateTask(
-//            @PathVariable Long id,
-//            @ModelAttribute TaskUpdateDto taskDto
-//    )
-//    {
-//        return new ResponseEntity<>(
-//                taskService.updateTask(id, taskDto),
-//                HttpStatus.OK
-//        );
-//    }
-//
-//    @DeleteMapping("/{id}")
-//    public ResponseEntity<?> deleteTask(@PathVariable Long id)
-//    {
-//        taskService.deleteTask(id);
-//        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-//    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<@NonNull TaskResponseDto> updateTask(
+            @PathVariable Long id,
+            @RequestBody TaskRequestDto taskDto
+    )
+    {
+        return new ResponseEntity<>(
+                taskService.updateTask(id, taskDto),
+                HttpStatus.OK
+        );
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteTask(@PathVariable Long id)
+    {
+        taskService.deleteTask(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }

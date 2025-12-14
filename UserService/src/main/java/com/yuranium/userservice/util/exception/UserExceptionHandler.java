@@ -5,7 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.time.LocalDateTime;
 
 @RestControllerAdvice
 public class UserExceptionHandler
@@ -15,7 +14,6 @@ public class UserExceptionHandler
     {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ExceptionBody(HttpStatus.NOT_FOUND,
-                        LocalDateTime.now(),
                         exc.getMessage())
                 );
     }
@@ -25,7 +23,6 @@ public class UserExceptionHandler
     {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ExceptionBody(HttpStatus.INTERNAL_SERVER_ERROR,
-                        LocalDateTime.now(),
                         exc.getMessage())
                 );
     }
@@ -35,7 +32,6 @@ public class UserExceptionHandler
     {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new ExceptionBody(HttpStatus.UNAUTHORIZED,
-                        LocalDateTime.now(),
                         exc.getMessage())
                 );
     }

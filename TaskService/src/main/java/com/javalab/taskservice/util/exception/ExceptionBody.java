@@ -1,10 +1,11 @@
-package com.yuranium.userservice.util.exception;
+package com.javalab.taskservice.util.exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+
 
 @Getter
 public class ExceptionBody implements Serializable

@@ -4,6 +4,7 @@ import com.javalab.taskservice.dto.TaskRequestDto;
 import com.javalab.taskservice.dto.TaskResponseDto;
 import com.javalab.taskservice.mapper.TaskMapper;
 import com.javalab.taskservice.repository.TaskRepository;
+import com.javalab.taskservice.util.exception.TaskNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,10 +22,42 @@ public class TaskService
                 .map(taskMapper::toResponseDto);
     }
 
+    public TaskResponseDto getTask(Long id)
+    {
+        return taskMapper.toResponseDto(taskRepository.getTask(id)
+                .orElseThrow(
+                        () -> new TaskNotFoundException(
+                                "Task with id=%d not found".formatted(id)
+                )
+        ));
+    }
+
     public TaskResponseDto createTask(TaskRequestDto taskDto)
     {
         return taskMapper.toResponseDto(
                 taskRepository.saveTask(taskDto)
         );
+    }
+
+    public TaskResponseDto updateTask(Long id, TaskRequestDto taskDto)
+    {
+        return taskMapper.toResponseDto(taskRepository
+                .updateTask(id, taskDto)
+                .orElseThrow(
+                        () -> new TaskNotFoundException(
+                                "Task with id=%d not found".formatted(id)
+                        )
+                )
+        );
+    }
+
+    public void deleteTask(Long id)
+    {
+        taskRepository.deleteTask(id)
+                .orElseThrow(
+                        () -> new TaskNotFoundException(
+                                "Task with id=%d not found".formatted(id)
+                        )
+                );
     }
 }

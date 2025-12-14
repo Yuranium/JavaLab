@@ -19,7 +19,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Component
@@ -52,7 +51,6 @@ public class JwtFilter extends OncePerRequestFilter
                 response.setContentType(MediaType.APPLICATION_JSON_VALUE);
                 response.getWriter().write(objectMapper.writeValueAsString(
                         new ExceptionBody(HttpStatus.UNAUTHORIZED,
-                                LocalDateTime.now(),
                                 exc.getMessage())
                 ));
                 return;
