@@ -2,6 +2,7 @@ package com.javalab.taskservice.controller;
 
 import com.javalab.taskservice.dto.TaskRequestDto;
 import com.javalab.taskservice.dto.TaskResponseDto;
+import com.javalab.taskservice.service.CategoryService;
 import com.javalab.taskservice.service.TaskService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 public class TaskController
 {
     private final TaskService taskService;
+
+    private final CategoryService categoryService;
 
     @GetMapping
     public ResponseEntity<@NonNull Iterable<TaskResponseDto>> getAllTasks(
@@ -64,5 +67,17 @@ public class TaskController
     {
         taskService.deleteTask(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/category")
+    public ResponseEntity<?> getCategories(
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "size", defaultValue = "30") Integer size
+    )
+    {
+        return new ResponseEntity<>(
+                categoryService.getCategories(page, size),
+                HttpStatus.OK
+        );
     }
 }

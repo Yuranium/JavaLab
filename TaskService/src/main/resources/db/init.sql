@@ -17,7 +17,9 @@ CREATE TABLE IF NOT EXISTS task
 CREATE TABLE IF NOT EXISTS category
 (
     id_category BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    title       VARCHAR(127) NOT NULL
+    title       VARCHAR(127) NOT NULL,
+    description TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT current_timestamp
 );
 
 CREATE TABLE IF NOT EXISTS starter_code
@@ -44,3 +46,10 @@ CREATE TABLE IF NOT EXISTS task_category
 );
 
 CREATE INDEX IF NOT EXISTS author_id_idx ON task (id_author);
+
+INSERT INTO category(title, description)
+VALUES
+('JAVA_CORE', 'Основы языка, ООП, синтаксис, примитивные типы, исключения'),
+('JAVA_COLLECTIONS', 'Работа со структурами данных: List, Set, Map, их реализациями'),
+('JAVA_LAMBDAS', 'Лямбда-выражения, функциональные интерфейсы, ссылки на методы и конструкторы'),
+('JAVA_STREAM_API', 'Функциональная обработка коллекций: filter, map, reduce, лямбда-выражения');

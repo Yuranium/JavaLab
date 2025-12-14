@@ -24,7 +24,7 @@ services:
 
   postgres:
     container_name: postgres
-    image: postgres:16-alpine
+    image: postgres:17-alpine
     restart: "no"
     ports:
       - "${PG_PORT:-5433}:5432"
