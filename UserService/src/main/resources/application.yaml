@@ -4,6 +4,10 @@ server:
 spring:
   application:
     name: UserService
+    scheduler:
+      delete-user:
+        cron: "* * 6 * * *"
+        zone: Europe/Moscow
 
   datasource:
     url: jdbc:postgresql://${PG_ENDPOINT:localhost:5432}/${PG_DATABASE}
