@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS starter_code
 CREATE TABLE IF NOT EXISTS test_case
 (
     id_code         BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    input           TEXT,
     expected_output TEXT,
     is_hidden       BOOLEAN NOT NULL DEFAULT true,
     id_task         BIGINT REFERENCES task (id_task) ON DELETE CASCADE ON UPDATE CASCADE

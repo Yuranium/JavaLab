@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Collection;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record TaskResponseDto(
@@ -19,6 +20,10 @@ public record TaskResponseDto(
 
         LocalDateTime updatedAt,
 
-        Long idAuthor
+        Long idAuthor,
+
+        Collection<CategoryResponseDto> categories,
+
+        StarterCodeResponseDto starterCode
 
 ) implements Serializable {}

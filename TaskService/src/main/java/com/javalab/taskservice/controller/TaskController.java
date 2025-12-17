@@ -1,6 +1,5 @@
 package com.javalab.taskservice.controller;
 
-import com.javalab.taskservice.dto.response.TaskCreatedResponseDto;
 import com.javalab.taskservice.dto.request.TaskRequestDto;
 import com.javalab.taskservice.dto.response.TaskResponseDto;
 import com.javalab.taskservice.enums.DifficultyType;
@@ -47,7 +46,7 @@ public class TaskController
     }
 
     @PostMapping
-    public ResponseEntity<@NonNull TaskCreatedResponseDto> createTask(@RequestBody TaskRequestDto taskDto)
+    public ResponseEntity<@NonNull TaskResponseDto> createTask(@RequestBody TaskRequestDto taskDto)
     {
         return new ResponseEntity<>(
                 taskService.createTask(taskDto),

@@ -1,6 +1,7 @@
 package com.javalab.taskservice.repository;
 
 import com.javalab.taskservice.dto.response.CategoryResponseDto;
+import com.javalab.taskservice.enums.JavaCategory;
 import com.javalab.taskservice.tables.records.CategoryRecord;
 import com.javalab.taskservice.tables.records.TaskCategoryRecord;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +34,7 @@ public class CategoryRepository
     }
 
     @Transactional
-    public Collection<CategoryRecord> saveCategories(Long taskId, Collection<String> categories)
+    public Collection<CategoryRecord> saveCategories(Long taskId, Collection<JavaCategory> categories)
     {
         var categoryRecords = dsl.selectFrom(CATEGORY)
                 .where(CATEGORY.TITLE.in(categories))

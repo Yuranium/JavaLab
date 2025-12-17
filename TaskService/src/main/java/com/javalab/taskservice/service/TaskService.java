@@ -1,6 +1,5 @@
 package com.javalab.taskservice.service;
 
-import com.javalab.taskservice.dto.response.TaskCreatedResponseDto;
 import com.javalab.taskservice.dto.request.TaskRequestDto;
 import com.javalab.taskservice.dto.response.TaskResponseDto;
 import com.javalab.taskservice.mapper.TaskMapper;
@@ -32,23 +31,16 @@ public class TaskService
 
     public TaskResponseDto getTask(Long id)
     {
-        return taskMapper.toResponseDto(taskRepository.getTask(id)
-                .orElseThrow(
-                        () -> new TaskNotFoundException(
-                                "Task with id=%d not found".formatted(id)
-                )
-        ));
+        return taskRepository.getTask(id);
     }
 
-    public TaskCreatedResponseDto createTask(TaskRequestDto taskDto)
+    public TaskResponseDto createTask(TaskRequestDto taskDto)
     {
         TaskRecord savedTask = taskRepository.saveTask(taskDto);
+        categoryService.saveCategory(savedTask.getIdTask(), taskDto.categories());
+        starterCodeService.createStarterCode(savedTask.getIdTask(), taskDto.starterCode());
 
-        return new TaskCreatedResponseDto( // todo изменить логику. Удалить TaskCreatedResponseDto
-                taskMapper.toResponseDto(savedTask),
-                categoryService.saveCategory(savedTask.getIdTask(), taskDto.categories()),
-                starterCodeService.createStarterCode(savedTask.getIdTask(), taskDto.starterCode())
-        );
+        return getTask(savedTask.getIdTask());
     }
 
     public TaskResponseDto updateTask(Long id, TaskRequestDto taskDto)

@@ -6,8 +6,10 @@ import java.io.Serializable;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record TestCaseRequestDto(
-    String expectedOutput,
+        String input,
 
-    Boolean isHidden
+        String expectedOutput,
+
+        Boolean isHidden
 
 ) implements Serializable {}

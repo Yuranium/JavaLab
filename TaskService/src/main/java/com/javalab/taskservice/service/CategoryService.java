@@ -1,6 +1,7 @@
 package com.javalab.taskservice.service;
 
 import com.javalab.taskservice.dto.response.CategoryResponseDto;
+import com.javalab.taskservice.enums.JavaCategory;
 import com.javalab.taskservice.mapper.CategoryMapper;
 import com.javalab.taskservice.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ public class CategoryService
     }
 
     public Collection<CategoryResponseDto> saveCategory(
-            Long taskId, Collection<String> categories
+            Long taskId, Collection<JavaCategory> categories
     )
     {
         return categoryMapper.toResponseDto(
