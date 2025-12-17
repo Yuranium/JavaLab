@@ -17,4 +17,13 @@ public class TaskExceptionHandler
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ExceptionBody(HttpStatus.NOT_FOUND, exc.getMessage()));
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<@NonNull ExceptionBody> handleIllegalArgumentException(
+            IllegalArgumentException exc
+    )
+    {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ExceptionBody(HttpStatus.BAD_REQUEST, exc.getMessage()));
+    }
 }

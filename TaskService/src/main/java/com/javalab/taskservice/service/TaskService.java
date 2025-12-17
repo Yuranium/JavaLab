@@ -23,6 +23,8 @@ public class TaskService
 
     private final StarterCodeService starterCodeService;
 
+    private final TestCaseService testCaseService;
+
     public Collection<TaskResponseDto> getAllTasks(Integer page, Integer size)
     {
         return taskRepository.getAllTasks(page, size)
@@ -37,8 +39,9 @@ public class TaskService
     public TaskResponseDto createTask(TaskRequestDto taskDto)
     {
         TaskRecord savedTask = taskRepository.saveTask(taskDto);
-        categoryService.saveCategory(savedTask.getIdTask(), taskDto.categories());
-        starterCodeService.createStarterCode(savedTask.getIdTask(), taskDto.starterCode());
+        categoryService.saveCategoryForTask(savedTask.getIdTask(), taskDto.categories());
+        starterCodeService.createStarterCodeForTask(savedTask.getIdTask(), taskDto.starterCode());
+        testCaseService.createTestCaseForTask(savedTask.getIdTask(), taskDto.testCases());
 
         return getTask(savedTask.getIdTask());
     }

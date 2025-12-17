@@ -1,5 +1,6 @@
 package com.javalab.taskservice.repository;
 
+import com.javalab.taskservice.dto.request.CategoryRequestDto;
 import com.javalab.taskservice.dto.response.CategoryResponseDto;
 import com.javalab.taskservice.enums.JavaCategory;
 import com.javalab.taskservice.tables.records.CategoryRecord;
@@ -51,5 +52,15 @@ public class CategoryRepository
 
         dsl.batchInsert(taskCategories).execute();
         return categoryRecords;
+    }
+
+    @Transactional
+    public CategoryResponseDto createCategory(CategoryRequestDto category)
+    {
+        return dsl.insertInto(CATEGORY)
+                .set(CATEGORY.TITLE, category.title())
+                .set(CATEGORY.DESCRIPTION, category.description())
+                .returning()
+                .fetchOneInto(CategoryResponseDto.class);
     }
 }

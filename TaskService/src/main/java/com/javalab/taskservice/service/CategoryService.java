@@ -1,5 +1,6 @@
 package com.javalab.taskservice.service;
 
+import com.javalab.taskservice.dto.request.CategoryRequestDto;
 import com.javalab.taskservice.dto.response.CategoryResponseDto;
 import com.javalab.taskservice.enums.JavaCategory;
 import com.javalab.taskservice.mapper.CategoryMapper;
@@ -22,12 +23,22 @@ public class CategoryService
         return categoryRepository.getCategories(page, size);
     }
 
-    public Collection<CategoryResponseDto> saveCategory(
+    public Collection<CategoryResponseDto> saveCategoryForTask(
             Long taskId, Collection<JavaCategory> categories
     )
     {
         return categoryMapper.toResponseDto(
                 categoryRepository.saveCategories(taskId, categories)
         );
+    }
+
+    public CategoryResponseDto createCategory(CategoryRequestDto categoryName)
+    {
+        if (!categoryName.title().startsWith("JAVA_"))
+            throw new IllegalArgumentException(
+                    "Invalid category name. Category name must start with 'JAVA_'"
+            );
+
+        return categoryRepository.createCategory(categoryName);
     }
 }

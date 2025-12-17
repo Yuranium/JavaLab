@@ -15,12 +15,12 @@ public class StarterCodeService
 
     private final StarterCodeMapper starterCodeMapper;
 
-    public StarterCodeResponseDto createStarterCode(
+    public StarterCodeResponseDto createStarterCodeForTask(
             Long taskId, StarterCodeRequestDto starterCodeRequestDto
     )
     {
         return starterCodeMapper.toResponseDto(
-                starterCodeRepository.createStarterCode(taskId, starterCodeRequestDto)
+                starterCodeRepository.createStarterCodeForTask(taskId, starterCodeRequestDto)
         );
     }
 }
