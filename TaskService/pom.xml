@@ -97,7 +97,6 @@
             <groupId>com.yuranium</groupId>
             <artifactId>JavaLabCore</artifactId>
             <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 
@@ -163,8 +162,6 @@
                             <inputSchema>public</inputSchema>
                         </database>
                         <generate>
-                            <daos>true</daos>
-                            <pojos>true</pojos>
                             <fluentSetters>true</fluentSetters>
                         </generate>
                         <target>

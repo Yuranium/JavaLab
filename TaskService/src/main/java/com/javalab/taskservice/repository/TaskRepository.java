@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.javalab.taskservice.Tables.*;
 
@@ -94,7 +93,7 @@ public class TaskRepository
         var task = getTask(id);
 
         var testCases = dsl.select(
-                        TEST_CASE.ID_CODE,
+                        TEST_CASE.ID_CASE,
                         TEST_CASE.INPUT,
                         TEST_CASE.EXPECTED_OUTPUT
                 )
@@ -104,6 +103,14 @@ public class TaskRepository
                 .fetchInto(TestCaseResponseDto.class);
 
         return new TaskDetailedResponseDto(task, testCases);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<TaskRecord> getOnlyTask(Long id)
+    {
+        return dsl.selectFrom(TASK)
+                .where(TASK.ID_TASK.eq(id))
+                .fetchOptional();
     }
 
     @Transactional

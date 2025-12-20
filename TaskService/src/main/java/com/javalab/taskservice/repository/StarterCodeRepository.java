@@ -1,6 +1,7 @@
 package com.javalab.taskservice.repository;
 
 import com.javalab.taskservice.dto.request.StarterCodeRequestDto;
+import com.javalab.taskservice.dto.response.StarterCodeResponseDto;
 import com.javalab.taskservice.tables.records.StarterCodeRecord;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
@@ -15,6 +16,18 @@ public class StarterCodeRepository
 {
     private final DSLContext dsl;
 
+    @Transactional(readOnly = true)
+    public StarterCodeResponseDto getStarterCode(Long taskId)
+    {
+        return dsl.select(
+                        STARTER_CODE.CODE,
+                        STARTER_CODE.IS_DEFAULT
+                )
+                .from(STARTER_CODE)
+                .where(STARTER_CODE.ID_TASK.eq(taskId))
+                .fetchOneInto(StarterCodeResponseDto.class);
+    }
+
     @Transactional
     public StarterCodeRecord createStarterCodeForTask(Long taskId, StarterCodeRequestDto starterCode)
     {
@@ -26,5 +39,15 @@ public class StarterCodeRepository
                     .set(STARTER_CODE.IS_DEFAULT, starterCode.isDefault());
 
         return insert.returning().fetchOne();
+    }
+
+    @Transactional
+    public StarterCodeResponseDto updateStarterCode(Long taskId, StarterCodeRequestDto requestDto)
+    {
+        return dsl.update(STARTER_CODE)
+                .set(STARTER_CODE.CODE, requestDto.code())
+                .where(STARTER_CODE.ID_TASK.eq(taskId))
+                .returning()
+                .fetchOneInto(StarterCodeResponseDto.class);
     }
 }

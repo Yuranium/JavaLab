@@ -76,3 +76,30 @@ CREATE TRIGGER check_starter_code
     ON starter_code
     FOR EACH ROW
 EXECUTE FUNCTION set_default_starter_code();
+
+CREATE OR REPLACE FUNCTION check_starter_code()
+    RETURNS TRIGGER AS
+$$
+DECLARE
+    starter_code TEXT :=
+        'public class Main {
+            public static void main(String[] args) {
+                System.out.println("Hello, World!");
+            }
+        }';
+BEGIN
+    IF NEW.code = starter_code THEN
+        NEW.is_default = true;
+    ELSE
+        NEW.is_default = false;
+    END IF;
+    RETURN NEW;
+END;
+$$
+    LANGUAGE plpgsql;
+
+CREATE TRIGGER check_starter_code_1
+    BEFORE UPDATE
+    ON starter_code
+    FOR EACH ROW
+EXECUTE FUNCTION check_starter_code();
