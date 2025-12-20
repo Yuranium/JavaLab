@@ -1,6 +1,7 @@
 package com.javalab.taskservice.controller;
 
 import com.javalab.taskservice.dto.request.TaskRequestDto;
+import com.javalab.taskservice.dto.response.TaskDetailedResponseDto;
 import com.javalab.taskservice.dto.response.TaskResponseDto;
 import com.javalab.taskservice.enums.DifficultyType;
 import com.javalab.taskservice.service.CategoryService;
@@ -37,7 +38,7 @@ public class TaskController
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<@NonNull TaskResponseDto> getTask(@PathVariable Long id)
+    public ResponseEntity<@NonNull TaskDetailedResponseDto> getTask(@PathVariable Long id)
     {
         return new ResponseEntity<>(
                 taskService.getTask(id),

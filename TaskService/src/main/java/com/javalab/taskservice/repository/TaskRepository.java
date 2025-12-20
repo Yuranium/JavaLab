@@ -1,9 +1,7 @@
 package com.javalab.taskservice.repository;
 
 import com.javalab.taskservice.dto.request.TaskRequestDto;
-import com.javalab.taskservice.dto.response.CategoryResponseDto;
-import com.javalab.taskservice.dto.response.StarterCodeResponseDto;
-import com.javalab.taskservice.dto.response.TaskResponseDto;
+import com.javalab.taskservice.dto.response.*;
 import com.javalab.taskservice.tables.records.TaskRecord;
 import com.javalab.taskservice.util.exception.TaskNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -68,7 +66,7 @@ public class TaskRepository
                         record.get(CATEGORY.CREATED_AT)
                 ))
                 .distinct()
-                .collect(Collectors.toList());
+                .toList();
 
         StarterCodeResponseDto starterCode = null;
         if (firstRecord.get(STARTER_CODE.ID_CODE) != null)
@@ -88,6 +86,24 @@ public class TaskRepository
                 categories,
                 starterCode
         );
+    }
+
+    @Transactional(readOnly = true)
+    public TaskDetailedResponseDto getDetailedTask(Long id)
+    {
+        var task = getTask(id);
+
+        var testCases = dsl.select(
+                        TEST_CASE.ID_CODE,
+                        TEST_CASE.INPUT,
+                        TEST_CASE.EXPECTED_OUTPUT
+                )
+                .from(TEST_CASE)
+                .where(TEST_CASE.ID_TASK.eq(id)
+                        .and(TEST_CASE.IS_HIDDEN.eq(false)))
+                .fetchInto(TestCaseResponseDto.class);
+
+        return new TaskDetailedResponseDto(task, testCases);
     }
 
     @Transactional

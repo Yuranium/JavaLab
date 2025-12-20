@@ -1,6 +1,7 @@
 package com.javalab.taskservice.service;
 
 import com.javalab.taskservice.dto.request.TaskRequestDto;
+import com.javalab.taskservice.dto.response.TaskDetailedResponseDto;
 import com.javalab.taskservice.dto.response.TaskResponseDto;
 import com.javalab.taskservice.mapper.TaskMapper;
 import com.javalab.taskservice.repository.TaskRepository;
@@ -31,9 +32,9 @@ public class TaskService
                 .map(taskMapper::toResponseDto);
     }
 
-    public TaskResponseDto getTask(Long id)
+    public TaskDetailedResponseDto getTask(Long id)
     {
-        return taskRepository.getTask(id);
+        return taskRepository.getDetailedTask(id);
     }
 
     public TaskResponseDto createTask(TaskRequestDto taskDto)
@@ -43,7 +44,7 @@ public class TaskService
         starterCodeService.createStarterCodeForTask(savedTask.getIdTask(), taskDto.starterCode());
         testCaseService.createTestCaseForTask(savedTask.getIdTask(), taskDto.testCases());
 
-        return getTask(savedTask.getIdTask());
+        return taskRepository.getTask(savedTask.getIdTask());
     }
 
     public TaskResponseDto updateTask(Long id, TaskRequestDto taskDto)
