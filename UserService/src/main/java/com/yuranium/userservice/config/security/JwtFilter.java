@@ -1,7 +1,7 @@
 package com.yuranium.userservice.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yuranium.userservice.util.exception.ExceptionBody;
+import com.yuranium.javalabcore.ExceptionBody;
 import com.yuranium.userservice.util.security.JwtUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -50,7 +50,7 @@ public class JwtFilter extends OncePerRequestFilter
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
                 response.setContentType(MediaType.APPLICATION_JSON_VALUE);
                 response.getWriter().write(objectMapper.writeValueAsString(
-                        new ExceptionBody(HttpStatus.UNAUTHORIZED,
+                        new ExceptionBody(HttpStatus.UNAUTHORIZED.value(),
                                 exc.getMessage())
                 ));
                 return;
