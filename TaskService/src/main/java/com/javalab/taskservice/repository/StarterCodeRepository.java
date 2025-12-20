@@ -20,6 +20,7 @@ public class StarterCodeRepository
     public StarterCodeResponseDto getStarterCode(Long taskId)
     {
         return dsl.select(
+                        STARTER_CODE.ID_CODE,
                         STARTER_CODE.CODE,
                         STARTER_CODE.IS_DEFAULT
                 )
@@ -47,7 +48,11 @@ public class StarterCodeRepository
         return dsl.update(STARTER_CODE)
                 .set(STARTER_CODE.CODE, requestDto.code())
                 .where(STARTER_CODE.ID_TASK.eq(taskId))
-                .returning()
+                .returningResult(
+                        STARTER_CODE.ID_CODE,
+                        STARTER_CODE.CODE,
+                        STARTER_CODE.IS_DEFAULT
+                )
                 .fetchOneInto(StarterCodeResponseDto.class);
     }
 }

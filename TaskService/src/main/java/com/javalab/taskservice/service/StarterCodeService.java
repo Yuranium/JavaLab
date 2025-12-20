@@ -5,8 +5,8 @@ import com.javalab.taskservice.dto.response.StarterCodeResponseDto;
 import com.javalab.taskservice.mapper.StarterCodeMapper;
 import com.javalab.taskservice.repository.StarterCodeRepository;
 import com.javalab.taskservice.repository.TaskRepository;
-import com.javalab.taskservice.util.exception.TaskNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,7 +21,10 @@ public class StarterCodeService
 
     public StarterCodeResponseDto getStarterCode(Long taskId)
     {
-        return starterCodeRepository.getStarterCode(taskId);
+        if (taskRepository.getOnlyTask(taskId).isPresent())
+            return starterCodeRepository.getStarterCode(taskId);
+
+        throw new ResourceNotFoundException("The task with id=%d not found".formatted(taskId));
     }
 
     public StarterCodeResponseDto createStarterCodeForTask(
@@ -40,6 +43,8 @@ public class StarterCodeService
         if (taskRepository.getOnlyTask(taskId).isPresent())
             return starterCodeRepository.updateStarterCode(taskId, requestDto);
 
-        throw new TaskNotFoundException("The task with id=%d not found".formatted(taskId));
+        throw new ResourceNotFoundException(
+                "The task with id=%d not found".formatted(taskId)
+        );
     }
 }

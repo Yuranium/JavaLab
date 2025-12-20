@@ -2,6 +2,7 @@ package com.javalab.taskservice.util.exception;
 
 import com.yuranium.javalabcore.ExceptionBody;
 import lombok.NonNull;
+import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -10,9 +11,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class TaskExceptionHandler
 {
-    @ExceptionHandler(TaskNotFoundException.class)
-    public ResponseEntity<@NonNull ExceptionBody> handleTaskNotFoundException(
-            TaskNotFoundException exc
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<@NonNull ExceptionBody> handleResourceNotFoundException(
+            ResourceNotFoundException exc
     )
     {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)

@@ -6,8 +6,8 @@ import com.javalab.taskservice.dto.response.TaskResponseDto;
 import com.javalab.taskservice.mapper.TaskMapper;
 import com.javalab.taskservice.repository.TaskRepository;
 import com.javalab.taskservice.tables.records.TaskRecord;
-import com.javalab.taskservice.util.exception.TaskNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -42,7 +42,7 @@ public class TaskService
         TaskRecord savedTask = taskRepository.saveTask(taskDto);
         categoryService.saveCategoryForTask(savedTask.getIdTask(), taskDto.categories());
         starterCodeService.createStarterCodeForTask(savedTask.getIdTask(), taskDto.starterCode());
-        testCaseService.createTestCaseForTask(savedTask.getIdTask(), taskDto.testCases());
+        testCaseService.createTestCasesForTask(savedTask.getIdTask(), taskDto.testCases());
 
         return taskRepository.getTask(savedTask.getIdTask());
     }
@@ -52,8 +52,8 @@ public class TaskService
         return taskMapper.toResponseDto(taskRepository
                 .updateTask(id, taskDto)
                 .orElseThrow(
-                        () -> new TaskNotFoundException(
-                                "Task with id=%d not found".formatted(id)
+                        () -> new ResourceNotFoundException(
+                                "The task with id=%d not found".formatted(id)
                         )
                 )
         );
@@ -63,8 +63,8 @@ public class TaskService
     {
         taskRepository.deleteTask(id)
                 .orElseThrow(
-                        () -> new TaskNotFoundException(
-                                "Task with id=%d not found".formatted(id)
+                        () -> new ResourceNotFoundException(
+                                "The task with id=%d not found".formatted(id)
                         )
                 );
     }

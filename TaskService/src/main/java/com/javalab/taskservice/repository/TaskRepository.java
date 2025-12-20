@@ -3,11 +3,11 @@ package com.javalab.taskservice.repository;
 import com.javalab.taskservice.dto.request.TaskRequestDto;
 import com.javalab.taskservice.dto.response.*;
 import com.javalab.taskservice.tables.records.TaskRecord;
-import com.javalab.taskservice.util.exception.TaskNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.jooq.DSLContext;
-import org.jooq.Result;
 import org.jooq.Record;
+import org.jooq.Result;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,7 +53,7 @@ public class TaskRepository
                 .fetch();
 
         if (result.isEmpty())
-            throw new TaskNotFoundException("Task with id=%d not found".formatted(id));
+            throw new ResourceNotFoundException("The task with id=%d not found".formatted(id));
 
         Record firstRecord = result.get(0);
 
@@ -70,6 +70,7 @@ public class TaskRepository
         StarterCodeResponseDto starterCode = null;
         if (firstRecord.get(STARTER_CODE.ID_CODE) != null)
             starterCode = new StarterCodeResponseDto(
+                    firstRecord.get(STARTER_CODE.ID_CODE),
                     firstRecord.get(STARTER_CODE.CODE),
                     firstRecord.get(STARTER_CODE.IS_DEFAULT)
             );
