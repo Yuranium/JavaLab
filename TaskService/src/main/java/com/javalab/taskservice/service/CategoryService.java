@@ -5,7 +5,9 @@ import com.javalab.taskservice.dto.response.CategoryResponseDto;
 import com.javalab.taskservice.enums.JavaCategory;
 import com.javalab.taskservice.mapper.CategoryMapper;
 import com.javalab.taskservice.repository.CategoryRepository;
+import com.javalab.taskservice.util.exception.ResourceAlreadyExistsException;
 import lombok.RequiredArgsConstructor;
+import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -23,12 +25,21 @@ public class CategoryService
         return categoryRepository.getCategories(page, size);
     }
 
+    public CategoryResponseDto getCategory(String title)
+    {
+        return categoryRepository.getCategory(title)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                                "The category with title=%s not found".formatted(title)
+                        )
+                );
+    }
+
     public Collection<CategoryResponseDto> saveCategoryForTask(
             Long taskId, Collection<JavaCategory> categories
     )
     {
         return categoryMapper.toResponseDto(
-                categoryRepository.saveCategories(taskId, categories)
+                categoryRepository.saveCategoryForTask(taskId, categories)
         );
     }
 
@@ -40,5 +51,29 @@ public class CategoryService
             );
 
         return categoryRepository.createCategory(categoryName);
+    }
+
+    public CategoryResponseDto updateCategory(String title, CategoryRequestDto categoryDto)
+    {
+        if (!categoryDto.title().startsWith("JAVA_"))
+            throw new IllegalArgumentException(
+                    "Invalid category name. Category name must start with 'JAVA_'"
+            );
+
+        if (categoryRepository.getCategory(categoryDto.title()).isPresent())
+            throw new ResourceAlreadyExistsException(
+                    "The category with title=%s already exists"
+            );
+
+        return categoryRepository.updateCategory(title, categoryDto);
+    }
+
+    public void deleteCategory(String title)
+    {
+        categoryRepository.deleteCategory(title)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                                "The category with title=%s not found".formatted(title)
+                        )
+                );
     }
 }

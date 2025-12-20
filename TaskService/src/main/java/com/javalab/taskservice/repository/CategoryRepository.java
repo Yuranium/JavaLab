@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+import java.util.Optional;
 
 import static com.javalab.taskservice.Tables.CATEGORY;
 
@@ -34,8 +35,21 @@ public class CategoryRepository
                 .fetchInto(CategoryResponseDto.class);
     }
 
+    @Transactional(readOnly = true)
+    public Optional<CategoryResponseDto> getCategory(String title)
+    {
+        return dsl.select(
+                        CATEGORY.TITLE,
+                        CATEGORY.DESCRIPTION,
+                        CATEGORY.CREATED_AT
+                )
+                .from(CATEGORY)
+                .where(CATEGORY.TITLE.eq(title))
+                .fetchOptionalInto(CategoryResponseDto.class);
+    }
+
     @Transactional
-    public Collection<CategoryRecord> saveCategories(Long taskId, Collection<JavaCategory> categories)
+    public Collection<CategoryRecord> saveCategoryForTask(Long taskId, Collection<JavaCategory> categories)
     {
         var categoryRecords = dsl.selectFrom(CATEGORY)
                 .where(CATEGORY.TITLE.in(categories))
@@ -60,7 +74,35 @@ public class CategoryRepository
         return dsl.insertInto(CATEGORY)
                 .set(CATEGORY.TITLE, category.title())
                 .set(CATEGORY.DESCRIPTION, category.description())
-                .returning()
+                .returningResult(
+                        CATEGORY.TITLE,
+                        CATEGORY.DESCRIPTION,
+                        CATEGORY.CREATED_AT
+                )
                 .fetchOneInto(CategoryResponseDto.class);
+    }
+
+    @Transactional
+    public CategoryResponseDto updateCategory(String title, CategoryRequestDto categoryDto)
+    {
+        return dsl.update(CATEGORY)
+                .set(CATEGORY.TITLE, categoryDto.title())
+                .set(CATEGORY.DESCRIPTION, categoryDto.description())
+                .where(CATEGORY.TITLE.eq(title))
+                .returningResult(
+                        CATEGORY.TITLE,
+                        CATEGORY.DESCRIPTION,
+                        CATEGORY.CREATED_AT
+                )
+                .fetchOneInto(CategoryResponseDto.class);
+    }
+
+    @Transactional
+    public Optional<CategoryRecord> deleteCategory(String title)
+    {
+        return dsl.deleteFrom(CATEGORY)
+                .where(CATEGORY.TITLE.eq(title))
+                .returning()
+                .fetchOptional();
     }
 }

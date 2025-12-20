@@ -28,4 +28,13 @@ public class TaskExceptionHandler
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ExceptionBody(HttpStatus.BAD_REQUEST.value(), exc.getMessage()));
     }
+
+    @ExceptionHandler(ResourceAlreadyExistsException.class)
+    public ResponseEntity<@NonNull ExceptionBody> handleResourceAlreadyExistsException(
+            ResourceAlreadyExistsException exc
+    )
+    {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ExceptionBody(HttpStatus.BAD_REQUEST.value(), exc.getMessage()));
+    }
 }

@@ -4,7 +4,6 @@ import com.javalab.taskservice.dto.request.TaskRequestDto;
 import com.javalab.taskservice.dto.response.TaskDetailedResponseDto;
 import com.javalab.taskservice.dto.response.TaskResponseDto;
 import com.javalab.taskservice.enums.DifficultyType;
-import com.javalab.taskservice.service.CategoryService;
 import com.javalab.taskservice.service.TaskService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +21,6 @@ import java.util.List;
 public class TaskController
 {
     private final TaskService taskService;
-
-    private final CategoryService categoryService;
 
     @GetMapping
     public ResponseEntity<@NonNull Collection<TaskResponseDto>> getAllTasks(
@@ -72,18 +69,6 @@ public class TaskController
     {
         taskService.deleteTask(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-    @GetMapping("/category")
-    public ResponseEntity<?> getCategories(
-            @RequestParam(value = "page", defaultValue = "0") Integer page,
-            @RequestParam(value = "size", defaultValue = "30") Integer size
-    )
-    {
-        return new ResponseEntity<>(
-                categoryService.getCategories(page, size),
-                HttpStatus.OK
-        );
     }
 
     @GetMapping("/difficulty")
