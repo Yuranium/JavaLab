@@ -36,13 +36,10 @@ public class TestCaseRepository
     }
 
     @Transactional
-    public Collection<TestCaseRecord> createTestCasesForTask(
+    public Collection<TestCaseResponseDto> createTestCasesForTask(
             Long taskId, Collection<TestCaseRequestDto> testCases
     )
     {
-        if (taskId == null)
-            throw new NullPointerException("taskId is null");
-
         var preparedTestCases = testCases.stream()
                 .map(ts -> {
                     var testCase = new TestCaseRecord();
@@ -55,7 +52,13 @@ public class TestCaseRepository
                 .toList();
 
         dsl.batchInsert(preparedTestCases).execute();
-        return preparedTestCases;
+        return preparedTestCases.stream()
+                .map(ts -> new TestCaseResponseDto(
+                        ts.getIdCase(),
+                        ts.getInput(),
+                        ts.getExpectedOutput()
+                ))
+                .toList();
     }
 
     @Transactional

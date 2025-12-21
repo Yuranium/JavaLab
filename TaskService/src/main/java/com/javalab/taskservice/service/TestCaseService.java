@@ -2,7 +2,6 @@ package com.javalab.taskservice.service;
 
 import com.javalab.taskservice.dto.request.TestCaseRequestDto;
 import com.javalab.taskservice.dto.response.TestCaseResponseDto;
-import com.javalab.taskservice.mapper.TestCaseMapper;
 import com.javalab.taskservice.repository.TaskRepository;
 import com.javalab.taskservice.repository.TestCaseRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,8 +15,6 @@ import java.util.Collection;
 public class TestCaseService
 {
     private final TestCaseRepository testCaseRepository;
-
-    private final TestCaseMapper testCaseMapper;
 
     private final TaskRepository taskRepository;
 
@@ -37,9 +34,10 @@ public class TestCaseService
             Long taskId, Collection<TestCaseRequestDto> testCases
     )
     {
-        return testCaseMapper.toResponseDto(
-                testCaseRepository.createTestCasesForTask(taskId, testCases)
-        );
+        if (taskId == null)
+            throw new NullPointerException("taskId is null");
+
+        return testCaseRepository.createTestCasesForTask(taskId, testCases);
     }
 
     public TestCaseResponseDto updateTestCase(

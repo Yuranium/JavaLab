@@ -2,7 +2,6 @@ package com.javalab.taskservice.service;
 
 import com.javalab.taskservice.dto.request.StarterCodeRequestDto;
 import com.javalab.taskservice.dto.response.StarterCodeResponseDto;
-import com.javalab.taskservice.mapper.StarterCodeMapper;
 import com.javalab.taskservice.repository.StarterCodeRepository;
 import com.javalab.taskservice.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +13,6 @@ import org.springframework.stereotype.Service;
 public class StarterCodeService
 {
     private final StarterCodeRepository starterCodeRepository;
-
-    private final StarterCodeMapper starterCodeMapper;
 
     private final TaskRepository taskRepository;
 
@@ -31,9 +28,10 @@ public class StarterCodeService
             Long taskId, StarterCodeRequestDto starterCodeRequestDto
     )
     {
-        return starterCodeMapper.toResponseDto(
-                starterCodeRepository.createStarterCodeForTask(taskId, starterCodeRequestDto)
-        );
+        if (taskId == null)
+            throw new NullPointerException("taskId is null");
+
+        return starterCodeRepository.createStarterCodeForTask(taskId, starterCodeRequestDto);
     }
 
     public StarterCodeResponseDto updateStarterCode(

@@ -49,7 +49,7 @@ public class CategoryRepository
     }
 
     @Transactional
-    public Collection<CategoryRecord> saveCategoryForTask(Long taskId, Collection<JavaCategory> categories)
+    public Collection<CategoryResponseDto> saveCategoryForTask(Long taskId, Collection<JavaCategory> categories)
     {
         var categoryRecords = dsl.selectFrom(CATEGORY)
                 .where(CATEGORY.TITLE.in(categories))
@@ -65,7 +65,12 @@ public class CategoryRepository
                 .toList();
 
         dsl.batchInsert(taskCategories).execute();
-        return categoryRecords;
+        return categoryRecords
+                .map(category -> new CategoryResponseDto(
+                        category.getTitle(),
+                        category.getDescription(),
+                        category.getCreatedAt()
+                ));
     }
 
     @Transactional
@@ -83,7 +88,7 @@ public class CategoryRepository
     }
 
     @Transactional
-    public CategoryResponseDto updateCategory(String title, CategoryRequestDto categoryDto)
+    public Optional<CategoryResponseDto> updateCategory(String title, CategoryRequestDto categoryDto)
     {
         return dsl.update(CATEGORY)
                 .set(CATEGORY.TITLE, categoryDto.title())
@@ -94,7 +99,7 @@ public class CategoryRepository
                         CATEGORY.DESCRIPTION,
                         CATEGORY.CREATED_AT
                 )
-                .fetchOneInto(CategoryResponseDto.class);
+                .fetchOptionalInto(CategoryResponseDto.class);
     }
 
     @Transactional

@@ -2,7 +2,6 @@ package com.javalab.taskservice.repository;
 
 import com.javalab.taskservice.dto.request.StarterCodeRequestDto;
 import com.javalab.taskservice.dto.response.StarterCodeResponseDto;
-import com.javalab.taskservice.tables.records.StarterCodeRecord;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
@@ -30,7 +29,7 @@ public class StarterCodeRepository
     }
 
     @Transactional
-    public StarterCodeRecord createStarterCodeForTask(Long taskId, StarterCodeRequestDto starterCode)
+    public StarterCodeResponseDto createStarterCodeForTask(Long taskId, StarterCodeRequestDto starterCode)
     {
         var insert = dsl.insertInto(STARTER_CODE)
                 .set(STARTER_CODE.ID_TASK, taskId);
@@ -39,7 +38,12 @@ public class StarterCodeRepository
             insert.set(STARTER_CODE.CODE, starterCode.code())
                     .set(STARTER_CODE.IS_DEFAULT, starterCode.isDefault());
 
-        return insert.returning().fetchOne();
+        return insert.returningResult(
+                        STARTER_CODE.ID_CODE,
+                        STARTER_CODE.CODE,
+                        STARTER_CODE.IS_DEFAULT
+                )
+                .fetchOneInto(StarterCodeResponseDto.class);
     }
 
     @Transactional
