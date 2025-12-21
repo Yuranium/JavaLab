@@ -2,6 +2,8 @@ package com.javalab.taskservice.repository;
 
 import com.javalab.taskservice.dto.request.TaskRequestDto;
 import com.javalab.taskservice.dto.response.*;
+import com.javalab.taskservice.tables.records.CategoryRecord;
+import com.javalab.taskservice.tables.records.StarterCodeRecord;
 import com.javalab.taskservice.tables.records.TaskRecord;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
@@ -12,8 +14,9 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.javalab.taskservice.Tables.*;
 
@@ -24,12 +27,74 @@ public class TaskRepository
     private final DSLContext dsl;
 
     @Transactional(readOnly = true)
-    public Result<TaskRecord> getAllTasks(Integer page, Integer size)
+    public Collection<TaskResponseDto> getAllTasks(Integer page, Integer size)
     {
-        return dsl.selectFrom(TASK)
+        List<TaskRecord> tasks = dsl.selectFrom(TASK)
                 .offset(page * size)
                 .limit(size)
-                .fetch();
+                .fetchInto(TaskRecord.class);
+
+        if (tasks.isEmpty())
+            return Collections.emptyList();
+
+        List<Long> taskIds = tasks.stream()
+                .map(TaskRecord::getIdTask)
+                .toList();
+
+        Map<Long, List<CategoryRecord>> categoriesByTaskId = dsl.select()
+                .from(CATEGORY)
+                .join(TASK_CATEGORY).on(CATEGORY.ID_CATEGORY.eq(TASK_CATEGORY.ID_CATEGORY))
+                .where(TASK_CATEGORY.ID_TASK.in(taskIds))
+                .fetch()
+                .intoGroups(
+                        record -> record.get(TASK_CATEGORY.ID_TASK),
+                        record -> record.into(CategoryRecord.class)
+                );
+
+        Map<Long, StarterCodeRecord> starterCodesByTaskId = dsl.selectFrom(STARTER_CODE)
+                .where(STARTER_CODE.ID_TASK.in(taskIds))
+                .fetch()
+                .stream()
+                .collect(Collectors.toMap(
+                        StarterCodeRecord::getIdTask,
+                        Function.identity()
+                ));
+
+        return tasks.stream()
+                .map(task -> mapToTaskResponseDto(
+                        task,
+                        categoriesByTaskId.getOrDefault(task.getIdTask(), Collections.emptyList()),
+                        starterCodesByTaskId.get(task.getIdTask())
+                ))
+                .collect(Collectors.toList());
+    }
+
+    private TaskResponseDto mapToTaskResponseDto(
+            TaskRecord task, List<CategoryRecord> categories, StarterCodeRecord starterCode
+    )
+    {
+        return new TaskResponseDto(
+                task.getIdTask(),
+                task.getTitle(),
+                task.getDescription(),
+                task.getDifficulty(),
+                task.getCreatedAt(),
+                task.getUpdatedAt(),
+                task.getIdAuthor(),
+                categories.stream()
+                        .map(category -> new CategoryResponseDto(
+                                category.getTitle(),
+                                category.getDescription(),
+                                category.getCreatedAt()
+                        ))
+                        .toList(),
+                starterCode != null ?
+                        new StarterCodeResponseDto(
+                                starterCode.getIdCode(),
+                                starterCode.getCode(),
+                                starterCode.getIsDefault()
+                        ) : null
+        );
     }
 
     @Transactional(readOnly = true)
@@ -127,7 +192,7 @@ public class TaskRepository
     }
 
     @Transactional
-    public Optional<TaskRecord> updateTask(Long id, TaskRequestDto taskDto)
+    public Optional<TaskUpdatedResponseDto> updateTask(Long id, TaskRequestDto taskDto)
     {
         return dsl.update(TASK)
                 .set(TASK.TITLE, taskDto.title())
@@ -136,7 +201,7 @@ public class TaskRepository
                 .set(TASK.UPDATED_AT, LocalDateTime.now())
                 .where(TASK.ID_TASK.eq(id))
                 .returning()
-                .fetchOptional();
+                .fetchOptionalInto(TaskUpdatedResponseDto.class);
     }
 
     @Transactional

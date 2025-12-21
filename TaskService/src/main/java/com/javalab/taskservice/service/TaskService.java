@@ -3,7 +3,7 @@ package com.javalab.taskservice.service;
 import com.javalab.taskservice.dto.request.TaskRequestDto;
 import com.javalab.taskservice.dto.response.TaskDetailedResponseDto;
 import com.javalab.taskservice.dto.response.TaskResponseDto;
-import com.javalab.taskservice.mapper.TaskMapper;
+import com.javalab.taskservice.dto.response.TaskUpdatedResponseDto;
 import com.javalab.taskservice.repository.TaskRepository;
 import com.javalab.taskservice.tables.records.TaskRecord;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +18,6 @@ public class TaskService
 {
     private final TaskRepository taskRepository;
 
-    private final TaskMapper taskMapper;
-
     private final CategoryService categoryService;
 
     private final StarterCodeService starterCodeService;
@@ -28,8 +26,7 @@ public class TaskService
 
     public Collection<TaskResponseDto> getAllTasks(Integer page, Integer size)
     {
-        return taskRepository.getAllTasks(page, size)
-                .map(taskMapper::toResponseDto);
+        return taskRepository.getAllTasks(page, size);
     }
 
     public TaskDetailedResponseDto getTask(Long id)
@@ -47,16 +44,15 @@ public class TaskService
         return taskRepository.getTask(savedTask.getIdTask());
     }
 
-    public TaskResponseDto updateTask(Long id, TaskRequestDto taskDto)
+    public TaskUpdatedResponseDto updateTask(Long id, TaskRequestDto taskDto)
     {
-        return taskMapper.toResponseDto(taskRepository
+        return taskRepository
                 .updateTask(id, taskDto)
                 .orElseThrow(
                         () -> new ResourceNotFoundException(
                                 "The task with id=%d not found".formatted(id)
                         )
-                )
-        );
+                );
     }
 
     public void deleteTask(Long id)

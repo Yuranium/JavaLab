@@ -3,6 +3,7 @@ package com.javalab.taskservice.controller;
 import com.javalab.taskservice.dto.request.TaskRequestDto;
 import com.javalab.taskservice.dto.response.TaskDetailedResponseDto;
 import com.javalab.taskservice.dto.response.TaskResponseDto;
+import com.javalab.taskservice.dto.response.TaskUpdatedResponseDto;
 import com.javalab.taskservice.enums.DifficultyType;
 import com.javalab.taskservice.service.TaskService;
 import lombok.NonNull;
@@ -53,7 +54,7 @@ public class TaskController
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<@NonNull TaskResponseDto> updateTask(
+    public ResponseEntity<@NonNull TaskUpdatedResponseDto> updateTask(
             @PathVariable Long id,
             @RequestBody TaskRequestDto taskDto
     )
