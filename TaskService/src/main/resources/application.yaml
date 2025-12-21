@@ -6,7 +6,7 @@ spring:
     name: TaskService
 
   datasource:
-    url: jdbc:postgresql://${PG_ENDPOINT:localhost:5432}/${PG_DATABASE}
+    url: ${PG_URL}
     username: ${PG_USERNAME}
     password: ${PG_PASSWORD}
     driver-class-name: org.postgresql.Driver
