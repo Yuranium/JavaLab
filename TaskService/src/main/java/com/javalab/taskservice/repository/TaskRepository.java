@@ -66,7 +66,7 @@ public class TaskRepository
                         categoriesByTaskId.getOrDefault(task.getIdTask(), Collections.emptyList()),
                         starterCodesByTaskId.get(task.getIdTask())
                 ))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private TaskResponseDto mapToTaskResponseDto(
