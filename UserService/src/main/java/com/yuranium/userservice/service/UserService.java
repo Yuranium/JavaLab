@@ -11,9 +11,10 @@ import com.yuranium.userservice.models.entity.UserEntity;
 import com.yuranium.userservice.repository.UserRepository;
 import com.yuranium.userservice.service.kafka.KafkaSender;
 import com.yuranium.userservice.util.exception.PasswordMissingException;
+import com.yuranium.userservice.util.exception.UnconfirmedAccountException;
 import com.yuranium.userservice.util.exception.UserEntityNotCreatedException;
-import com.yuranium.userservice.util.exception.UserEntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -50,7 +51,7 @@ public class UserService implements UserDetailsService
     public UserResponseDto getUser(Long id)
     {
         return userMapper.toResponseDto(userRepository.findById(id)
-                .orElseThrow(() -> new UserEntityNotFoundException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "User with id=%d not found.".formatted(id)
                 ))
         );
@@ -89,7 +90,7 @@ public class UserService implements UserDetailsService
     public UserResponseDto updateUser(Long id, UserUpdateDto userDto) // todo
     {
         UserEntity userEntity = userRepository.findById(id)
-                .orElseThrow(() -> new UserEntityNotFoundException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "User with id=%d not found.".formatted(id)
                 ));
 
@@ -108,7 +109,7 @@ public class UserService implements UserDetailsService
     public void deleteUser(Long id)
     {
         UserEntity userEntity = userRepository.findById(id)
-                .orElseThrow(() -> new UserEntityNotFoundException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "User with id=%d not found.".formatted(id)
                 ));
         fileService.deleteFile(userEntity.getAvatar());
@@ -124,6 +125,12 @@ public class UserService implements UserDetailsService
                         "The user with username=%s was not found".formatted(username)
                         )
                 );
+
+        if (!user.getActivity())
+            throw new UnconfirmedAccountException(
+                    "The user with this username=%s is disabled".formatted(username)
+            );
+
         return new CustomUserDetails(user, user.getAuthMethods().stream()
                 .map(AuthEntity::getPassword)
                 .filter(Objects::nonNull)

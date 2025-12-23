@@ -1,5 +1,6 @@
 package com.yuranium.userservice.util.exception;
 
+import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -10,8 +11,8 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class UserExceptionHandler
 {
-    @ExceptionHandler(UserEntityNotFoundException.class)
-    public ResponseEntity<ExceptionBody> handleException(UserEntityNotFoundException exc)
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ExceptionBody> handleException(ResourceNotFoundException exc)
     {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(createExceptionBody(HttpStatus.NOT_FOUND, exc.getMessage()));
@@ -29,13 +30,6 @@ public class UserExceptionHandler
     {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(createExceptionBody(HttpStatus.UNAUTHORIZED, exc.getMessage()));
-    }
-
-    @ExceptionHandler(ConfirmationCodeNotFoundException.class)
-    public ResponseEntity<ExceptionBody> handleException(ConfirmationCodeNotFoundException exc)
-    {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(createExceptionBody(HttpStatus.NOT_FOUND, exc.getMessage()));
     }
 
     @ExceptionHandler(ConfirmationCodeExpiredException.class)

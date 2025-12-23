@@ -10,9 +10,8 @@ import com.yuranium.userservice.repository.ConfirmCodeRepository;
 import com.yuranium.userservice.repository.UserRepository;
 import com.yuranium.userservice.service.kafka.KafkaSender;
 import com.yuranium.userservice.util.exception.ConfirmationCodeExpiredException;
-import com.yuranium.userservice.util.exception.ConfirmationCodeNotFoundException;
-import com.yuranium.userservice.util.exception.UserEntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -71,7 +70,7 @@ public class AuthService
                     event.id(), event.username(), event.email(), confirmCode
             ));
         }
-        else throw new UserEntityNotFoundException(
+        else throw new ResourceNotFoundException(
                 "User with id=%d not found.".formatted(event.id())
         );
     }
@@ -81,14 +80,14 @@ public class AuthService
     {
         ConfirmationCodeEntity confirmCode = codeRepository
                 .findByUserIdAndCode(userId, code)
-                .orElseThrow(() -> new ConfirmationCodeNotFoundException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "The confirm code for userId=%d was not found.".formatted(userId)
                 ));
 
         if (isCodeActive(confirmCode))
         {
             UserEntity userEntity = userRepository.findById(userId)
-                    .orElseThrow(() -> new UserEntityNotFoundException(
+                    .orElseThrow(() -> new ResourceNotFoundException(
                             "User with id=%d not found.".formatted(userId)
                     ));
             userEntity.setActivity(true);
