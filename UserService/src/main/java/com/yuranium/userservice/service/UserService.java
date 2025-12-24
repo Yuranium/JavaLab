@@ -1,6 +1,7 @@
 package com.yuranium.userservice.service;
 
 import com.yuranium.javalabcore.UserRegisteredEvent;
+import com.yuranium.javalabcore.exception.ResourceAlreadyExistsException;
 import com.yuranium.userservice.mapper.UserMapper;
 import com.yuranium.userservice.models.CustomUserDetails;
 import com.yuranium.userservice.models.dto.UserRequestDto;
@@ -8,11 +9,12 @@ import com.yuranium.userservice.models.dto.UserResponseDto;
 import com.yuranium.userservice.models.dto.UserUpdateDto;
 import com.yuranium.userservice.models.entity.AuthEntity;
 import com.yuranium.userservice.models.entity.UserEntity;
+import com.yuranium.userservice.repository.UserIdempotencyRepository;
 import com.yuranium.userservice.repository.UserRepository;
 import com.yuranium.userservice.service.kafka.KafkaSender;
 import com.yuranium.userservice.util.exception.PasswordMissingException;
 import com.yuranium.userservice.util.exception.UnconfirmedAccountException;
-import com.yuranium.userservice.util.exception.UserEntityNotCreatedException;
+import com.yuranium.userservice.util.exception.ResourceNotCreatedException;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.data.domain.PageRequest;
@@ -24,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +37,8 @@ public class UserService implements UserDetailsService
     private final AuthService authService;
 
     private final UserRepository userRepository;
+
+    private final UserIdempotencyRepository idempotencyRepository;
 
     private final UserMapper userMapper;
 
@@ -58,9 +63,14 @@ public class UserService implements UserDetailsService
     }
 
     @Transactional
-    public UserResponseDto createUser(UserRequestDto userDto)
+    public UserResponseDto createUser(UserRequestDto userDto, UUID idempotencyKey)
     {
         String uploadedAvatarUrl = null;
+        if (idempotencyRepository.existsById(idempotencyKey))
+            throw new ResourceAlreadyExistsException(
+                    "The user with this id-key=%s already exists.".formatted(idempotencyKey)
+            );
+
         try
         {
             uploadedAvatarUrl = fileService.uploadFile(userDto.avatar());
@@ -82,7 +92,7 @@ public class UserService implements UserDetailsService
         {
             if (uploadedAvatarUrl != null)
                 fileService.deleteFile(uploadedAvatarUrl);
-            throw new UserEntityNotCreatedException(exc.getMessage());
+            throw new ResourceNotCreatedException(exc.getMessage());
         }
     }
 

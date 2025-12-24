@@ -5,9 +5,12 @@ spring:
   application:
     name: UserService
     scheduler:
+      zone: Europe/Moscow
       delete-user:
         cron: "* * 6 * * *"
-        zone: Europe/Moscow
+      delete-id-key:
+        cron: "0 0 0 7 * *"
+        key-lifetime: 7d
 
   datasource:
     url: ${PG_URL}
