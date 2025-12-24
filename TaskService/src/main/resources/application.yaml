@@ -1,12 +1,30 @@
+server:
+  port: 8082
+
 spring:
   application:
     name: TaskService
 
   datasource:
-    url: jdbc:postgresql://${PG_ENDPOINT:localhost:5432}/${PG_DATABASE}
+    url: ${PG_URL}
     username: ${PG_USERNAME}
     password: ${PG_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jooq:
     sql-dialect: postgres
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      retries: 3
+      properties:
+        enable:
+          idempotence: true
+      acks: all
+
+kafka:
+  topic-names:
+    task-created: ${TASK_CREATED_TOPIC}

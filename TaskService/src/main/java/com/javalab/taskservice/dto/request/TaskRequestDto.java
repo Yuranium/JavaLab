@@ -1,0 +1,26 @@
+package com.javalab.taskservice.dto.request;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.javalab.taskservice.enums.DifficultyType;
+import com.javalab.taskservice.enums.JavaCategory;
+
+import java.io.Serializable;
+import java.util.Collection;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+public record TaskRequestDto(
+        String title,
+
+        String description,
+
+        DifficultyType difficulty,
+
+        Long idAuthor,
+
+        StarterCodeRequestDto starterCode,
+
+        Collection<JavaCategory> categories,
+
+        Collection<TestCaseRequestDto> testCases
+
+) implements Serializable {}

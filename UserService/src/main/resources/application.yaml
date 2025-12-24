@@ -4,6 +4,10 @@ server:
 spring:
   application:
     name: UserService
+    scheduler:
+      delete-user:
+        cron: "* * 6 * * *"
+        zone: Europe/Moscow
 
   datasource:
     url: ${PG_URL}
@@ -22,7 +26,7 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-      retries: 100
+      retries: 3
       properties:
         enable:
           idempotence: true
