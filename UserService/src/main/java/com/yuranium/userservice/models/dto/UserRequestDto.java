@@ -15,6 +15,8 @@ public record UserRequestDto(
 
         String email,
 
-        MultipartFile avatar
+        MultipartFile avatar,
+
+        UserBackgroundRequestDto userBackground
 
 ) implements Serializable {}

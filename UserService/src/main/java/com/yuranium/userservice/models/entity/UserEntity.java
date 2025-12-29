@@ -6,9 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,18 +39,11 @@ public class UserEntity
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @CreationTimestamp
-    @Column(name = "date_registration", columnDefinition = "TIMESTAMP")
-    private LocalDateTime dateRegistration;
-
-    @Column(name = "last_login", columnDefinition = "TIMESTAMP")
-    private LocalDateTime lastLogin;
-
-    @Column(name = "activity")
-    private Boolean activity = false;
-
     @Column(name = "avatar_link")
     private String avatar;
+
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
+    private UserBackgroundEntity background;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<AuthEntity> authMethods = new ArrayList<>();
