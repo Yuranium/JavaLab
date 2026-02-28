@@ -15,12 +15,12 @@ import java.time.ZonedDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name="ai_chat_message")
+@Table(name = "ai_chat_message")
 public class AiChatMessage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="chat_id_message", nullable = false)
+    @Column(name = "message_id", nullable = false)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

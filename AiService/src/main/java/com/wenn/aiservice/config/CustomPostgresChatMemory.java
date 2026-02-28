@@ -1,10 +1,8 @@
 package com.wenn.aiservice.config;
 
 import com.wenn.aiservice.enums.AiRole;
-import com.wenn.aiservice.models.entity.AiChat;
 import com.wenn.aiservice.models.entity.AiChatMessage;
 import com.wenn.aiservice.service.AiChatService;
-import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.AssistantMessage;
@@ -13,10 +11,9 @@ import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 
 import java.util.List;
-
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
-@Builder
 public class CustomPostgresChatMemory implements ChatMemory {
 
     private final AiChatService aiChatService;
@@ -24,77 +21,67 @@ public class CustomPostgresChatMemory implements ChatMemory {
 
     @Override
     public void add(String conversationId, List<Message> messages) {
-        AiChat aiChat = aiChatService.getChat(Long.parseLong(conversationId));
+        if (conversationId == null || conversationId.isBlank()) return;
+        if (messages == null || messages.isEmpty()) return;
 
-        for (Message message : messages) {
+        var aiChat = aiChatService.getChat(conversationId);
 
-            AiChatMessage aiChatMessage = AiChatMessage.builder()
-                    .aiChat(aiChat)
-                    .content(message.getText())
-                    .aiRole(getAiRole(message))
-                    .build();
+        var entities = messages.stream()
+                .map(m -> {
+                    var msg = AiChatMessage.builder()
+                            .aiChat(aiChat)
+                            .content(m == null ? null : m.getText())
+                            .aiRole(mapRoleSafe(m))
+                            .build();
+                    return msg;
+                })
+                .collect(Collectors.toList());
 
-            aiChat.getAiChatMessages().add(aiChatMessage);
-        }
-
-        aiChatService.saveChat(aiChat);
+        aiChatService.saveMessages(entities);
     }
-
 
     @Override
     public List<Message> get(String conversationId) {
-        AiChat aiChat = aiChatService.getChat(Long.parseLong(conversationId));
-
-        return aiChat.getAiChatMessages().stream()
-                .skip(Math.max(0, aiChat.getAiChatMessages().size() - maxMessages))
-                .map(this::getMessage)
-                .limit(maxMessages)
-                .toList();
+        if (conversationId == null || conversationId.isBlank()) return List.of();
+        var last = aiChatService.getLastMessages(conversationId, maxMessages);
+        return last.stream().map(this::toMessage).collect(Collectors.toList());
     }
 
     @Override
     public void clear(String conversationId) {
-        final long chatId;
-        try {
-            chatId = Long.parseLong(conversationId);
-        } catch (NumberFormatException e) {
-            return;
-        }
-
-        aiChatService.clearChatMessages(chatId);
+        if (conversationId == null || conversationId.isBlank()) return;
+        aiChatService.clearChatMessages(conversationId);
     }
 
-    private Message getMessage(AiChatMessage aiChatMessage) {
-        switch (aiChatMessage.getAiRole()) {
-            case USER -> {
-                return new UserMessage(aiChatMessage.getContent());
-            }
-            case ASSISTANT -> {
-                return new AssistantMessage(aiChatMessage.getContent());
-            }
-            case SYSTEM -> {
-                return new SystemMessage(aiChatMessage.getContent());
-            }
-            default -> {
-                return null;
-            }
+    private Message toMessage(AiChatMessage e) {
+        if (e == null || e.getAiRole() == null) {
+            return new SystemMessage("");
         }
+        return switch (e.getAiRole()) {
+            case USER -> new UserMessage(e.getContent());
+            case ASSISTANT -> new AssistantMessage(e.getContent());
+            case SYSTEM -> new SystemMessage(e.getContent());
+        };
     }
 
-    private AiRole getAiRole(Message message) {
-        switch (message.getMessageType()){
-            case USER -> {
+    private AiRole mapRoleSafe(Message message) {
+        if (message == null) {
+            throw new IllegalArgumentException("message is null");
+        }
+        var mt = message.getMessageType();
+        if (mt == null) {
+            throw new IllegalArgumentException("message.getMessageType() is null");
+        }
+
+        switch (mt) {
+            case USER:
                 return AiRole.USER;
-            }
-            case ASSISTANT -> {
+            case ASSISTANT:
                 return AiRole.ASSISTANT;
-            }
-            case SYSTEM -> {
+            case SYSTEM:
                 return AiRole.SYSTEM;
-            }
-            default -> {
-                return null;
-            }
+            default:
+                throw new IllegalArgumentException("Unsupported Message.MessageType: " + mt);
         }
     }
 }

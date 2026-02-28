@@ -1,51 +1,54 @@
 package com.wenn.aiservice.service;
 
 import com.wenn.aiservice.models.entity.AiChat;
+import com.wenn.aiservice.models.entity.AiChatMessage;
+import com.wenn.aiservice.repository.AiChatMessageRepository;
 import com.wenn.aiservice.repository.AiChatRepository;
 import com.wenn.aiservice.util.InvalidRequestException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class AiChatService {
 
-
     private final AiChatRepository chatRepository;
+    private final AiChatMessageRepository messageRepository;
 
-    public AiChat createChat(Long id) {
-        return chatRepository.save(
-                AiChat.builder()
-                        .id(Optional.ofNullable(id)
-                                .orElseThrow(() -> new InvalidRequestException("ID cannot be null")))
-                        .build()
-        );
+    public AiChat createChat(String id) {
+        if (id == null || id.isBlank()) {
+            throw new InvalidRequestException("ID cannot be null or empty");
+        }
+        AiChat chat = AiChat.builder().id(id).build();
+        return chatRepository.save(chat);
     }
 
-    public AiChat getChat(Long id) {
-
-        Optional<AiChat> byId = chatRepository.findById(Math.toIntExact(id));
-
+    public AiChat getChat(String id) {
+        Optional<AiChat> byId = chatRepository.findById(id);
         return byId.orElseGet(() -> createChat(id));
     }
 
-    public void saveChat(AiChat chat) {
-        chatRepository.save(chat);
+    public void saveMessages(List<AiChatMessage> messages) {
+        if (messages == null || messages.isEmpty()) return;
+        messageRepository.saveAll(messages);
+    }
+
+    public List<AiChatMessage> getLastMessages(String chatId, int max) {
+        if (chatId == null) return Collections.emptyList();
+        List<AiChatMessage> desc = messageRepository.findByAiChat_IdOrderByCreatedAtDesc(chatId, PageRequest.of(0, Math.max(1, max)));
+        java.util.Collections.reverse(desc);
+        return desc;
     }
 
     @Transactional
-    public void clearChatMessages(Long id) {
-        AiChat aiChat = getChat(id);
-        if (aiChat == null) {
-            return;
-        }
-        if (aiChat.getAiChatMessages() != null) {
-            aiChat.getAiChatMessages().clear();
-        }
-        chatRepository.save(aiChat);
+    public void clearChatMessages(String chatId) {
+        if (chatId == null) return;
+        messageRepository.deleteByAiChat_Id(chatId);
     }
-
 }

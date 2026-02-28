@@ -3,6 +3,7 @@ package com.wenn.aiservice.controller;
 import com.wenn.aiservice.models.dto.ChatDto;
 import com.wenn.aiservice.service.AiService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -20,12 +21,11 @@ public class AiController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/chat/stream")
+    @PostMapping(value = "/chat/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<Flux<String>> chatStream(@RequestBody ChatDto request) {
         Flux<String> response = aiService.streamChat(request.userId(), request.message());
         return ResponseEntity.ok(response);
     }
-
 
     @GetMapping("/history/{id}")
     public ResponseEntity<?> getHistory(@PathVariable("id") String userId) {
