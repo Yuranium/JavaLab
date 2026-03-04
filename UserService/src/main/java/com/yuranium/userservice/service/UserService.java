@@ -4,9 +4,7 @@ import com.yuranium.javalabcore.UserRegisteredEvent;
 import com.yuranium.javalabcore.exception.ResourceAlreadyExistsException;
 import com.yuranium.userservice.mapper.UserMapper;
 import com.yuranium.userservice.models.CustomUserDetails;
-import com.yuranium.userservice.models.dto.UserRequestDto;
-import com.yuranium.userservice.models.dto.UserResponseDto;
-import com.yuranium.userservice.models.dto.UserUpdateDto;
+import com.yuranium.userservice.models.dto.*;
 import com.yuranium.userservice.models.entity.AuthEntity;
 import com.yuranium.userservice.models.entity.UserEntity;
 import com.yuranium.userservice.repository.UserIdempotencyRepository;
@@ -136,7 +134,7 @@ public class UserService implements UserDetailsService
                         )
                 );
 
-        if (!user.getActivity())
+        if (!user.getBackground().getActivity())
             throw new UnconfirmedAccountException(
                     "The user with this username=%s is disabled".formatted(username)
             );
@@ -160,7 +158,15 @@ public class UserService implements UserDetailsService
                                 "The user with username=%s was not found".formatted(username)
                         )
                 );
-        user.setLastLogin(LocalDateTime.now());
+        user.getBackground().setLastLogin(LocalDateTime.now());
         return userRepository.save(user);
     }
+
+//    @Transactional
+//    public UserBackgroundResponseDto createUserBackground(
+//            UserEntity user, UserBackgroundRequestDto userDto
+//    )
+//    {
+//
+//    }
 }

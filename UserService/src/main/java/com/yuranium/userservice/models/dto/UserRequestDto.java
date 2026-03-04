@@ -17,6 +17,6 @@ public record UserRequestDto(
 
         MultipartFile avatar,
 
-        UserBackgroundRequestDto userBackground
+        String timezone
 
 ) implements Serializable {}

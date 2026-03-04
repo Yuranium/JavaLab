@@ -1,5 +1,6 @@
 package com.yuranium.userservice.mapper;
 
+import com.yuranium.userservice.models.dto.UserBackgroundRequestDto;
 import com.yuranium.userservice.models.dto.UserResponseDto;
 import com.yuranium.userservice.models.dto.UserRequestDto;
 import com.yuranium.userservice.models.dto.UserUpdateDto;
@@ -22,5 +23,5 @@ public interface UserMapper
     @Mapping(target = "avatar", ignore = true)
     UserEntity toEntity(UserUpdateDto userUpdateDto);
 
-    UserBackgroundEntity toEntity(User)
+    UserBackgroundEntity toEntity(UserBackgroundRequestDto requestDto);
 }
