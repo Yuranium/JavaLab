@@ -33,9 +33,15 @@ public class UserBackgroundEntity
     private String timezone;
 
     @Column(name = "activity", columnDefinition = "BOOLEAN", nullable = false)
-    private Boolean activity;
+    private Boolean activity = false;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "id_user")
     private UserEntity user;
+
+    public UserBackgroundEntity(String timezone, UserEntity user)
+    {
+        this.timezone = timezone;
+        this.user = user;
+    }
 }

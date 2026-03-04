@@ -45,7 +45,7 @@ public class UserEntity
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
     private UserBackgroundEntity background;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<AuthEntity> authMethods = new ArrayList<>();
 
     @PrePersist

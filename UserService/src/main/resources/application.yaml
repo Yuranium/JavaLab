@@ -9,8 +9,8 @@ spring:
       delete-user:
         cron: "* * 6 * * *"
       delete-id-key:
-        cron: "0 0 0 7 * *"
-        key-lifetime: 7d
+        cron: "0 0 0 1 * *"
+        key-lifetime: 1d
 
   datasource:
     url: ${PG_URL}
@@ -42,6 +42,7 @@ backblaze:
     bucket-name: java-lab
     access-key: ${BACKBLAZE_ACCESS_KEY}
     application-key: ${BACKBLAZE_APP_KEY}
+  avatar-prefix: user-avatars
 
 auth:
   jwt:

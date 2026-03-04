@@ -8,6 +8,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +36,7 @@ public class SchedulerService
     )
     public void deleteIdempotencyKey()
     {
-        idempotencyRepository.deleteExpiredIdempotencyKey(idempotencyKeyLifetime);
+        LocalDateTime offsetDateTime = LocalDateTime.now().minus(idempotencyKeyLifetime);
+        idempotencyRepository.deleteExpiredIdempotencyKey(offsetDateTime);
     }
 }

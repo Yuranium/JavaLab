@@ -16,6 +16,8 @@ public record UserResponseDto(
 
         LocalDateTime lastLogin,
 
-        Boolean activity
+        Boolean activity,
+
+        String timezone
 
 ) implements Serializable {}

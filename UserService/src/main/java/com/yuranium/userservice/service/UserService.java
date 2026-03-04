@@ -6,7 +6,10 @@ import com.yuranium.userservice.mapper.UserMapper;
 import com.yuranium.userservice.models.CustomUserDetails;
 import com.yuranium.userservice.models.dto.*;
 import com.yuranium.userservice.models.entity.AuthEntity;
+import com.yuranium.userservice.models.entity.UserBackgroundEntity;
 import com.yuranium.userservice.models.entity.UserEntity;
+import com.yuranium.userservice.models.entity.UserIdempotencyEntity;
+import com.yuranium.userservice.repository.UserBackgroundRepository;
 import com.yuranium.userservice.repository.UserIdempotencyRepository;
 import com.yuranium.userservice.repository.UserRepository;
 import com.yuranium.userservice.service.kafka.KafkaSender;
@@ -38,6 +41,8 @@ public class UserService implements UserDetailsService
 
     private final UserIdempotencyRepository idempotencyRepository;
 
+    private final UserBackgroundRepository backgroundRepository;
+
     private final UserMapper userMapper;
 
     private final KafkaSender kafkaSender;
@@ -53,11 +58,7 @@ public class UserService implements UserDetailsService
     @Transactional(readOnly = true)
     public UserResponseDto getUser(Long id)
     {
-        return userMapper.toResponseDto(userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "User with id=%d not found.".formatted(id)
-                ))
-        );
+        return userMapper.toResponseDto(findByIdOrThrow(id));
     }
 
     @Transactional
@@ -77,6 +78,11 @@ public class UserService implements UserDetailsService
             userEntity.setAvatar(uploadedAvatarUrl);
             UserEntity savedUser = userRepository.save(userEntity);
             authService.setAuthForLocalUser(savedUser, userDto);
+            savedUser.setBackground(
+                    backgroundRepository.save(
+                            new UserBackgroundEntity(userDto.timezone(), savedUser)
+                    )
+            );
 
             Integer confirmCode = authService.generateAuthCode();
             kafkaSender.sendUserRegisteredEvent(new UserRegisteredEvent(
@@ -85,6 +91,7 @@ public class UserService implements UserDetailsService
             ));
 
             authService.createConfirmCode(savedUser.getId(), confirmCode);
+            idempotencyRepository.save(new UserIdempotencyEntity(idempotencyKey));
             return userMapper.toResponseDto(savedUser);
         } catch (Exception exc)
         {
@@ -95,18 +102,13 @@ public class UserService implements UserDetailsService
     }
 
     @Transactional
-    public UserResponseDto updateUser(Long id, UserUpdateDto userDto) // todo
+    public UserResponseDto updateUser(Long id, UserUpdateDto userDto)
     {
-        UserEntity userEntity = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "User with id=%d not found.".formatted(id)
-                ));
-
-        userEntity.setName(userDto.name());
-        userEntity.setLastName(userDto.lastName());
+        UserEntity userEntity = findByIdOrThrow(id);
         userEntity.setAvatar(fileService.updateFile(
                 userEntity.getAvatar(), userDto.avatar())
         );
+        userMapper.updateEntity(userEntity, userDto);
 
         return userMapper.toResponseDto(
                 userRepository.save(userEntity)
@@ -116,10 +118,7 @@ public class UserService implements UserDetailsService
     @Transactional
     public void deleteUser(Long id)
     {
-        UserEntity userEntity = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "User with id=%d not found.".formatted(id)
-                ));
+        UserEntity userEntity = findByIdOrThrow(id);
         fileService.deleteFile(userEntity.getAvatar());
         userRepository.deleteById(id);
     }
@@ -130,7 +129,7 @@ public class UserService implements UserDetailsService
     {
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException(
-                        "The user with username=%s was not found".formatted(username)
+                                "The user with username=%s was not found".formatted(username)
                         )
                 );
 
@@ -139,15 +138,19 @@ public class UserService implements UserDetailsService
                     "The user with this username=%s is disabled".formatted(username)
             );
 
-        return new CustomUserDetails(user, user.getAuthMethods().stream()
+        return new CustomUserDetails(user, getPassword(username, user));
+    }
+
+    private String getPassword(String username, UserEntity user)
+    {
+        return user.getAuthMethods().stream()
                 .map(AuthEntity::getPassword)
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElseThrow(() -> new PasswordMissingException(
-                        "No password found for username=%s".formatted(username)
+                                "No password found for username=%s".formatted(username)
                         )
-                )
-        );
+                );
     }
 
     @Transactional
@@ -162,11 +165,11 @@ public class UserService implements UserDetailsService
         return userRepository.save(user);
     }
 
-//    @Transactional
-//    public UserBackgroundResponseDto createUserBackground(
-//            UserEntity user, UserBackgroundRequestDto userDto
-//    )
-//    {
-//
-//    }
+    private UserEntity findByIdOrThrow(Long id)
+    {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User with id=%d not found.".formatted(id)
+                ));
+    }
 }

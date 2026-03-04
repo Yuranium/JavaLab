@@ -13,10 +13,10 @@ public interface UserRepository extends JpaRepository<UserEntity, Long>
 
     @Modifying
     @Query(value = """
-            DELETE FROM public.user u
-            WHERE u.activity = false
-              AND u.last_login IS NULL
-              AND DATE_PART('day', AGE(u.date_registration)) >= 1
+            DELETE FROM user_background ub
+            WHERE ub.activity = false
+              AND ub.last_login IS NULL
+              AND DATE_PART('day', AGE(ub.date_registration)) >= 1
             """, nativeQuery = true)
-    void deleteInactiveUsers();
+    void deleteInactiveUsers(); // todo изменить SQL запрос по аналогии с id-key
 }

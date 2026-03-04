@@ -3,6 +3,7 @@ package com.yuranium.userservice.service;
 import com.yuranium.userservice.config.s3.BackblazeConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -20,7 +21,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class FileService
 {
-    private final String AVATAR_FOLDER = "user-avatars";
+    @Value("${backblaze.avatar-prefix}")
+    private String AVATAR_FOLDER;
 
     private final S3Client s3Client;
 
@@ -52,6 +54,8 @@ public class FileService
 
     public void deleteFile(String fileName)
     {
+        if (fileName == null || fileName.isEmpty())
+            return;
         try
         {
             DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()

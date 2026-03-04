@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Repository
@@ -16,7 +16,7 @@ public interface UserIdempotencyRepository extends JpaRepository<UserIdempotency
     @Modifying
     @Query(value = """
             DELETE FROM user_idempotency_key uik
-            WHERE DATE_PART('day', AGE(uik.created_at)) >= :key_lifetime
+            WHERE uik.created_at <= :expiration_time
             """, nativeQuery = true)
-    void deleteExpiredIdempotencyKey(@Param("key_lifetime") Duration keyLifetime);
+    void deleteExpiredIdempotencyKey(@Param("expiration_time") LocalDateTime expirationTime);
 }

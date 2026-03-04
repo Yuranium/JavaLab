@@ -1,5 +1,6 @@
 package com.yuranium.userservice.models;
 
+import com.yuranium.userservice.models.entity.UserBackgroundEntity;
 import com.yuranium.userservice.models.entity.UserEntity;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -36,6 +37,7 @@ public class CustomUserDetails implements UserDetails
     @Override
     public boolean isEnabled()
     {
-        return user.getActivity();
+        UserBackgroundEntity background = user.getBackground();
+        return background != null && Boolean.TRUE.equals(background.getActivity());
     }
 }

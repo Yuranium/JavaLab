@@ -1,4 +1,10 @@
-DROP TABLE IF EXISTS public.user, user_background, auth, confirmation_code CASCADE;
+DROP TABLE IF EXISTS
+    public.user,
+    user_background,
+    auth,
+    confirmation_code,
+    user_idempotency_key
+    CASCADE;
 
 CREATE TABLE IF NOT EXISTS public.user
 (

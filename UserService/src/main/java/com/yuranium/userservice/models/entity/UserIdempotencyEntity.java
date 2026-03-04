@@ -16,7 +16,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name = "auth")
+@Table(name = "user_idempotency_key")
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserIdempotencyEntity
@@ -28,4 +28,9 @@ public class UserIdempotencyEntity
     @CreationTimestamp
     @Column(name = "created_at")
     private LocalDate createdAt;
+
+    public UserIdempotencyEntity(UUID idempotencyKey)
+    {
+        this.id = idempotencyKey;
+    }
 }
