@@ -18,6 +18,9 @@ public class SchedulerService
 
     private final UserIdempotencyRepository idempotencyRepository;
 
+    @Value("${spring.application.scheduler.delete-user.key-lifetime}")
+    private Duration inactiveUserKeyLifetime;
+
     @Value("${spring.application.scheduler.delete-id-key.key-lifetime}")
     private Duration idempotencyKeyLifetime;
 
@@ -27,7 +30,8 @@ public class SchedulerService
     )
     public void deleteInactiveUsers()
     {
-        userRepository.deleteInactiveUsers();
+        LocalDateTime offsetDateTime = LocalDateTime.now().minus(inactiveUserKeyLifetime);
+        userRepository.deleteInactiveUsers(offsetDateTime);
     }
 
     @Scheduled(

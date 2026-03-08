@@ -64,26 +64,15 @@ public class UserService implements UserDetailsService
     @Transactional
     public UserResponseDto createUser(UserRequestDto userDto, UUID idempotencyKey)
     {
-        String uploadedAvatarUrl = null;
         if (idempotencyRepository.existsById(idempotencyKey))
             throw new ResourceAlreadyExistsException(
                     "The user with this id-key=%s already exists.".formatted(idempotencyKey)
             );
 
+        String uploadedAvatarUrl = fileService.uploadFile(userDto.avatar());
         try
         {
-            uploadedAvatarUrl = fileService.uploadFile(userDto.avatar());
-
-            UserEntity userEntity = userMapper.toEntity(userDto);
-            userEntity.setAvatar(uploadedAvatarUrl);
-            UserEntity savedUser = userRepository.save(userEntity);
-            authService.setAuthForLocalUser(savedUser, userDto);
-            savedUser.setBackground(
-                    backgroundRepository.save(
-                            new UserBackgroundEntity(userDto.timezone(), savedUser)
-                    )
-            );
-
+            UserEntity savedUser = saveUserWithRelations(userDto, uploadedAvatarUrl);
             Integer confirmCode = authService.generateAuthCode();
             kafkaSender.sendUserRegisteredEvent(new UserRegisteredEvent(
                     savedUser.getId(), savedUser.getUsername(),
@@ -99,6 +88,16 @@ public class UserService implements UserDetailsService
                 fileService.deleteFile(uploadedAvatarUrl);
             throw new ResourceNotCreatedException(exc.getMessage());
         }
+    }
+
+    private UserEntity saveUserWithRelations(UserRequestDto userDto, String avatarUrl)
+    {
+        UserEntity userEntity = userMapper.toEntity(userDto);
+        userEntity.setAvatar(avatarUrl);
+        UserEntity savedUser = userRepository.save(userEntity);
+        authService.setAuthForLocalUser(savedUser, userDto);
+        backgroundRepository.save(new UserBackgroundEntity(userDto.timezone(), savedUser));
+        return savedUser;
     }
 
     @Transactional

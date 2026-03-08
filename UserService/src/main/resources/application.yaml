@@ -8,6 +8,7 @@ spring:
       zone: Europe/Moscow
       delete-user:
         cron: "* * 6 * * *"
+        key-lifetime: 1d
       delete-id-key:
         cron: "0 0 0 1 * *"
         key-lifetime: 1d

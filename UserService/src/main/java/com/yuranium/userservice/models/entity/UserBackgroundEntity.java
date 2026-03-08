@@ -43,5 +43,6 @@ public class UserBackgroundEntity
     {
         this.timezone = timezone;
         this.user = user;
+        user.setBackground(this);
     }
 }
