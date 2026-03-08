@@ -44,9 +44,12 @@ public class UserController
     @PostMapping
     public ResponseEntity<UserResponseDto> createUser(
             @ModelAttribute UserRequestDto userDto,
-            @RequestHeader("X-idempotency-key") UUID idempotencyKey
+            @RequestHeader(value = "X-idempotency-key", required = false) UUID idempotencyKey
     )
     {
+        if (idempotencyKey == null)
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
         return new ResponseEntity<>(
                 userService.createUser(userDto, idempotencyKey),
                 HttpStatus.CREATED

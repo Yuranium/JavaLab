@@ -68,6 +68,7 @@ public class UserService implements UserDetailsService
             throw new ResourceAlreadyExistsException(
                     "The user with this id-key=%s already exists.".formatted(idempotencyKey)
             );
+        idempotencyRepository.save(new UserIdempotencyEntity(idempotencyKey));
 
         String uploadedAvatarUrl = fileService.uploadFile(userDto.avatar());
         try
@@ -80,7 +81,6 @@ public class UserService implements UserDetailsService
             ));
 
             authService.createConfirmCode(savedUser.getId(), confirmCode);
-            idempotencyRepository.save(new UserIdempotencyEntity(idempotencyKey));
             return userMapper.toResponseDto(savedUser);
         } catch (Exception exc)
         {
