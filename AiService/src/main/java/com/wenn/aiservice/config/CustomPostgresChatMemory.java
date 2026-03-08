@@ -73,15 +73,11 @@ public class CustomPostgresChatMemory implements ChatMemory {
             throw new IllegalArgumentException("message.getMessageType() is null");
         }
 
-        switch (mt) {
-            case USER:
-                return AiRole.USER;
-            case ASSISTANT:
-                return AiRole.ASSISTANT;
-            case SYSTEM:
-                return AiRole.SYSTEM;
-            default:
-                throw new IllegalArgumentException("Unsupported Message.MessageType: " + mt);
-        }
+        return switch (mt) {
+            case USER -> AiRole.USER;
+            case ASSISTANT -> AiRole.ASSISTANT;
+            case SYSTEM -> AiRole.SYSTEM;
+            default -> throw new IllegalArgumentException("Unsupported Message.MessageType: " + mt);
+        };
     }
 }

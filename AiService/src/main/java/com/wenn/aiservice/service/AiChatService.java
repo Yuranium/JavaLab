@@ -42,7 +42,7 @@ public class AiChatService {
     public List<AiChatMessage> getLastMessages(String chatId, int max) {
         if (chatId == null) return Collections.emptyList();
         List<AiChatMessage> desc = messageRepository.findByAiChat_IdOrderByCreatedAtDesc(chatId, PageRequest.of(0, Math.max(1, max)));
-        java.util.Collections.reverse(desc);
+        Collections.reverse(desc);
         return desc;
     }
 
