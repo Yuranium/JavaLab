@@ -35,5 +35,28 @@ services:
       POSTGRES_USER: ${PG_USER:-postgres}
       POSTGRES_PASSWORD: ${PG_PASSWORD:-postgres}
       POSTGRES_DB: postgres
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    command: start-dev
+    container_name: keycloak
+    environment:
+      KC_DB: postgres
+      KC_DB_URL_HOST: postgres
+      KC_DB_URL: ${INTERNAL_POSTGRES_URL}
+      KC_DB_USERNAME: ${PG_USER:-postgres}
+      KC_DB_PASSWORD: ${PG_PASSWORD:-postgres}
+
+      KC_HOSTNAME: ${KEYCLOAK_HOST}
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USERNAME}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+    ports:
+      - "${KEYCLOAK_PORT:-9090}:8080"
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+    depends_on:
+      - postgres
+
 volumes:
   postgres_data:
+  keycloak_data:

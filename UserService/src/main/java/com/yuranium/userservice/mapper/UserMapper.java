@@ -23,9 +23,7 @@ public interface UserMapper
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "username", ignore = true)
     @Mapping(target = "email", ignore = true)
-    @Mapping(target = "role", ignore = true)
     @Mapping(target = "background", ignore = true)
-    @Mapping(target = "authMethods", ignore = true)
     @Mapping(target = "avatar", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntity(@MappingTarget UserEntity userEntity, UserUpdateDto userUpdateDto);

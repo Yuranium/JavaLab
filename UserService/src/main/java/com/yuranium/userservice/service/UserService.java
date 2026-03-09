@@ -3,9 +3,9 @@ package com.yuranium.userservice.service;
 import com.yuranium.javalabcore.UserRegisteredEvent;
 import com.yuranium.javalabcore.exception.ResourceAlreadyExistsException;
 import com.yuranium.userservice.mapper.UserMapper;
-import com.yuranium.userservice.models.CustomUserDetails;
-import com.yuranium.userservice.models.dto.*;
-import com.yuranium.userservice.models.entity.AuthEntity;
+import com.yuranium.userservice.models.dto.UserRequestDto;
+import com.yuranium.userservice.models.dto.UserResponseDto;
+import com.yuranium.userservice.models.dto.UserUpdateDto;
 import com.yuranium.userservice.models.entity.UserBackgroundEntity;
 import com.yuranium.userservice.models.entity.UserEntity;
 import com.yuranium.userservice.models.entity.UserIdempotencyEntity;
@@ -13,27 +13,23 @@ import com.yuranium.userservice.repository.UserBackgroundRepository;
 import com.yuranium.userservice.repository.UserIdempotencyRepository;
 import com.yuranium.userservice.repository.UserRepository;
 import com.yuranium.userservice.service.kafka.KafkaSender;
-import com.yuranium.userservice.util.exception.PasswordMissingException;
-import com.yuranium.userservice.util.exception.UnconfirmedAccountException;
 import com.yuranium.userservice.util.exception.ResourceNotCreatedException;
+import com.yuranium.userservice.util.exception.UnconfirmedAccountException;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.Objects;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class UserService implements UserDetailsService
+public class UserService
 {
     private final FileService fileService;
+
+    private final KeycloakService keycloakService;
 
     private final AuthService authService;
 
@@ -58,13 +54,24 @@ public class UserService implements UserDetailsService
     @Transactional(readOnly = true)
     public Iterable<String> getEmails(PageRequest pageRequest)
     {
-        return userRepository.findAllEmails(pageRequest);
+        return userRepository.findAllEmails(pageRequest).getContent();
     }
 
     @Transactional(readOnly = true)
     public UserResponseDto getUser(Long id)
     {
         return userMapper.toResponseDto(findByIdOrThrow(id));
+    }
+
+    @Transactional(readOnly = true)
+    public UserResponseDto getUser(UUID id)
+    {
+        return userMapper.toResponseDto(
+                userRepository.findByKeycloakId(id)
+                        .orElseThrow(() -> new ResourceNotFoundException(
+                                "User with kc-id=%s not found.".formatted(id)
+                        ))
+        );
     }
 
     @Transactional
@@ -79,7 +86,8 @@ public class UserService implements UserDetailsService
         String uploadedAvatarUrl = fileService.uploadFile(userDto.avatar());
         try
         {
-            UserEntity savedUser = saveUserWithRelations(userDto, uploadedAvatarUrl);
+            String keycloakUserId = keycloakService.createUser(userDto);
+            UserEntity savedUser = saveUserWithRelations(userDto, uploadedAvatarUrl, keycloakUserId);
             Integer confirmCode = authService.generateAuthCode();
             kafkaSender.sendUserRegisteredEvent(new UserRegisteredEvent(
                     savedUser.getId(), savedUser.getUsername(),
@@ -96,20 +104,25 @@ public class UserService implements UserDetailsService
         }
     }
 
-    private UserEntity saveUserWithRelations(UserRequestDto userDto, String avatarUrl)
+    private UserEntity saveUserWithRelations(
+            UserRequestDto userDto, String avatarUrl, String keycloakUserId
+    )
     {
         UserEntity userEntity = userMapper.toEntity(userDto);
         userEntity.setAvatar(avatarUrl);
+        userEntity.setKeycloakId(UUID.fromString(keycloakUserId));
         UserEntity savedUser = userRepository.save(userEntity);
-        authService.setAuthForLocalUser(savedUser, userDto);
         backgroundRepository.save(new UserBackgroundEntity(userDto.timezone(), savedUser));
         return savedUser;
     }
 
     @Transactional
-    public UserResponseDto updateUser(Long id, UserUpdateDto userDto)
+    public UserResponseDto updateUser(UUID keycloakId, UserUpdateDto userDto)
     {
-        UserEntity userEntity = findByIdOrThrow(id);
+        UserEntity userEntity = userRepository.findByKeycloakId(keycloakId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User with kc-id=%s not found.".formatted(keycloakId)
+                ));
         userEntity.setAvatar(fileService.updateFile(
                 userEntity.getAvatar(), userDto.avatar())
         );
@@ -125,49 +138,22 @@ public class UserService implements UserDetailsService
     {
         UserEntity userEntity = findByIdOrThrow(id);
         fileService.deleteFile(userEntity.getAvatar());
+        keycloakService.deleteUser(userEntity.getKeycloakId());
         userRepository.deleteById(id);
     }
 
-    @Override
     @Transactional(readOnly = true)
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException
+    public void checkUserActivity(UUID keycloakId)
     {
-        UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException(
-                                "The user with username=%s was not found".formatted(username)
-                        )
-                );
+        UserEntity user = userRepository.findByKeycloakId(keycloakId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User with kc-id=%s not found.".formatted(keycloakId)
+                ));
 
         if (!user.getBackground().getActivity())
             throw new UnconfirmedAccountException(
-                    "The user with this username=%s is disabled".formatted(username)
+                    "User account with keycloak_id=%s is disabled".formatted(keycloakId)
             );
-
-        return new CustomUserDetails(user, getPassword(username, user));
-    }
-
-    private String getPassword(String username, UserEntity user)
-    {
-        return user.getAuthMethods().stream()
-                .map(AuthEntity::getPassword)
-                .filter(Objects::nonNull)
-                .findFirst()
-                .orElseThrow(() -> new PasswordMissingException(
-                                "No password found for username=%s".formatted(username)
-                        )
-                );
-    }
-
-    @Transactional
-    public UserEntity loginToUserAccount(String username)
-    {
-        UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException(
-                                "The user with username=%s was not found".formatted(username)
-                        )
-                );
-        user.getBackground().setLastLogin(LocalDateTime.now());
-        return userRepository.save(user);
     }
 
     private UserEntity findByIdOrThrow(Long id)

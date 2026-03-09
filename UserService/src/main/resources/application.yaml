@@ -36,6 +36,24 @@ spring:
           idempotence: true
       acks: all
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${OAUTH2_ISSUER_URI}
+
+keycloak:
+  admin:
+    url: ${KEYCLOAK_URL}
+    realm: ${KEYCLOAK_REALM}
+    username: ${KEYCLOAK_USERNAME}
+    password: ${KEYCLOAK_PASSWORD}
+    client-id: admin-cli
+
+auth:
+  confirmation-code:
+    lifetime: 15m
+
 backblaze:
   b2:
     endpoint: ${BACKBLAZE_ENDPOINT}
@@ -44,14 +62,6 @@ backblaze:
     access-key: ${BACKBLAZE_ACCESS_KEY}
     application-key: ${BACKBLAZE_APP_KEY}
   avatar-prefix: user-avatars
-
-auth:
-  jwt:
-    secret: ${JWT_SECRET}
-    lifetime: ${JWT_LIFETIME:7d}
-
-  confirmation-code:
-    lifetime: 15m
 
 kafka:
   topic-names:
