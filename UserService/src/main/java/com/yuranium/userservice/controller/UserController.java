@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @CrossOrigin("*")
 @RequestMapping("/api/v1/user")
@@ -40,10 +42,16 @@ public class UserController
     }
 
     @PostMapping
-    public ResponseEntity<UserResponseDto> createUser(@ModelAttribute UserRequestDto userDto)
+    public ResponseEntity<UserResponseDto> createUser(
+            @ModelAttribute UserRequestDto userDto,
+            @RequestHeader(value = "X-idempotency-key", required = false) UUID idempotencyKey
+    )
     {
+        if (idempotencyKey == null)
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
         return new ResponseEntity<>(
-                userService.createUser(userDto),
+                userService.createUser(userDto, idempotencyKey),
                 HttpStatus.CREATED
         );
     }

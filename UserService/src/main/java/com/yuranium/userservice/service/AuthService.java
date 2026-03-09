@@ -90,8 +90,8 @@ public class AuthService
                     .orElseThrow(() -> new ResourceNotFoundException(
                             "User with id=%d not found.".formatted(userId)
                     ));
-            userEntity.setActivity(true);
-            userEntity.setLastLogin(LocalDateTime.now());
+            userEntity.getBackground().setActivity(true);
+            userEntity.getBackground().setLastLogin(LocalDateTime.now());
             userRepository.save(userEntity);
             codeRepository.delete(confirmCode);
             return true;
