@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -44,6 +46,15 @@ public class UserController
         );
     }
 
+    @GetMapping
+    public ResponseEntity<UserResponseDto> getUser(@AuthenticationPrincipal Jwt jwt)
+    {
+        return new ResponseEntity<>(
+                userService.getUser(UUID.fromString(jwt.getSubject())),
+                HttpStatus.OK
+        );
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDto> getUser(@PathVariable Long id)
     {
@@ -68,14 +79,17 @@ public class UserController
         );
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping
     public ResponseEntity<UserResponseDto> updateUser(
-            @PathVariable Long id,
+            @AuthenticationPrincipal Jwt jwt,
             @ModelAttribute UserUpdateDto userDto
     )
     {
         return new ResponseEntity<>(
-                userService.updateUser(id, userDto),
+                userService.updateUser(
+                        UUID.fromString(jwt.getSubject()),
+                        userDto
+                ),
                 HttpStatus.OK
         );
     }

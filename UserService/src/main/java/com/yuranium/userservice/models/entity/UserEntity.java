@@ -1,14 +1,12 @@
 package com.yuranium.userservice.models.entity;
 
-import com.yuranium.userservice.enums.RoleType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -23,9 +21,8 @@ public class UserEntity
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "role")
-    @Enumerated(EnumType.STRING)
-    private RoleType role = RoleType.ROLE_USER;
+    @Column(name = "keycloak_id", nullable = false)
+    private UUID keycloakId;
 
     @Column(name = "username", nullable = false)
     private String username;
@@ -44,9 +41,6 @@ public class UserEntity
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
     private UserBackgroundEntity background;
-
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<AuthEntity> authMethods = new ArrayList<>();
 
     @PrePersist
     public void prePersist()
