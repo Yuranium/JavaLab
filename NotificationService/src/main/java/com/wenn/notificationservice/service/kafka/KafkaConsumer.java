@@ -54,17 +54,22 @@ public class KafkaConsumer {
 
         try {
 
-            log.info("Received TaskCreatedEvent {}", event);
+            log.info("Received TaskCreatedEvent: {}", event);
+
+            if (event == null
+                    || event.title() == null || event.title().isBlank()
+                    || event.difficulty() == null || event.difficulty().isBlank()
+                    || event.categories() == null) {
+                throw new NotificationException("Invalid TaskCreatedEvent payload: " + event);
+            }
 
             dispatcher.dispatchTaskCreated(event);
 
-            log.info("Task notification sent");
-
+            log.info("TaskCreated notification processed for task '{}'", event.title());
         } catch (Exception ex) {
+            log.error("Failed to process TaskCreatedEvent: {}", ex.getMessage(), ex);
 
-            log.error("Failed to process event", ex);
-
-            throw new NotificationException("Failed to process task event" + ex.getMessage(), ex);
+            throw new NotificationException("Failed to process TaskCreatedEvent: " + ex.getMessage(), ex);
         }
     }
 }
