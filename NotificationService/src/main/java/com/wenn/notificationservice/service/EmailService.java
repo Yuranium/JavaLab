@@ -9,6 +9,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
+
 @RequiredArgsConstructor
 @Service
 public class EmailService {
@@ -31,6 +33,34 @@ public class EmailService {
             mailSender.send(msg);
         } catch (Exception ex) {
             throw new EmailSendException("Failed to send email to " + toEmail + ": " + ex.getMessage(), ex);
+        }
+    }
+
+    public void sendTaskCreatedEmail(String toEmail,
+                                     String title,
+                                     String difficulty,
+                                     Collection<String> categories) {
+
+        try {
+
+            String html = htmlGenerator
+                    .generateTaskCreatedHtml(title, difficulty, categories);
+
+            MimeMessage msg = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(msg, "utf-8");
+
+            helper.setText(html, true);
+            helper.setTo(toEmail);
+            helper.setSubject("Новая задача в системе");
+            helper.setFrom(fromEmail);
+
+            mailSender.send(msg);
+
+        } catch (Exception ex) {
+            throw new EmailSendException(
+                    "Failed to send task email to " + toEmail,
+                    ex
+            );
         }
     }
 }

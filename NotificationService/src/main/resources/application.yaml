@@ -35,3 +35,8 @@ spring:
 kafka:
   topic-names:
     user-registered: ${KAFKA_TOPIC_USER_REGISTERED}
+    task-created: ${KAFKA_TOPIC_TASK_CREATED}
+
+services:
+  user-service:
+    url: ${USER_SERVICE_HOST}

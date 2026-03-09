@@ -1,7 +1,9 @@
 package com.wenn.notificationservice.service.kafka;
 
 import com.wenn.notificationservice.service.EmailService;
+import com.wenn.notificationservice.service.NotificationDispatcher;
 import com.wenn.notificationservice.util.exception.NotificationException;
+import com.yuranium.javalabcore.TaskCreatedEvent;
 import com.yuranium.javalabcore.UserRegisteredEvent;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -12,11 +14,19 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-@KafkaListener(topics = "${kafka.topic-names.user-registered}", containerFactory = "kafkaListenerContainerFactory")
+@KafkaListener(
+        topics = {
+                "${kafka.topic-names.user-registered}",
+                "${kafka.topic-names.task-created}"
+        },
+        containerFactory = "kafkaListenerContainerFactory"
+)
 public class KafkaConsumer {
     private static final Logger log = LoggerFactory.getLogger(KafkaConsumer.class);
 
     private final EmailService emailService;
+
+    private final NotificationDispatcher dispatcher;
 
     @KafkaHandler
     public void consume(UserRegisteredEvent event) {
@@ -36,6 +46,25 @@ public class KafkaConsumer {
             log.error("Failed to process event: {}", ex.getMessage(), ex);
 
             throw new NotificationException("Failed to process UserRegisteredEvent: " + ex.getMessage(), ex);
+        }
+    }
+
+    @KafkaHandler
+    public void consume(TaskCreatedEvent event) {
+
+        try {
+
+            log.info("Received TaskCreatedEvent {}", event);
+
+            dispatcher.dispatchTaskCreated(event);
+
+            log.info("Task notification sent");
+
+        } catch (Exception ex) {
+
+            log.error("Failed to process event", ex);
+
+            throw new NotificationException("Failed to process task event" + ex.getMessage(), ex);
         }
     }
 }
