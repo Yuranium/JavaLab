@@ -17,16 +17,19 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name="ai_chat")
+@Table(name = "ai_chat")
 public class AiChat {
 
-    // todo переработать логику id какой он будет
+    /**
+     * Храним conversationId (userId из body) как строку — избегаем парсинга/ошибок.
+     */
     @Id
-    private Long id;
+    @Column(name = "chat_id", nullable = false, length = 128)
+    private String id;
 
-    @OneToMany(mappedBy = "aiChat", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "aiChat", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("createdAt ASC")
-    private List<AiChatMessage> aiChatMessages = new ArrayList<>();;
+    private List<AiChatMessage> aiChatMessages = new ArrayList<>();
 
     @CreationTimestamp
     @TimeZoneStorage(TimeZoneStorageType.NORMALIZE)

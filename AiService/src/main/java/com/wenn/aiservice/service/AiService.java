@@ -19,27 +19,20 @@ import java.util.List;
 public class AiService {
 
     private final ChatClient chatClient;
-
     private final AiChatService aiChatService;
 
     @Value("${app.maxMessages}")
     private int maxMessage;
 
     public List<Message> getHistory(String conversationId) {
-        CustomPostgresChatMemory memory = CustomPostgresChatMemory.builder()
-                .aiChatService(aiChatService)
-                .maxMessages(maxMessage)
-                .build();
+        validateConversationId(conversationId);
+        ChatMemory memory = new CustomPostgresChatMemory(aiChatService, maxMessage);
         return memory.get(conversationId);
     }
 
     public void clearHistory(String conversationId) {
         validateConversationId(conversationId);
-        CustomPostgresChatMemory memory = CustomPostgresChatMemory.builder()
-                .aiChatService(aiChatService)
-                .maxMessages(maxMessage)
-                .build();
-        memory.clear(conversationId);
+        aiChatService.clearChatMessages(conversationId);
     }
 
     public String chat(String conversationId, String userMessage) {

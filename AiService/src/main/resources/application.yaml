@@ -1,16 +1,25 @@
 server:
   port: 8080
+  tomcat:
+    connection-timeout: 600s
+  servlet:
+    session:
+      timeout: 200s
 
 spring:
   application:
     name: AiService
-
+  webflux:
+    base-path: /
 
   datasource:
-    url: jdbc:postgresql://${PG_ENDPOINT:localhost:5433}/${PG_DATABASE}
-    username: ${PG_USERNAME}
-    password: ${PG_PASSWORD}
+    url: jdbc:postgresql://${PG_ENDPOINT:localhost:5433}/${PG_DATABASE:postgres}
+    username: ${PG_USERNAME:postgres}
+    password: ${PG_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      connection-timeout: 30000
 
   jpa:
     open-in-view: false
@@ -22,14 +31,17 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
   ai:
-    ollama:
-      base-url: http://${AI_ENDPOINT:localhost:11434}
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      base-url: ${AI_ENDPOINT:https://openrouter.ai/api}
       chat:
-        model: deepseek-r1:1.5b
         options:
-          temperature: 0.3
+          model: nvidia/nemotron-3-nano-30b-a3b:free
+          temperature: 0.0
+
 app:
   maxMessages: 10
+  systemPrompt: ${SYSTEM_PROMPT}
 
 logging:
   level:
