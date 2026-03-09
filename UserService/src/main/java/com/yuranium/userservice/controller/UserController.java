@@ -32,6 +32,18 @@ public class UserController
         );
     }
 
+    @GetMapping("/internal/email-notification")
+    public ResponseEntity<Iterable<String>> getEmails(
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "size", defaultValue = "30") Integer size
+    )
+    {
+        return new ResponseEntity<>(
+                userService.getEmails(PageRequest.of(page, size)),
+                HttpStatus.OK
+        );
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDto> getUser(@PathVariable Long id)
     {

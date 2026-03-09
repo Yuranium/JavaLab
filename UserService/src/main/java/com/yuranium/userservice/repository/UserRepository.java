@@ -1,6 +1,7 @@
 package com.yuranium.userservice.repository;
 
 import com.yuranium.userservice.models.entity.UserEntity;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -23,4 +24,7 @@ public interface UserRepository extends JpaRepository<UserEntity, Long>
             """, nativeQuery = true)
     @Transactional
     void deleteInactiveUsers(@Param("expiration_time") LocalDateTime expirationTime);
+
+    @Query(value = "SELECT u.email FROM UserEntity u")
+    Iterable<String> findAllEmails(Pageable pageable);
 }

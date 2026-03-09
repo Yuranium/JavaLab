@@ -56,6 +56,12 @@ public class UserService implements UserDetailsService
     }
 
     @Transactional(readOnly = true)
+    public Iterable<String> getEmails(PageRequest pageRequest)
+    {
+        return userRepository.findAllEmails(pageRequest);
+    }
+
+    @Transactional(readOnly = true)
     public UserResponseDto getUser(Long id)
     {
         return userMapper.toResponseDto(findByIdOrThrow(id));
