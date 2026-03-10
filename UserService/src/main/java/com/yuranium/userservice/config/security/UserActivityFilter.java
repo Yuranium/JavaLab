@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -43,9 +42,8 @@ public class UserActivityFilter extends OncePerRequestFilter
 
         try
         {
-            Jwt jwt = jwtAuth.getToken();
-            String keycloakId = jwt.getSubject();
-            userService.checkUserActivity(UUID.fromString(keycloakId));
+            String keycloakId = jwtAuth.getToken().getSubject();
+            userService.validateUser(UUID.fromString(keycloakId));
         } catch (Exception e)
         {
             response.setStatus(HttpStatus.FORBIDDEN.value());
@@ -58,7 +56,6 @@ public class UserActivityFilter extends OncePerRequestFilter
             ));
             return;
         }
-
         filterChain.doFilter(request, response);
     }
 }

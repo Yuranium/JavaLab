@@ -24,7 +24,7 @@ public class KeycloakService
 
     private final KeycloakConfig keycloakConfig;
 
-    public String createUser(UserRequestDto userDto)
+    public UUID createUser(UserRequestDto userDto)
     {
         UsersResource usersResource = keycloak.realm(keycloakConfig.getRealm()).users();
 
@@ -42,7 +42,7 @@ public class KeycloakService
         String userId = location.substring(location.lastIndexOf("/") + 1);
         usersResource.get(userId).roles().realmLevel().add(Collections.singletonList(role));
 
-        return userId;
+        return UUID.fromString(userId);
     }
 
     private UserRepresentation getUserRepresentation(String email, String username, String password)

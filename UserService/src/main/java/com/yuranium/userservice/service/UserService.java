@@ -21,6 +21,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -86,7 +87,7 @@ public class UserService
         String uploadedAvatarUrl = fileService.uploadFile(userDto.avatar());
         try
         {
-            String keycloakUserId = keycloakService.createUser(userDto);
+            UUID keycloakUserId = keycloakService.createUser(userDto);
             UserEntity savedUser = saveUserWithRelations(userDto, uploadedAvatarUrl, keycloakUserId);
             Integer confirmCode = authService.generateAuthCode();
             kafkaSender.sendUserRegisteredEvent(new UserRegisteredEvent(
@@ -105,12 +106,12 @@ public class UserService
     }
 
     private UserEntity saveUserWithRelations(
-            UserRequestDto userDto, String avatarUrl, String keycloakUserId
+            UserRequestDto userDto, String avatarUrl, UUID keycloakUserId
     )
     {
         UserEntity userEntity = userMapper.toEntity(userDto);
         userEntity.setAvatar(avatarUrl);
-        userEntity.setKeycloakId(UUID.fromString(keycloakUserId));
+        userEntity.setKeycloakId(keycloakUserId);
         UserEntity savedUser = userRepository.save(userEntity);
         backgroundRepository.save(new UserBackgroundEntity(userDto.timezone(), savedUser));
         return savedUser;
@@ -142,8 +143,8 @@ public class UserService
         userRepository.deleteById(id);
     }
 
-    @Transactional(readOnly = true)
-    public void checkUserActivity(UUID keycloakId)
+    @Transactional
+    public void validateUser(UUID keycloakId)
     {
         UserEntity user = userRepository.findByKeycloakId(keycloakId)
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -154,6 +155,7 @@ public class UserService
             throw new UnconfirmedAccountException(
                     "User account with keycloak_id=%s is disabled".formatted(keycloakId)
             );
+        user.getBackground().setLastLogin(LocalDateTime.now());
     }
 
     private UserEntity findByIdOrThrow(Long id)
