@@ -2,6 +2,7 @@ package com.yuranium.userservice.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yuranium.javalabcore.ExceptionBody;
+import com.yuranium.userservice.enums.RoleType;
 import com.yuranium.userservice.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -10,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
@@ -43,7 +45,8 @@ public class UserActivityFilter extends OncePerRequestFilter
         try
         {
             String keycloakId = jwtAuth.getToken().getSubject();
-            userService.validateUser(UUID.fromString(keycloakId));
+            if (!isServiceRequest(authentication))
+                userService.validateUser(UUID.fromString(keycloakId));
         } catch (Exception e)
         {
             response.setStatus(HttpStatus.FORBIDDEN.value());
@@ -57,5 +60,11 @@ public class UserActivityFilter extends OncePerRequestFilter
             return;
         }
         filterChain.doFilter(request, response);
+    }
+
+    private boolean isServiceRequest(Authentication authentication)
+    {
+        return authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals(RoleType.ROLE_SERVICE.name()));
     }
 }

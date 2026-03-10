@@ -18,6 +18,8 @@ public class KeycloakConfig
 
     private String realm;
 
+    private String currentRealm;
+
     private String username;
 
     private String password;
@@ -29,7 +31,7 @@ public class KeycloakConfig
     {
         return KeycloakBuilder.builder()
                 .serverUrl(url)
-                .realm("master")
+                .realm(realm)
                 .username(username)
                 .password(password)
                 .clientId(clientId)

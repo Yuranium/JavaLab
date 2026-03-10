@@ -26,14 +26,18 @@ public class AuthController
     private final UserService userService;
 
     @PostMapping("/send-confirmation-code")
-    public ResponseEntity<Integer> createConfirmationCode(@RequestBody UserRegisteredEvent event)
+    public ResponseEntity<Integer> createConfirmationCode(
+            @RequestBody UserRegisteredEvent event
+    )
     {
         authService.sendConfirmCode(event);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/verify-account")
-    public ResponseEntity<?> validateConfirmationCode(@RequestParam Long userId, @RequestParam Integer code)
+    public ResponseEntity<?> validateConfirmationCode(
+            @RequestParam Long userId, @RequestParam Integer code
+    )
     {
         return new ResponseEntity<>(
                 Map.of("accountVerified", authService.verifyAccount(userId, code)),
