@@ -26,13 +26,13 @@ public class KeycloakService
 
     public UUID createUser(UserRequestDto userDto)
     {
-        UsersResource usersResource = keycloak.realm(keycloakConfig.getRealm()).users();
+        UsersResource usersResource = keycloak.realm(keycloakConfig.getCurrentRealm()).users();
 
         UserRepresentation userRep = getUserRepresentation(
                 userDto.email(), userDto.username(), userDto.password()
         );
 
-        RoleRepresentation role = keycloak.realm(keycloakConfig.getRealm())
+        RoleRepresentation role = keycloak.realm(keycloakConfig.getCurrentRealm())
                 .roles().get(RoleType.ROLE_USER.name()).toRepresentation();
 
         Response response = usersResource.create(userRep);
@@ -64,18 +64,18 @@ public class KeycloakService
 
     public void deleteUser(UUID keycloakUserId)
     {
-        UsersResource usersResource = keycloak.realm(keycloakConfig.getRealm()).users();
+        UsersResource usersResource = keycloak.realm(keycloakConfig.getCurrentRealm()).users();
         usersResource.delete(keycloakUserId.toString());
     }
 
     public void verifyUser(UUID keycloakUserId)
     {
-        UserRepresentation user = keycloak.realm(keycloakConfig.getRealm())
+        UserRepresentation user = keycloak.realm(keycloakConfig.getCurrentRealm())
                 .users()
                 .get(String.valueOf(keycloakUserId))
                 .toRepresentation();
         user.setEmailVerified(true);
-        keycloak.realm(keycloakConfig.getRealm())
+        keycloak.realm(keycloakConfig.getCurrentRealm())
                 .users()
                 .get(String.valueOf(keycloakUserId))
                 .update(user);

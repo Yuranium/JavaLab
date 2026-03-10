@@ -25,6 +25,22 @@ spring:
           idempotence: true
       acks: all
 
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            token-uri: ${KEYCLOAK_PROVIDER_URI}
+        client-registration-name: task-service-client
+        registration:
+          task-service-client:
+            provider: keycloak
+            authorization-grant-type: client_credentials
+            client-id: ${spring.application.name}
+            client-secret: ${TASK_CLIENT_SECRET}
+            client-authentication-method: client_secret_basic
+            scope: openid
+
 kafka:
   topic-names:
     task-created: ${TASK_CREATED_TOPIC}

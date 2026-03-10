@@ -58,7 +58,7 @@ public class SecurityConfig
             Map<String, Object> realmAccess = jwt.getClaim("realm_access");
             if (realmAccess == null) return Collections.emptySet();
 
-            Collection<String> roles = (Collection<String>) realmAccess.get("role_list");
+            Collection<String> roles = (Collection<String>) realmAccess.get("roles");
             if (roles == null) return Collections.emptySet();
 
             return roles.stream()
