@@ -27,8 +27,7 @@ public class UserServiceClient {
     public List<String> getEmails(int page, int size) {
         try {
 
-            String url = userServiceUrl +
-                    "/api/v1/user/internal/email-notification?page={page}&size={size}";
+            String url = userServiceUrl;
 
             ResponseEntity<List<String>> response =
                     restTemplate.exchange(
