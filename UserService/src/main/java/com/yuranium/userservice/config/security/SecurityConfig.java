@@ -31,13 +31,16 @@ public class SecurityConfig
     {
         return security.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/oauth2/**", "/api/v1/auth/**")
-                        .permitAll()
+                        .requestMatchers("/oauth2/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/send-confirmation-code").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/verify-account").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/user").permitAll()
-                        .requestMatchers("/api/v1/user/internal/**").hasAnyRole("ADMIN", "SERVICE")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/user").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/user/**")
-                        .authenticated())
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/user/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/user").hasAnyRole("ADMIN", "SERVICE")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/user/**").hasAnyRole("ADMIN", "SERVICE")
+                        .requestMatchers("/api/v1/auth/**").authenticated()
+                        .anyRequest().authenticated()
+                )
                 .oauth2ResourceServer(auth -> auth.jwt(Customizer.withDefaults()))
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

@@ -1,13 +1,19 @@
 package com.yuranium.userservice.controller;
 
 import com.yuranium.javalabcore.UserRegisteredEvent;
+import com.yuranium.userservice.models.dto.UserResponseDto;
+import com.yuranium.userservice.models.dto.UserUpdateDto;
 import com.yuranium.userservice.service.AuthService;
+import com.yuranium.userservice.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @CrossOrigin("*")
@@ -16,6 +22,8 @@ import java.util.Map;
 public class AuthController
 {
     private final AuthService authService;
+
+    private final UserService userService;
 
     @PostMapping("/send-confirmation-code")
     public ResponseEntity<Integer> createConfirmationCode(@RequestBody UserRegisteredEvent event)
@@ -29,6 +37,30 @@ public class AuthController
     {
         return new ResponseEntity<>(
                 Map.of("accountVerified", authService.verifyAccount(userId, code)),
+                HttpStatus.OK
+        );
+    }
+
+    @GetMapping
+    public ResponseEntity<UserResponseDto> getUser(@AuthenticationPrincipal Jwt jwt)
+    {
+        return new ResponseEntity<>(
+                userService.getUser(UUID.fromString(jwt.getSubject())),
+                HttpStatus.OK
+        );
+    }
+
+    @PatchMapping
+    public ResponseEntity<UserResponseDto> updateUser(
+            @AuthenticationPrincipal Jwt jwt,
+            @ModelAttribute UserUpdateDto userDto
+    )
+    {
+        return new ResponseEntity<>(
+                userService.updateUser(
+                        UUID.fromString(jwt.getSubject()),
+                        userDto
+                ),
                 HttpStatus.OK
         );
     }
