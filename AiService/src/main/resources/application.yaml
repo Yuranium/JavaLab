@@ -39,6 +39,22 @@ spring:
           model: nvidia/nemotron-3-nano-30b-a3b:free
           temperature: 0.0
 
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            token-uri: ${KEYCLOAK_PROVIDER_URI}
+        client-registration-name: ai-service-client
+        registration:
+          ai-service-client:
+            provider: keycloak
+            authorization-grant-type: client_credentials
+            client-id: ${spring.application.name}
+            client-secret: ${AI_CLIENT_SECRET}
+            client-authentication-method: client_secret_basic
+            scope: openid
+
 app:
   maxMessages: 10
   systemPrompt: ${SYSTEM_PROMPT}

@@ -1,6 +1,5 @@
 package com.javalab.taskservice.config;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,7 +8,6 @@ import org.springframework.security.oauth2.client.web.client.OAuth2ClientHttpReq
 import org.springframework.web.client.RestClient;
 
 @Configuration
-@RequiredArgsConstructor
 public class RestClientConfig
 {
     @Bean

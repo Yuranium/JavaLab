@@ -35,14 +35,15 @@ public class KeycloakService
         RoleRepresentation role = keycloak.realm(keycloakConfig.getCurrentRealm())
                 .roles().get(RoleType.ROLE_USER.name()).toRepresentation();
 
-        Response response = usersResource.create(userRep);
-        if (response.getStatus() != 201)
-            throw new ResourceNotCreatedException("Failed to create user in Keycloak");
-        String location = response.getLocation().getPath();
-        String userId = location.substring(location.lastIndexOf("/") + 1);
-        usersResource.get(userId).roles().realmLevel().add(Collections.singletonList(role));
-
-        return UUID.fromString(userId);
+        try (Response response = usersResource.create(userRep))
+        {
+            if (response.getStatus() != 201)
+                throw new ResourceNotCreatedException("Failed to create user in Keycloak");
+            String location = response.getLocation().getPath();
+            String userId = location.substring(location.lastIndexOf("/") + 1);
+            usersResource.get(userId).roles().realmLevel().add(Collections.singletonList(role));
+            return UUID.fromString(userId);
+        }
     }
 
     private UserRepresentation getUserRepresentation(String email, String username, String password)

@@ -1,3 +1,19 @@
 spring:
   application:
     name: ProgressService
+
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            token-uri: ${KEYCLOAK_PROVIDER_URI}
+        client-registration-name: progress-service-client
+        registration:
+          progress-service-client:
+            provider: keycloak
+            authorization-grant-type: client_credentials
+            client-id: ${spring.application.name}
+            client-secret: ${PROGRESS_CLIENT_SECRET}
+            client-authentication-method: client_secret_basic
+            scope: openid
