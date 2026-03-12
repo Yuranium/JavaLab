@@ -1,6 +1,6 @@
 package com.yuranium.userservice.service;
 
-import com.yuranium.javalabcore.UserRegisteredEvent;
+import com.yuranium.javalabcore.events.UserRegisteredEvent;
 import com.yuranium.userservice.models.entity.ConfirmationCodeEntity;
 import com.yuranium.userservice.models.entity.UserEntity;
 import com.yuranium.userservice.repository.ConfirmCodeRepository;

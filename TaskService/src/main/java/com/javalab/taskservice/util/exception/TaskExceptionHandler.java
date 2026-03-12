@@ -1,6 +1,7 @@
 package com.javalab.taskservice.util.exception;
 
 import com.yuranium.javalabcore.ExceptionBody;
+import com.yuranium.javalabcore.exception.ResourceAlreadyExistsException;
 import lombok.NonNull;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;

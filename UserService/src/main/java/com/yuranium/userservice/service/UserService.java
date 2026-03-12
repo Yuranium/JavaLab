@@ -1,7 +1,8 @@
 package com.yuranium.userservice.service;
 
-import com.yuranium.javalabcore.UserRegisteredEvent;
+import com.yuranium.javalabcore.events.UserRegisteredEvent;
 import com.yuranium.javalabcore.exception.ResourceAlreadyExistsException;
+import com.yuranium.javalabcore.exception.ResourceNotCreatedException;
 import com.yuranium.userservice.mapper.UserMapper;
 import com.yuranium.userservice.models.dto.UserRequestDto;
 import com.yuranium.userservice.models.dto.UserResponseDto;
@@ -13,7 +14,6 @@ import com.yuranium.userservice.repository.UserBackgroundRepository;
 import com.yuranium.userservice.repository.UserIdempotencyRepository;
 import com.yuranium.userservice.repository.UserRepository;
 import com.yuranium.userservice.service.kafka.KafkaSender;
-import com.yuranium.userservice.util.exception.ResourceNotCreatedException;
 import com.yuranium.userservice.util.exception.UnconfirmedAccountException;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.errors.ResourceNotFoundException;

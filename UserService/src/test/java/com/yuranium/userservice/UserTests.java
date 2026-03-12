@@ -1,6 +1,6 @@
 package com.yuranium.userservice;
 
-import com.yuranium.javalabcore.UserRegisteredEvent;
+import com.yuranium.javalabcore.events.UserRegisteredEvent;
 import com.yuranium.userservice.mapper.UserMapper;
 import com.yuranium.userservice.models.dto.UserRequestDto;
 import com.yuranium.userservice.models.dto.UserResponseDto;
@@ -90,7 +90,6 @@ public class UserTests
         verify(fileService).uploadFile(requestDto.avatar());
         verify(userMapper).toEntity(requestDto);
         verify(userRepository).save(userEntity);
-        verify(authService).setAuthForLocalUser(userEntity, requestDto);
         verify(backgroundRepository).save(any(UserBackgroundEntity.class));
         verify(kafkaSender).sendUserRegisteredEvent(any(UserRegisteredEvent.class));
         verify(authService).createConfirmCode(userEntity.getId(), confirmCode);
@@ -109,6 +108,7 @@ public class UserTests
                 LocalDateTime.now(),
                 null,
                 false,
+                true,
                 "Europe/Moscow"
         );
     }
@@ -122,6 +122,7 @@ public class UserTests
                 "password",
                 "john.doe@example.com",
                 avatarFile,
+                true,
                 "Europe/Moscow"
         );
     }

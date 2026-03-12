@@ -1,9 +1,9 @@
 package com.yuranium.userservice.service;
 
+import com.yuranium.javalabcore.exception.ResourceNotCreatedException;
 import com.yuranium.userservice.config.KeycloakConfig;
 import com.yuranium.userservice.enums.RoleType;
 import com.yuranium.userservice.models.dto.UserRequestDto;
-import com.yuranium.userservice.util.exception.ResourceNotCreatedException;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import org.keycloak.admin.client.Keycloak;

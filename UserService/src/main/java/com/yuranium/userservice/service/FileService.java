@@ -1,7 +1,7 @@
 package com.yuranium.userservice.service;
 
+import com.yuranium.javalabcore.exception.ResourceNotCreatedException;
 import com.yuranium.userservice.config.s3.BackblazeConfig;
-import com.yuranium.userservice.util.exception.ResourceNotCreatedException;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;

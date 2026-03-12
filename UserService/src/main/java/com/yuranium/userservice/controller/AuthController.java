@@ -1,6 +1,6 @@
 package com.yuranium.userservice.controller;
 
-import com.yuranium.javalabcore.UserRegisteredEvent;
+import com.yuranium.javalabcore.events.UserRegisteredEvent;
 import com.yuranium.userservice.models.dto.UserResponseDto;
 import com.yuranium.userservice.models.dto.UserUpdateDto;
 import com.yuranium.userservice.service.AuthService;

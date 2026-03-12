@@ -1,7 +1,7 @@
 package com.wenn.notificationservice.service;
 
 import com.wenn.notificationservice.client.UserServiceClient;
-import com.yuranium.javalabcore.TaskCreatedEvent;
+import com.yuranium.javalabcore.events.TaskCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

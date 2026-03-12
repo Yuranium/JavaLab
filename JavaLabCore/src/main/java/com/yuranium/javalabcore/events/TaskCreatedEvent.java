@@ -1,4 +1,4 @@
-package com.yuranium.javalabcore;
+package com.yuranium.javalabcore.events;
 
 import java.io.Serializable;
 import java.util.Collection;
