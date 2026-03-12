@@ -18,6 +18,8 @@ public record UserResponseDto(
 
         Boolean activity,
 
+        Boolean notifyEnabled,
+
         String timezone
 
 ) implements Serializable {}

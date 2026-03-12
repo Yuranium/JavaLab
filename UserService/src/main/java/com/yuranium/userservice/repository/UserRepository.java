@@ -3,6 +3,7 @@ package com.yuranium.userservice.repository;
 import com.yuranium.userservice.models.entity.UserEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -25,8 +26,9 @@ public interface UserRepository extends JpaRepository<UserEntity, Long>
     @Transactional
     void deleteInactiveUsers(@Param("expiration_time") LocalDateTime expirationTime);
 
+    @EntityGraph(attributePaths = "background")
     Optional<UserEntity> findByKeycloakId(UUID keycloakId);
 
-    @Query(value = "SELECT u.email FROM UserEntity u")
-    Page<String> findAllEmails(Pageable pageable);
+    @Query(value = "SELECT u.email FROM UserEntity u WHERE u.background.notifyEnabled = true")
+    Page<String> findSuitableEmails(Pageable pageable);
 }

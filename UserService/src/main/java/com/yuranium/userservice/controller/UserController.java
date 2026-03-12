@@ -38,7 +38,7 @@ public class UserController
     )
     {
         return new ResponseEntity<>(
-                userService.getEmails(PageRequest.of(page, size)),
+                userService.getEmailsForNotify(PageRequest.of(page, size)),
                 HttpStatus.OK
         );
     }

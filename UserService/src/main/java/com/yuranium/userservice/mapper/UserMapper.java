@@ -13,6 +13,7 @@ public interface UserMapper
     @Mapping(target = "activity", source = "background.activity")
     @Mapping(target = "timezone", source = "background.timezone")
     @Mapping(target = "lastLogin", source = "background.lastLogin")
+    @Mapping(target = "notifyEnabled", source = "background.notifyEnabled")
     UserResponseDto toResponseDto(UserEntity userEntity);
 
     Iterable<UserResponseDto> toResponseDto(Iterable<UserEntity> userEntityList);
@@ -27,4 +28,14 @@ public interface UserMapper
     @Mapping(target = "avatar", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntity(@MappingTarget UserEntity userEntity, UserUpdateDto userUpdateDto);
+
+    @AfterMapping
+    default void updateBackground(@MappingTarget UserEntity userEntity, UserUpdateDto userUpdateDto)
+    {
+        if (userUpdateDto == null)
+            return;
+
+        if (userUpdateDto.notifyEnabled() != null)
+            userEntity.getBackground().setNotifyEnabled(userUpdateDto.notifyEnabled());
+    }
 }

@@ -53,9 +53,9 @@ public class UserService
     }
 
     @Transactional(readOnly = true)
-    public Iterable<String> getEmails(PageRequest pageRequest)
+    public Iterable<String> getEmailsForNotify(PageRequest pageRequest)
     {
-        return userRepository.findAllEmails(pageRequest).getContent();
+        return userRepository.findSuitableEmails(pageRequest).getContent();
     }
 
     @Transactional(readOnly = true)
@@ -85,9 +85,10 @@ public class UserService
         idempotencyRepository.save(new UserIdempotencyEntity(idempotencyKey));
 
         String uploadedAvatarUrl = fileService.uploadFile(userDto.avatar());
+        UUID keycloakUserId = null;
         try
         {
-            UUID keycloakUserId = keycloakService.createUser(userDto);
+            keycloakUserId = keycloakService.createUser(userDto);
             UserEntity savedUser = saveUserWithRelations(userDto, uploadedAvatarUrl, keycloakUserId);
             Integer confirmCode = authService.generateAuthCode();
             kafkaSender.sendUserRegisteredEvent(new UserRegisteredEvent(
@@ -99,6 +100,8 @@ public class UserService
             return userMapper.toResponseDto(savedUser);
         } catch (Exception exc)
         {
+            if (keycloakUserId != null)
+                keycloakService.deleteUser(keycloakUserId);
             if (uploadedAvatarUrl != null)
                 fileService.deleteFile(uploadedAvatarUrl);
             throw new ResourceNotCreatedException(exc.getMessage());
@@ -113,7 +116,7 @@ public class UserService
         userEntity.setAvatar(avatarUrl);
         userEntity.setKeycloakId(keycloakUserId);
         UserEntity savedUser = userRepository.save(userEntity);
-        backgroundRepository.save(new UserBackgroundEntity(userDto.timezone(), savedUser));
+        backgroundRepository.save(new UserBackgroundEntity(userDto, savedUser));
         return savedUser;
     }
 

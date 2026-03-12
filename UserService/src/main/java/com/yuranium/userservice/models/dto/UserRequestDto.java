@@ -17,6 +17,8 @@ public record UserRequestDto(
 
         MultipartFile avatar,
 
+        Boolean notifyEnabled,
+
         String timezone
 
 ) implements Serializable {}

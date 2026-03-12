@@ -1,5 +1,6 @@
 package com.yuranium.userservice.models.entity;
 
+import com.yuranium.userservice.models.dto.UserRequestDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -32,6 +33,9 @@ public class UserBackgroundEntity
     @Column(name = "timezone", columnDefinition = "VARCHAR(50)", nullable = false)
     private String timezone;
 
+    @Column(name = "notify_enabled", columnDefinition = "BOOLEAN", nullable = false)
+    private Boolean notifyEnabled = true;
+
     @Column(name = "activity", columnDefinition = "BOOLEAN", nullable = false)
     private Boolean activity = false;
 
@@ -39,9 +43,11 @@ public class UserBackgroundEntity
     @JoinColumn(name = "id_user")
     private UserEntity user;
 
-    public UserBackgroundEntity(String timezone, UserEntity user)
+    public UserBackgroundEntity(UserRequestDto userDto, UserEntity user)
     {
-        this.timezone = timezone;
+        this.timezone = userDto.timezone();
+        if (userDto.notifyEnabled() != null)
+            this.notifyEnabled = userDto.notifyEnabled();
         this.user = user;
         user.setBackground(this);
     }

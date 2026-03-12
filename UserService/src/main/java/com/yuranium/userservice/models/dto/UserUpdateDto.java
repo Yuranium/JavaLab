@@ -9,6 +9,8 @@ public record UserUpdateDto(
 
         String lastName,
 
-        MultipartFile avatar
+        MultipartFile avatar,
+
+        Boolean notifyEnabled
 
 ) implements Serializable {}

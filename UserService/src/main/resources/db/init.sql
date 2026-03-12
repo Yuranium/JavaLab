@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS user_background
     date_registration TIMESTAMP   NOT NULL DEFAULT current_timestamp,
     last_login        TIMESTAMP,
     timezone          VARCHAR(50) NOT NULL,
+    notify_enabled    BOOLEAN     NOT NULL DEFAULT TRUE,
     activity          BOOLEAN     NOT NULL DEFAULT FALSE::BOOLEAN,
     id_user           BIGINT UNIQUE REFERENCES public.user (id_user) ON DELETE CASCADE ON UPDATE CASCADE
 );
