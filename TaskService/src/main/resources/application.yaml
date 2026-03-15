@@ -41,6 +41,10 @@ spring:
             client-authentication-method: client_secret_basic
             scope: openid
 
+      resourceserver:
+        jwt:
+          issuer-uri: ${OAUTH2_ISSUER_URI}
+
 kafka:
   topic-names:
     task-created: ${TASK_CREATED_TOPIC}
