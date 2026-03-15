@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -20,7 +21,7 @@ public class EmailService {
     private final JavaMailSender mailSender;
     private final HtmlGenerator htmlGenerator;
 
-
+    @Async("emailExecutor")
     public void sendVerificationCode(String toEmail, String username, Integer code) {
         try {
             String html = htmlGenerator.generateVerificationHtml(username, toEmail, code);
@@ -36,6 +37,7 @@ public class EmailService {
         }
     }
 
+    @Async("emailExecutor")
     public void sendTaskCreatedEmail(String toEmail,
                                      String title,
                                      String difficulty,
