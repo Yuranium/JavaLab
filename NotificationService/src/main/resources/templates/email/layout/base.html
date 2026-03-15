@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Email</title>
+
+    <style>
+        body {
+            margin:0;
+            padding:0;
+            background:#f4f6f8;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .container {
+            max-width:600px;
+            margin:40px auto;
+            background:white;
+            border-radius:12px;
+            box-shadow:0 10px 25px rgba(0,0,0,0.08);
+            overflow:hidden;
+        }
+
+        .content {
+            padding:32px;
+            color:#1f2937;
+            line-height:1.6;
+        }
+
+        .button {
+            display:inline-block;
+            padding:12px 20px;
+            background:#2563eb;
+            color:white;
+            border-radius:8px;
+            text-decoration:none;
+            font-weight:600;
+        }
+
+        .code {
+            font-size:28px;
+            letter-spacing:6px;
+            padding:14px 22px;
+            background:#eef2ff;
+            border-radius:10px;
+            font-weight:700;
+            color:#1e3a8a;
+            display:inline-block;
+        }
+
+        ul {
+            padding-left:20px;
+        }
+
+        .difficulty {
+            color:#2563eb;
+            font-weight:600;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div th:replace="email/fragments/header :: header"></div>
+
+    <div class="content">
+        <div th:insert="${content}"></div>
+    </div>
+
+    <div th:replace="email/fragments/footer :: footer"></div>
+
+</div>
+
+</body>
+</html>
