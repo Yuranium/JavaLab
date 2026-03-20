@@ -73,6 +73,8 @@ services:
       - "--providers.file.watch=true"
       - "--entrypoints.web.address=:80"
       - "--log.level=DEBUG"
+    environment:
+      ALLOW_ORIGIN_1: ${TRAEFIK_ALLOW_ORIGIN_1}
     networks:
       - traefik-net
 

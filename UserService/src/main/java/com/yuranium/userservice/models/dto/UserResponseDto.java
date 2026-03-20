@@ -12,6 +12,10 @@ public record UserResponseDto(
 
         String lastName,
 
+        String email,
+
+        String avatar,
+
         LocalDateTime dateRegistration,
 
         LocalDateTime lastLogin,
