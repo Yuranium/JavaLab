@@ -1,0 +1,35 @@
+.profile-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  width: 100%;
+  justify-content: center;
+}
+
+.profile-status--verified {
+  background-color: rgba(39, 174, 96, 0.1);
+  color: #27ae60;
+  border: 1px solid rgba(39, 174, 96, 0.3);
+}
+
+.profile-status--unverified {
+  background-color: rgba(241, 196, 15, 0.1);
+  color: #f39c12;
+  border: 1px solid rgba(241, 196, 15, 0.3);
+}
+
+.profile-status-icon {
+  flex-shrink: 0;
+}
+
+.profile-status--verified .profile-status-icon {
+  color: #27ae60;
+}
+
+.profile-status--unverified .profile-status-icon {
+  color: #f39c12;
+}

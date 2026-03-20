@@ -1,0 +1,6 @@
+.register-page {
+  min-height: calc(100vh - 64px);
+  background-color: var(--background-color);
+  display: flex;
+  align-items: center;
+}

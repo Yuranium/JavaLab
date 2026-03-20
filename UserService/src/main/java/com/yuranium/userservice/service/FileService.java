@@ -3,14 +3,12 @@ package com.yuranium.userservice.service;
 import com.yuranium.javalabcore.exception.ResourceNotCreatedException;
 import com.yuranium.userservice.config.s3.BackblazeConfig;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
-import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.time.LocalDateTime;
@@ -36,10 +34,10 @@ public class FileService
 
         try
         {
-            String key = AVATAR_FOLDER + "/" + UUID.randomUUID() + "_" + file.getOriginalFilename();
+            String key = generateKey(file.getOriginalFilename());
 
             Map<String, String> metadata = new HashMap<>();
-            metadata.put("original-filename", file.getOriginalFilename());
+            metadata.put("original-filename", validateFilename(file.getOriginalFilename()));
             metadata.put("upload-timestamp", LocalDateTime.now().toString());
 
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
@@ -61,49 +59,53 @@ public class FileService
         }
     }
 
-    public void deleteFile(String fileName)
+    public String updateFile(String fileName, MultipartFile newFile)
     {
-        if (fileName == null || fileName.isEmpty())
-            return;
+        if (newFile == null || newFile.isEmpty())
+            return null;
+
         try
         {
-            DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
-                    .bucket(backblazeConfig.getBucketName())
-                    .key(fileName)
-                    .build();
-            s3Client.deleteObject(deleteObjectRequest);
-
-        } catch (NoSuchKeyException ignored)
+            String newFileName = uploadFile(newFile);
+            deleteFile(fileName);
+            return newFileName;
+        } catch (Exception e)
         {
+            throw new ResourceNotCreatedException("Failed to update avatar: " + e.getMessage());
         }
     }
 
-//    public byte[] downloadFile(String fileKey)
-//    {
-//        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-//                .bucket(backblazeConfig.getBucketName())
-//                .key(fileKey)
-//                .build();
-//
-//        ResponseBytes<GetObjectResponse> objectBytes = s3Client.getObjectAsBytes(getObjectRequest);
-//        return objectBytes.asByteArray();
-//    }
-
-    @SneakyThrows
-    public String updateFile(String fileName, MultipartFile file)
+    public void deleteFile(String fileName)
     {
-        if (fileName == null || fileName.isEmpty() || file == null || file.isEmpty())
-            return null;
+        if (fileName == null || fileName.isEmpty())
+            throw new IllegalArgumentException("parameter 'fileName' cannot be empty or null");
 
-        deleteFile(fileName);
-        return uploadFile(file);
+        DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+                .bucket(backblazeConfig.getBucketName())
+                .key(fileName)
+                .build();
+        s3Client.deleteObject(deleteObjectRequest);
     }
 
     private String generateFileUrl(String fileKey)
     {
-        return String.format("https://%s.%s/%s",
+        return String.format(
+                "https://%s.%s/%s",
                 backblazeConfig.getBucketName(),
                 backblazeConfig.getEndpoint().replace("https://", ""),
-                fileKey);
+                fileKey
+        );
+    }
+
+    private String generateKey(String fileName)
+    {
+        return AVATAR_FOLDER + "/" + UUID.randomUUID() + "_" + fileName;
+    }
+
+    private String validateFilename(String fileName)
+    {
+        return fileName
+                .trim()
+                .replaceAll(" ", "_");
     }
 }

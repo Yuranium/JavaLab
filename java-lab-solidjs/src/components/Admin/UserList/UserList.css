@@ -1,0 +1,36 @@
+.user-list {
+  width: 70%;
+  max-width: 900px;
+  margin: 0 auto;
+  position: relative;
+  overflow: visible;
+}
+
+.user-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.user-list-load-more {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.user-list-load-more-btn {
+  padding: 12px 32px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.user-list-load-more-btn:hover {
+  background-color: var(--primary-dark);
+  box-shadow: var(--shadow-md);
+}

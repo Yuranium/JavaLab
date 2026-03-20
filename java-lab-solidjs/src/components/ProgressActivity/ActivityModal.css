@@ -1,0 +1,334 @@
+/* Переменные для уровней активности */
+:root {
+  --activity-level-0: #ebedf0;
+  --activity-level-1: #9be9a8;
+  --activity-level-2: #40c463;
+  --activity-level-3: #30a14e;
+  --activity-level-4: #216e39;
+}
+
+[data-theme="dark"] {
+  --activity-level-0: #2d2d35;
+  --activity-level-1: #1f6f3a;
+  --activity-level-2: #2ea043;
+  --activity-level-3: #46c65a;
+  --activity-level-4: #5ae36d;
+}
+
+/* Backdrop */
+.activity-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  backdrop-filter: blur(4px);
+}
+
+.activity-modal-backdrop.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Modal */
+.activity-modal {
+  background-color: var(--surface-color);
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 900px;
+  width: 95%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--border-color);
+  position: relative;
+  transform: scale(0.9) translateY(20px);
+  transition: transform 0.3s ease;
+}
+
+.activity-modal.visible {
+  transform: scale(1) translateY(0);
+}
+
+/* Close button */
+.activity-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.activity-modal-close:hover {
+  background-color: var(--hover-color);
+  color: var(--text-primary);
+}
+
+/* Title */
+.activity-modal-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.activity-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-right: 40px;
+}
+
+/* Выпадающий список годов */
+.activity-year-select {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background-color: var(--surface-color);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.activity-year-select:hover {
+  border-color: var(--primary-color);
+}
+
+.activity-year-select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px var(--primary-color);
+}
+
+/* Stats */
+.activity-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.activity-stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.activity-stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.activity-stat-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+/* Heatmap container */
+.activity-heatmap-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Названия месяцев */
+.activity-months-header {
+  width: 100% !important;
+  display: flex;
+  gap: 3px;
+  margin-bottom: 4px;
+  overflow: hidden;
+  justify-content: space-around;
+}
+
+.activity-month-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-align: left;
+  white-space: nowrap;
+}
+
+/* Контейнер heatmap с прокруткой */
+.activity-heatmap-wrapper {
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.activity-heatmap-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+
+.activity-heatmap-wrapper::-webkit-scrollbar-track {
+  background: var(--background-color);
+  border-radius: 4px;
+}
+
+.activity-heatmap-wrapper::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+.activity-heatmap-wrapper::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* Heatmap - 7 строк */
+.activity-heatmap {
+  display: flex;
+  flex-direction: column;
+  /* gap: 3px; */
+}
+
+/* Строка heatmap */
+.activity-heatmap-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Подпись дня недели */
+.activity-day-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  width: 28px;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+/* Контейнер ячеек */
+.activity-cells {
+  display: flex;
+  row-gap: 3px;
+  column-gap: 5px;
+}
+
+/* Activity cells */
+.activity-cell {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background-color: var(--activity-level-0);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.activity-cell.activity-level-0 {
+  background-color: var(--activity-level-0);
+}
+
+.activity-cell.activity-level-1 {
+  background-color: var(--activity-level-1);
+}
+
+.activity-cell.activity-level-2 {
+  background-color: var(--activity-level-2);
+}
+
+.activity-cell.activity-level-3 {
+  background-color: var(--activity-level-3);
+}
+
+.activity-cell.activity-level-4 {
+  background-color: var(--activity-level-4);
+}
+
+.activity-cell:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  position: relative;
+}
+
+/* Legend */
+.activity-legend {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  padding-top: 8px;
+}
+
+.activity-legend-cells {
+  display: flex;
+  gap: 4px;
+}
+
+/* Scrollbar */
+.activity-modal::-webkit-scrollbar {
+  width: 8px;
+}
+
+.activity-modal::-webkit-scrollbar-track {
+  background: var(--background-color);
+  border-radius: 4px;
+}
+
+.activity-modal::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+.activity-modal::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  .activity-modal {
+    padding: 20px;
+    width: 95%;
+  }
+
+  .activity-modal-title {
+    font-size: 20px;
+  }
+
+  .activity-stats {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  .activity-stat-value {
+    font-size: 22px;
+  }
+
+  .activity-stat-label {
+    font-size: 10px;
+  }
+
+  .activity-heatmap {
+    grid-template-columns: auto repeat(8, 1fr);
+  }
+
+  .activity-cell {
+    width: 10px;
+    height: 10px;
+  }
+}

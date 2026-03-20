@@ -1,0 +1,95 @@
+.profile-info {
+  background-color: var(--surface-color);
+}
+
+.profile-info-section {
+  margin-bottom: 24px;
+}
+
+.profile-info-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 20px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.profile-info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.profile-info-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.profile-info-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.profile-info-value {
+  font-size: 16px;
+  color: var(--text-primary);
+  padding: 10px 12px;
+  background-color: var(--background-color);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.profile-info-value--clickable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.profile-info-value--clickable:hover {
+  border-color: var(--primary-color);
+  background-color: var(--hover-color);
+}
+
+.profile-info-edit-icon {
+  color: var(--text-secondary);
+  flex-shrink: 0;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.profile-info-value--clickable:hover .profile-info-edit-icon {
+  opacity: 1;
+  color: var(--primary-color);
+}
+
+.profile-info-editable {
+  position: relative;
+}
+
+.profile-info-input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 16px;
+  color: var(--text-primary);
+  background-color: var(--background-color);
+  border: 1px solid var(--primary-color);
+  border-radius: 8px;
+  outline: none;
+  transition: box-shadow 0.2s ease;
+}
+
+.profile-info-input:focus {
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.profile-info-input::placeholder {
+  color: var(--text-secondary);
+}

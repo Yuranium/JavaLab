@@ -1,0 +1,120 @@
+.form-file-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.form-file-input-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.form-file-input-container {
+  position: relative;
+}
+
+.form-file-input {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed var(--border-color);
+  border-radius: 8px;
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: var(--surface-color);
+}
+
+.form-file-input:hover {
+  border-color: var(--primary-color);
+  background-color: var(--hover-color);
+}
+
+.form-file-input--dragging {
+  border-color: var(--primary-color);
+  background-color: rgba(99, 102, 241, 0.1);
+  border-style: solid;
+}
+
+.form-file-input-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-file-input-icon {
+  width: 48px;
+  height: 48px;
+  color: var(--text-secondary);
+}
+
+.form-file-input-text {
+  font-size: 14px;
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.form-file-input-hint {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.form-file-input-hidden {
+  display: none;
+}
+
+.form-file-preview {
+  position: relative;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px;
+  background-color: var(--surface-color);
+}
+
+.form-file-preview-image {
+  max-width: 100%;
+  max-height: 200px;
+  border-radius: 4px;
+  object-fit: contain;
+}
+
+.form-file-remove-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.form-file-remove-btn:hover {
+  background-color: #dc2626;
+  transform: scale(1.1);
+}
+
+.form-file-remove-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.form-file-name {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.form-file-input-error {
+  font-size: 12px;
+  color: #ef4444;
+  margin-top: -2px;
+}
