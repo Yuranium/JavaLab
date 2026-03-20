@@ -1,4 +1,4 @@
-package com.yuranium.javalabcore.exception;
+package com.javalab.core.exception;
 
 public class ResourceAlreadyExistsException extends RuntimeException
 {

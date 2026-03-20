@@ -1,6 +1,6 @@
 package com.yuranium.userservice.service;
 
-import com.yuranium.javalabcore.exception.ResourceNotCreatedException;
+import com.javalab.core.exception.ResourceNotCreatedException;
 import com.yuranium.userservice.config.KeycloakConfig;
 import com.yuranium.userservice.enums.RoleType;
 import com.yuranium.userservice.models.dto.UserRequestDto;

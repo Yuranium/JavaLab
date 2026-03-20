@@ -1,8 +1,8 @@
 package com.yuranium.userservice.util.exception;
 
-import com.yuranium.javalabcore.ExceptionBody;
-import com.yuranium.javalabcore.exception.ResourceAlreadyExistsException;
-import com.yuranium.javalabcore.exception.ResourceNotCreatedException;
+import com.javalab.core.ExceptionBody;
+import com.javalab.core.exception.ResourceAlreadyExistsException;
+import com.javalab.core.exception.ResourceNotCreatedException;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -4,7 +4,7 @@ import com.javalab.taskservice.dto.request.CategoryRequestDto;
 import com.javalab.taskservice.dto.response.CategoryResponseDto;
 import com.javalab.taskservice.enums.JavaCategory;
 import com.javalab.taskservice.repository.CategoryRepository;
-import com.yuranium.javalabcore.exception.ResourceAlreadyExistsException;
+import com.javalab.core.exception.ResourceAlreadyExistsException;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.stereotype.Service;

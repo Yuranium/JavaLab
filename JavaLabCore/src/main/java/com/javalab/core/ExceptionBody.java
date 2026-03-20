@@ -1,4 +1,4 @@
-package com.yuranium.javalabcore;
+package com.javalab.core;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;

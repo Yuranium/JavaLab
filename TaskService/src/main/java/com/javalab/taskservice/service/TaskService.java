@@ -8,7 +8,7 @@ import com.javalab.taskservice.dto.response.TaskUpdatedResponseDto;
 import com.javalab.taskservice.repository.TaskRepository;
 import com.javalab.taskservice.service.kafka.KafkaSender;
 import com.javalab.taskservice.tables.records.TaskRecord;
-import com.yuranium.javalabcore.events.TaskCreatedEvent;
+import com.javalab.core.events.TaskCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.stereotype.Service;

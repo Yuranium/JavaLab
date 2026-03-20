@@ -1,4 +1,4 @@
-import { createContext, useContext, createSignal, createMemo } from 'solid-js';
+import { createContext, useContext, createSignal } from 'solid-js';
 
 const UsersContext = createContext();
 

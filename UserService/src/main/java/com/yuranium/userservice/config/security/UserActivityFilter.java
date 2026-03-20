@@ -1,7 +1,7 @@
 package com.yuranium.userservice.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yuranium.javalabcore.ExceptionBody;
+import com.javalab.core.ExceptionBody;
 import com.yuranium.userservice.enums.RoleType;
 import com.yuranium.userservice.service.UserService;
 import jakarta.servlet.FilterChain;

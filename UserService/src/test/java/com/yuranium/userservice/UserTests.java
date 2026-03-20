@@ -1,6 +1,6 @@
 package com.yuranium.userservice;
 
-import com.yuranium.javalabcore.events.UserRegisteredEvent;
+import com.javalab.core.events.UserRegisteredEvent;
 import com.yuranium.userservice.mapper.UserMapper;
 import com.yuranium.userservice.models.dto.UserRequestDto;
 import com.yuranium.userservice.models.dto.UserResponseDto;

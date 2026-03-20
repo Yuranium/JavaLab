@@ -1,4 +1,4 @@
-import { createSignal, createEffect, onCleanup, For, createMemo, Show } from 'solid-js';
+import { createSignal, createEffect, onCleanup, For, createMemo } from 'solid-js';
 import { Portal } from 'solid-js/web';
 import './BlockUserModal.css';
 

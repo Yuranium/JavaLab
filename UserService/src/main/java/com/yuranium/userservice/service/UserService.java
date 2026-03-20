@@ -1,8 +1,8 @@
 package com.yuranium.userservice.service;
 
-import com.yuranium.javalabcore.events.UserRegisteredEvent;
-import com.yuranium.javalabcore.exception.ResourceAlreadyExistsException;
-import com.yuranium.javalabcore.exception.ResourceNotCreatedException;
+import com.javalab.core.events.UserRegisteredEvent;
+import com.javalab.core.exception.ResourceAlreadyExistsException;
+import com.javalab.core.exception.ResourceNotCreatedException;
 import com.yuranium.userservice.mapper.UserMapper;
 import com.yuranium.userservice.models.dto.UserRequestDto;
 import com.yuranium.userservice.models.dto.UserResponseDto;
