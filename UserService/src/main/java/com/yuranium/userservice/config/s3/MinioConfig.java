@@ -20,4 +20,6 @@ public class MinioConfig
     private String accessKey;
 
     private String applicationKey;
+
+    private boolean pathStyle;
 }

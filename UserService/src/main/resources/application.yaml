@@ -62,6 +62,7 @@ s3:
     bucket-name: java-lab
     access-key: ${MINIO_ACCESS_KEY}
     application-key: ${MINIO_APP_KEY}
+    path-style: true
   avatar-prefix: user-avatars
 
 kafka:

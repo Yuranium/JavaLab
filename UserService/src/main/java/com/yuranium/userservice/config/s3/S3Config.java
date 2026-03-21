@@ -30,7 +30,7 @@ public class S3Config
                         )
                 ))
                 .serviceConfiguration(S3Configuration.builder()
-                        .pathStyleAccessEnabled(true)
+                        .pathStyleAccessEnabled(minioConfig.isPathStyle())
                         .build())
                 .build();
     }
