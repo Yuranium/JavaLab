@@ -7,6 +7,7 @@ import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3Configuration;
 
 import java.net.URI;
 
@@ -14,20 +15,23 @@ import java.net.URI;
 @RequiredArgsConstructor
 public class S3Config
 {
-    private final BackblazeConfig backblazeConfig;
+    private final MinioConfig minioConfig;
 
     @Bean
     public S3Client s3Client()
     {
         return S3Client.builder()
-                .endpointOverride(URI.create(backblazeConfig.getEndpoint()))
-                .region(Region.of(backblazeConfig.getRegion()))
+                .endpointOverride(URI.create(minioConfig.getEndpoint()))
+                .region(Region.of(minioConfig.getRegion()))
                 .credentialsProvider(StaticCredentialsProvider.create(
                         AwsBasicCredentials.create(
-                                backblazeConfig.getAccessKey(),
-                                backblazeConfig.getApplicationKey()
+                                minioConfig.getAccessKey(),
+                                minioConfig.getApplicationKey()
                         )
                 ))
+                .serviceConfiguration(S3Configuration.builder()
+                        .pathStyleAccessEnabled(true)
+                        .build())
                 .build();
     }
 }

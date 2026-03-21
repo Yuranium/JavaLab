@@ -8,8 +8,8 @@ import org.springframework.context.annotation.Configuration;
 @Setter
 @Getter
 @Configuration
-@ConfigurationProperties(prefix = "backblaze.b2")
-public class BackblazeConfig
+@ConfigurationProperties(prefix = "s3.minio")
+public class MinioConfig
 {
     private String endpoint;
 

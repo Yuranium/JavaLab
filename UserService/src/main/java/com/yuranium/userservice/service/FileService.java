@@ -1,7 +1,7 @@
 package com.yuranium.userservice.service;
 
 import com.javalab.core.exception.ResourceNotCreatedException;
-import com.yuranium.userservice.config.s3.BackblazeConfig;
+import com.yuranium.userservice.config.s3.MinioConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -20,12 +20,12 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class FileService
 {
-    @Value("${backblaze.avatar-prefix}")
+    @Value("${s3.avatar-prefix}")
     private String AVATAR_FOLDER;
 
     private final S3Client s3Client;
 
-    private final BackblazeConfig backblazeConfig;
+    private final MinioConfig minioConfig;
 
     public String uploadFile(MultipartFile file)
     {
@@ -41,7 +41,7 @@ public class FileService
             metadata.put("upload-timestamp", LocalDateTime.now().toString());
 
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                    .bucket(backblazeConfig.getBucketName())
+                    .bucket(minioConfig.getBucketName())
                     .key(key)
                     .contentType(file.getContentType())
                     .metadata(metadata)
@@ -81,7 +81,7 @@ public class FileService
             throw new IllegalArgumentException("parameter 'fileName' cannot be empty or null");
 
         DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
-                .bucket(backblazeConfig.getBucketName())
+                .bucket(minioConfig.getBucketName())
                 .key(fileName)
                 .build();
         s3Client.deleteObject(deleteObjectRequest);
@@ -90,9 +90,9 @@ public class FileService
     private String generateFileUrl(String fileKey)
     {
         return String.format(
-                "https://%s.%s/%s",
-                backblazeConfig.getBucketName(),
-                backblazeConfig.getEndpoint().replace("https://", ""),
+                "%s/%s/%s",
+                minioConfig.getEndpoint(),
+                minioConfig.getBucketName(),
                 fileKey
         );
     }
@@ -106,6 +106,6 @@ public class FileService
     {
         return fileName
                 .trim()
-                .replaceAll(" ", "_");
+                .replaceAll("\\s+", "_");
     }
 }
