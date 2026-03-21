@@ -12,9 +12,11 @@ import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +39,7 @@ public class FileService
             String key = generateKey(file.getOriginalFilename());
 
             Map<String, String> metadata = new HashMap<>();
-            metadata.put("original-filename", validateFilename(file.getOriginalFilename()));
+            metadata.put("original-filename", file.getOriginalFilename());
             metadata.put("upload-timestamp", LocalDateTime.now().toString());
 
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
@@ -99,13 +101,14 @@ public class FileService
 
     private String generateKey(String fileName)
     {
-        return AVATAR_FOLDER + "/" + UUID.randomUUID() + "_" + fileName;
+        return AVATAR_FOLDER + "/" + UUID.randomUUID() + "_" + validateFilename(fileName);
     }
 
     private String validateFilename(String fileName)
     {
-        return fileName
-                .trim()
-                .replaceAll("\\s+", "_");
+        return Arrays.stream(fileName.split("\\."))
+                .map(str -> str.isBlank() ? "unnamed" : str)
+                .collect(Collectors.joining("."))
+                .replaceAll(" ", "_");
     }
 }
