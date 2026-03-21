@@ -1,6 +1,8 @@
 import { Router, Route } from '@solidjs/router';
 import { ThemeProvider } from './context/ThemeContext';
 import { UsersProvider } from './context/UsersContext';
+import { RegisterProvider } from './context/RegisterContext';
+import { AuthProvider } from './context/AuthContext';
 import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
 import Hero from './components/Hero/Hero';
@@ -10,6 +12,8 @@ import CTA from './components/CTA/CTA';
 import Profile from './components/UserProfile/Profile/Profile';
 import AdminUsersPage from './pages/AdminUsersPage';
 import RegisterPage from './pages/RegisterPage';
+import VerificationPage from './pages/VerificationPage';
+import LoginPage from './pages/LoginPage';
 import './App.css';
 
 function Home() {
@@ -32,33 +36,29 @@ function Tasks() {
   );
 }
 
-function Login() {
-  return (
-    <div style="padding: 80px 24px; text-align: center;">
-      <h1 style="font-size: 36px; margin-bottom: 16px;">Вход</h1>
-      <p style="color: var(--text-secondary);">Форма входа в разработке</p>
-    </div>
-  );
-}
-
 export default function App() {
   return (
     <ThemeProvider>
       <UsersProvider>
-        <div class="app">
-          <Header />
-          <main class="main-content">
-            <Router>
-              <Route path="/" component={Home} />
-              <Route path="/tasks" component={Tasks} />
-              <Route path="/login" component={Login} />
-              <Route path="/register" component={RegisterPage} />
-              <Route path="/profile" component={Profile} />
-              <Route path="/admin/users" component={AdminUsersPage} />
-            </Router>
-          </main>
-          <Footer />
-        </div>
+        <AuthProvider>
+          <RegisterProvider>
+            <div class="app">
+              <Header />
+              <main class="main-content">
+                <Router>
+                  <Route path="/" component={Home} />
+                  <Route path="/tasks" component={Tasks} />
+                  <Route path="/login" component={LoginPage} />
+                  <Route path="/register" component={RegisterPage} />
+                  <Route path="/register/verify" component={VerificationPage} />
+                  <Route path="/profile" component={Profile} />
+                  <Route path="/admin/users" component={AdminUsersPage} />
+                </Router>
+              </main>
+              <Footer />
+            </div>
+          </RegisterProvider>
+        </AuthProvider>
       </UsersProvider>
     </ThemeProvider>
   );

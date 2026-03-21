@@ -22,6 +22,7 @@
     "@mui/icons-material": "^7.3.9",
     "@mui/material": "^7.3.9",
     "@solidjs/router": "^0.14.3",
+    "axios": "^1.13.6",
     "solid-js": "^1.9.5"
   }
 }
