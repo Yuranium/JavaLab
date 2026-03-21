@@ -93,3 +93,10 @@
 .profile-info-input::placeholder {
   color: var(--text-secondary);
 }
+
+.profile-info-loading {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  display: block;
+}

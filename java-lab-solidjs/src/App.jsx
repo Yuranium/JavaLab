@@ -3,6 +3,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { UsersProvider } from './context/UsersContext';
 import { RegisterProvider } from './context/RegisterContext';
 import { AuthProvider } from './context/AuthContext';
+import { ProfileProvider } from './context/ProfileContext';
 import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
 import Hero from './components/Hero/Hero';
@@ -42,21 +43,23 @@ export default function App() {
       <UsersProvider>
         <AuthProvider>
           <RegisterProvider>
-            <div class="app">
-              <Header />
-              <main class="main-content">
-                <Router>
-                  <Route path="/" component={Home} />
-                  <Route path="/tasks" component={Tasks} />
-                  <Route path="/login" component={LoginPage} />
-                  <Route path="/register" component={RegisterPage} />
-                  <Route path="/register/verify" component={VerificationPage} />
-                  <Route path="/profile" component={Profile} />
-                  <Route path="/admin/users" component={AdminUsersPage} />
-                </Router>
-              </main>
-              <Footer />
-            </div>
+            <ProfileProvider>
+              <div class="app">
+                <Header />
+                <main class="main-content">
+                  <Router>
+                    <Route path="/" component={Home} />
+                    <Route path="/tasks" component={Tasks} />
+                    <Route path="/login" component={LoginPage} />
+                    <Route path="/register" component={RegisterPage} />
+                    <Route path="/register/verify" component={VerificationPage} />
+                    <Route path="/profile" component={Profile} />
+                    <Route path="/admin/users" component={AdminUsersPage} />
+                  </Router>
+                </main>
+                <Footer />
+              </div>
+            </ProfileProvider>
           </RegisterProvider>
         </AuthProvider>
       </UsersProvider>

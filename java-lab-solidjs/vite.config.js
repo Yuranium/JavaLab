@@ -19,6 +19,8 @@ export default defineConfig(({ mode }) => {
       'import.meta.env.REALM': JSON.stringify(env.VITE_REALM),
       'import.meta.env.GRANT_TYPE': JSON.stringify(env.VITE_GRANT_TYPE),
       'import.meta.env.CLIENT_ID': JSON.stringify(env.VITE_CLIENT_ID),
+      'import.meta.env.S3_URL': JSON.stringify(env.VITE_S3_URL),
+      'import.meta.env.S3_BUCKET': JSON.stringify(env.VITE_S3_BUCKET),
     },
   };
 });

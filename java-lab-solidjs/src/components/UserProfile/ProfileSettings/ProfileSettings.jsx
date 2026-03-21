@@ -1,10 +1,11 @@
+import { Show } from 'solid-js';
 import './ProfileSettings.css';
 
 export default function ProfileSettings(props) {
   return (
     <div class="profile-settings">
       <h3 class="profile-settings-title">Настройки</h3>
-      
+
       <div class="profile-settings-item">
         <div class="profile-settings-content">
           <div class="profile-settings-info">
@@ -19,9 +20,13 @@ export default function ProfileSettings(props) {
               checked={props.notificationsEnabled}
               onChange={(e) => props.onNotificationsToggle(e.target.checked)}
               class="profile-settings-checkbox"
+              disabled={props.isUpdatingNotifications}
             />
             <span class="profile-settings-slider"></span>
           </label>
+          <Show when={props.isUpdatingNotifications}>
+            <span class="profile-settings-loading">Обновление...</span>
+          </Show>
         </div>
       </div>
     </div>

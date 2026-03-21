@@ -42,13 +42,14 @@ public class UserEntity
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
     private UserBackgroundEntity background;
 
+    @PreUpdate
     @PrePersist
     public void prePersist()
     {
-        if (name.isBlank())
+        if (name != null && name.isBlank())
             name = null;
 
-        if (lastName.isBlank())
+        if (lastName != null && lastName.isBlank())
             lastName = null;
     }
 }

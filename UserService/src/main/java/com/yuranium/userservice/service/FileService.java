@@ -52,7 +52,7 @@ public class FileService
             s3Client.putObject(putObjectRequest,
                     RequestBody.fromBytes(file.getBytes()));
 
-            return generateFileUrl(key);
+            return key;
         } catch (Exception e)
         {
             throw new ResourceNotCreatedException(
@@ -69,7 +69,8 @@ public class FileService
         try
         {
             String newFileName = uploadFile(newFile);
-            deleteFile(fileName);
+            if (fileName != null && !fileName.isEmpty())
+                deleteFile(fileName);
             return newFileName;
         } catch (Exception e)
         {
@@ -87,16 +88,6 @@ public class FileService
                 .key(fileName)
                 .build();
         s3Client.deleteObject(deleteObjectRequest);
-    }
-
-    private String generateFileUrl(String fileKey)
-    {
-        return String.format(
-                "%s/%s/%s",
-                minioConfig.getEndpoint(),
-                minioConfig.getBucketName(),
-                fileKey
-        );
     }
 
     private String generateKey(String fileName)

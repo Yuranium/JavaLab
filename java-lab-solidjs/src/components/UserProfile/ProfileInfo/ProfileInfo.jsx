@@ -1,4 +1,4 @@
-import { createSignal } from 'solid-js';
+import { createSignal, Show } from 'solid-js';
 import './ProfileInfo.css';
 
 export default function ProfileInfo(props) {
@@ -8,16 +8,18 @@ export default function ProfileInfo(props) {
   const [lastNameValue, setLastNameValue] = createSignal(props.lastName || '');
 
   const handleFirstNameSubmit = () => {
+    const newValue = firstNameValue();
     setIsEditingFirstName(false);
-    if (props.onNameUpdate) {
-      props.onNameUpdate('firstName', firstNameValue());
+    if (props.onNameUpdate && newValue !== props.firstName) {
+      props.onNameUpdate('name', newValue);
     }
   };
 
   const handleLastNameSubmit = () => {
+    const newValue = lastNameValue();
     setIsEditingLastName(false);
-    if (props.onNameUpdate) {
-      props.onNameUpdate('lastName', lastNameValue());
+    if (props.onNameUpdate && newValue !== props.lastName) {
+      props.onNameUpdate('lastName', newValue);
     }
   };
 
@@ -51,7 +53,11 @@ export default function ProfileInfo(props) {
                   class="profile-info-input"
                   placeholder="Введите имя"
                   autofocus
+                  disabled={props.isUpdatingName}
                 />
+                <Show when={props.isUpdatingName}>
+                  <span class="profile-info-loading">Обновление...</span>
+                </Show>
               </div>
             ) : (
               <div
@@ -79,7 +85,11 @@ export default function ProfileInfo(props) {
                   class="profile-info-input"
                   placeholder="Введите фамилию"
                   autofocus
+                  disabled={props.isUpdatingLastName}
                 />
+                <Show when={props.isUpdatingLastName}>
+                  <span class="profile-info-loading">Обновление...</span>
+                </Show>
               </div>
             ) : (
               <div
