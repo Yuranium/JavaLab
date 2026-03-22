@@ -9,8 +9,8 @@ CREATE TABLE IF NOT EXISTS task
     title       VARCHAR(255) NOT NULL,
     description TEXT,
     difficulty  VARCHAR(50)  NOT NULL,
-    created_at  TIMESTAMP    NOT NULL DEFAULT current_timestamp,
-    updated_at  TIMESTAMP    NOT NULL DEFAULT current_timestamp,
+    created_at  TIMESTAMPTZ  NOT NULL DEFAULT now(),
+    updated_at  TIMESTAMPTZ  NOT NULL DEFAULT now(),
     id_author   BIGINT       NOT NULL
 );
 
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS category
     id_category BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     title       VARCHAR(127) UNIQUE NOT NULL,
     description TEXT                NOT NULL,
-    created_at  TIMESTAMP           NOT NULL DEFAULT current_timestamp
+    created_at  TIMESTAMPTZ         NOT NULL DEFAULT now()
 );
 
 CREATE TABLE IF NOT EXISTS starter_code

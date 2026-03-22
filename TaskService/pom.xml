@@ -148,6 +148,12 @@
                             <name>org.jooq.meta.postgres.PostgresDatabase</name>
                             <includes>.*</includes>
                             <inputSchema>public</inputSchema>
+                            <forcedTypes>
+                                <forcedType>
+                                    <name>INSTANT</name>
+                                    <types>TIMESTAMPTZ|TIMESTAMP WITH TIME ZONE</types>
+                                </forcedType>
+                            </forcedTypes>
                         </database>
                         <generate>
                             <fluentSetters>true</fluentSetters>
