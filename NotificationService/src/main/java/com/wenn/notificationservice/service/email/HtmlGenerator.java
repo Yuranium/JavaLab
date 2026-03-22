@@ -22,7 +22,7 @@ public class HtmlGenerator {
         context.setVariable("code", code);
         context.setVariable("year", Year.now().getValue());
 
-        return templateEngine.process("email/verification", context);
+        return templateEngine.process("email/email-verification", context);
     }
 
     public String generateTaskCreatedHtml(String title,

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Подтверждение регистрации</title>
+    <style>
+        /* Сброс стилей для почтовых клиентов */
+        body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+        table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+        img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
+        table { border-collapse: collapse !important; }
+        body { height: 100% !important; margin: 0 !important; padding: 0 !important; width: 100% !important; }
+
+        /* Основные стили */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f1f5f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .email-header {
+            background: linear-gradient(135deg, #8ad0ecd6 0%, #9997c3 100%);
+            padding: 24px;
+            text-align: center;
+        }
+
+        .email-logo-table {
+            margin: 0 auto;
+        }
+
+        .email-logo-text {
+            color: #ffffff;
+            font-size: 28px;
+            font-weight: 700;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            text-shadow: -1px -1px 0 #000000, 1px -1px 0 #000000, -1px 1px 0 #000000, 1px 1px 0 #000000;
+        }
+
+        .email-header h1 {
+            color: #ffffff;
+            margin: 20px 0 0 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .email-body {
+            padding: 40px 32px;
+            color: #1e293b;
+        }
+
+        .email-body h2 {
+            margin: 0 0 24px 0;
+            font-size: 20px;
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .email-body p {
+            margin: 0 0 16px 0;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #334155;
+        }
+
+        .code-container {
+            text-align: center;
+            margin: 32px 0;
+        }
+
+        .code-box {
+            display: inline-block;
+            background-color: #f1f5f9;
+            border: 2px dashed #566dc7;
+            border-radius: 8px;
+            padding: 20px 40px;
+            font-size: 32px;
+            font-weight: 700;
+            color: #206cbc;
+            letter-spacing: 4px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .email-info {
+            background-color: #f8fafc;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 24px;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .email-info b {
+            color: #334155;
+        }
+
+        .email-footer {
+            background-color: #f8fafc;
+            padding: 24px 32px;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .email-footer p {
+            margin: 0;
+            font-size: 13px;
+            color: #94a3b8;
+            line-height: 1.5;
+        }
+
+        /* Адаптивность */
+        @media screen and (max-width: 600px) {
+            .email-container {
+                margin: 0;
+                border-radius: 0;
+            }
+            .email-body {
+                padding: 24px 20px;
+            }
+            .code-box {
+                padding: 16px 24px;
+                font-size: 24px;
+                letter-spacing: 2px;
+            }
+        }
+    </style>
+</head>
+<body>
+<table role="presentation" style="width: 100%; border-collapse: collapse;">
+    <tr>
+        <td align="center">
+            <div class="email-container">
+
+                <!-- Шапка с логотипом -->
+                <div class="email-header">
+                    <table role="presentation" class="email-logo-table" style="margin: 0 auto; border-collapse: collapse;">
+                        <tr>
+                            <td style="vertical-align: middle; padding: 0;">
+                                <img src="https://icon-icons.com/download-file?file=https%3A%2F%2Fimages.icon-icons.com%2F2389%2FPNG%2F512%2Fjava_logo_icon_145156.png&id=145156&pack_or_individual=pack"
+                                alt="Java"
+                                style="display: block; height: 42px; width: auto;"
+                                width="42"
+                                height="42" />
+                            </td>
+                            <td style="vertical-align: middle; padding-left: 12px;">
+                                <span class="email-logo-text">JavaLab</span>
+                            </td>
+                        </tr>
+                    </table>
+                    <h1>Подтверждение регистрации</h1>
+                </div>
+
+                <!-- Основной контент -->
+                <div class="email-body">
+                    <h2>Здравствуйте, <span th:text="${username}">Пользователь</span>!</h2>
+
+                    <p>
+                        Благодарим вас за регистрацию. Для подтверждения вашей учётной записи используйте код ниже:
+                    </p>
+
+                    <div class="code-container">
+                        <div class="code-box" th:text="${code}">000000</div>
+                    </div>
+
+                    <p>
+                        Введите этот код в поле подтверждения на сайте.
+                    </p>
+
+                    <div class="email-info">
+                        <p style="margin: 0;">
+                            Код был отправлен на адрес: <b th:text="${email}">email@example.com</b>
+                        </p>
+                        <p style="margin: 8px 0 0 0; color: #94a3b8;">
+                            Если вы не запрашивали этот код - просто проигнорируйте письмо.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Подвал -->
+                <div class="email-footer">
+                    <p>
+                        Это письмо было отправлено автоматически. Пожалуйста, не отвечайте на него.
+                    </p>
+                    <p style="margin-top: 8px;">
+                        &copy; <span th:text="${year}">2024</span> JavaLab. Все права защищены.
+                    </p>
+                </div>
+            </div>
+        </td>
+    </tr>
+</table>
+</body>
+</html>
