@@ -24,10 +24,10 @@ public class UserBackgroundEntity
     private Long id;
 
     @CreationTimestamp
-    @Column(name = "date_registration", columnDefinition = "TIMESTAMP",  nullable = false)
+    @Column(name = "date_registration", columnDefinition = "TIMESTAMPTZ",  nullable = false)
     private Instant dateRegistration;
 
-    @Column(name = "last_login", columnDefinition = "TIMESTAMP")
+    @Column(name = "last_login", columnDefinition = "TIMESTAMPTZ")
     private Instant lastLogin;
 
     @Column(name = "timezone", columnDefinition = "VARCHAR(50)", nullable = false)

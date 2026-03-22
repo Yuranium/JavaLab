@@ -29,6 +29,6 @@ public class ConfirmationCodeEntity
     private Integer code;
 
     @CreationTimestamp
-    @Column(name = "created_date", columnDefinition = "TIMESTAMP")
+    @Column(name = "created_date", columnDefinition = "TIMESTAMPTZ")
     private Instant createdDate;
 }
