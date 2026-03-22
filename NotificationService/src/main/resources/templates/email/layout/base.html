@@ -61,14 +61,14 @@
     </style>
 </head>
 
-<body>
+<body th:fragment="body">
 
 <div class="container">
 
     <div th:replace="email/fragments/header :: header"></div>
 
     <div class="content">
-        <div th:insert="${content}"></div>
+        <div th:insert="~{::content}"></div>
     </div>
 
     <div th:replace="email/fragments/footer :: footer"></div>
