@@ -1,47 +1,103 @@
-import { createMemo, For } from 'solid-js';
+import { Show } from 'solid-js';
 import { useUsers } from '../../../context/UsersContext';
 import UserListItem from './UserListItem';
+import ErrorToast from './ErrorToast';
 import './UserList.css';
 
-const ITEMS_PER_PAGE = 5;
+export default function UserList() {
+  const { 
+    users, 
+    hasMore, 
+    isLoading, 
+    loadMore, 
+    setFilter, 
+    resetFilters,
+    isFilterActive,
+    filters,
+  } = useUsers();
 
-export default function UserList(props) {
-  const { users, blockUser, isUserBlocked } = useUsers();
-  const { onBlockClick } = props;
-
-  const paginatedUsers = createMemo(() => {
-    const endIndex = props.visibleCount * ITEMS_PER_PAGE;
-    return users().slice(0, endIndex);
-  });
-
-  const hasMore = createMemo(() => {
-    return props.visibleCount * ITEMS_PER_PAGE < users().length;
-  });
+  const handleLoadMore = () => {
+    loadMore();
+  };
 
   return (
     <div class="user-list">
-      <div class="user-list-container">
-        <For each={paginatedUsers()}>
-          {(user) => (
-            <UserListItem
-              user={user}
-              onBlockClick={onBlockClick}
-              isBlocked={isUserBlocked(user.id)}
-            />
-          )}
-        </For>
+      <ErrorToast />
+      
+      <div class="user-list-filters">
+        <div class="user-list-filter-group">
+          <span class="user-list-filter-label">Активность:</span>
+          <select 
+            class="user-list-filter-select"
+            value={filters().activity ?? ''}
+            onChange={(e) => {
+              const value = e.target.value;
+              setFilter('activity', value === '' ? null : value === 'true');
+            }}
+          >
+            <option value="">Все</option>
+            <option value="true">Активные</option>
+            <option value="false">Неактивные</option>
+          </select>
+        </div>
+
+        <div class="user-list-filter-group">
+          <span class="user-list-filter-label">Уведомления:</span>
+          <select 
+            class="user-list-filter-select"
+            value={filters().notifyEnabled ?? ''}
+            onChange={(e) => {
+              const value = e.target.value;
+              setFilter('notifyEnabled', value === '' ? null : value === 'true');
+            }}
+          >
+            <option value="">Все</option>
+            <option value="true">Включены</option>
+            <option value="false">Отключены</option>
+          </select>
+        </div>
+
+        <Show when={isFilterActive('activity') || isFilterActive('notifyEnabled')}>
+          <button 
+            class="user-list-filter-reset"
+            onClick={resetFilters}
+          >
+            Сбросить фильтры
+          </button>
+        </Show>
       </div>
 
-      {hasMore() && (
+      <div class="user-list-container">
+        <Show 
+          when={users().length > 0}
+          fallback={
+            <div class="user-list-empty">
+              {isLoading() ? 'Загрузка...' : 'Нет пользователей для отображения'}
+            </div>
+          }
+        >
+          {users().map((user) => (
+            <UserListItem user={user} />
+          ))}
+        </Show>
+      </div>
+
+      <Show when={hasMore() && !isLoading()}>
         <div class="user-list-load-more">
-          <button 
+          <button
             class="user-list-load-more-btn"
-            onClick={() => props.onLoadMore()}
+            onClick={handleLoadMore}
           >
             Загрузить ещё
           </button>
         </div>
-      )}
+      </Show>
+
+      <Show when={isLoading()}>
+        <div class="user-list-loading">
+          <div class="spinner"></div>
+        </div>
+      </Show>
     </div>
   );
 }

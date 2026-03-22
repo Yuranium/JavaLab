@@ -1,4 +1,4 @@
-import { createContext, useContext, createSignal, createEffect, onMount } from 'solid-js';
+import { createContext, useContext, createSignal, createEffect, onMount, onCleanup } from 'solid-js';
 import axios from 'axios';
 import { config, getAuthUrl } from '../config';
 
@@ -10,11 +10,16 @@ const ROLES = {
   ADMIN: 'ADMIN',
 };
 
+const REFRESH_THRESHOLD_MS = 60000;
+const CHECK_INTERVAL_MS = 10000;
+
 export function AuthProvider(props) {
   const [accessToken, setAccessToken] = createSignal(null);
   const [refreshToken, setRefreshToken] = createSignal(null);
   const [user, setUser] = createSignal(null);
   const [isLoading, setIsLoading] = createSignal(true);
+  let refreshTimeoutId = null;
+  let checkIntervalId = null;
 
   const parseJwt = (token) => {
     try {
@@ -35,7 +40,7 @@ export function AuthProvider(props) {
 
   const extractRoles = (payload) => {
     const roles = payload?.realm_access?.roles || [];
-    
+
     if (roles.includes('ROLE_ADMIN')) {
       return [ROLES.ADMIN, ROLES.USER];
     }
@@ -45,12 +50,61 @@ export function AuthProvider(props) {
     return [ROLES.GUEST];
   };
 
+  const clearTimers = () => {
+    if (refreshTimeoutId) {
+      clearTimeout(refreshTimeoutId);
+      refreshTimeoutId = null;
+    }
+    if (checkIntervalId) {
+      clearInterval(checkIntervalId);
+      checkIntervalId = null;
+    }
+  };
+
+  const scheduleTokenRefresh = () => {
+    clearTimers();
+
+    const currentUser = user();
+    if (!currentUser?.exp) return;
+
+    const now = Date.now();
+    const expiryTime = currentUser.exp * 1000;
+    const timeUntilExpiry = expiryTime - now;
+    const refreshTime = timeUntilExpiry - REFRESH_THRESHOLD_MS;
+
+    if (refreshTime <= 0) {
+      refreshAccessToken();
+      return;
+    }
+
+    refreshTimeoutId = setTimeout(() => {
+      refreshAccessToken();
+    }, refreshTime);
+  };
+
+  const startTokenMonitoring = () => {
+    clearTimers();
+
+    checkIntervalId = setInterval(() => {
+      const currentUser = user();
+      if (!currentUser?.exp) return;
+
+      const now = Date.now();
+      const expiryTime = currentUser.exp * 1000;
+      const timeUntilExpiry = expiryTime - now;
+
+      if (timeUntilExpiry <= REFRESH_THRESHOLD_MS && timeUntilExpiry > 0) {
+        refreshAccessToken();
+      }
+    }, CHECK_INTERVAL_MS);
+  };
+
   const setTokens = (access, refresh) => {
     setAccessToken(access);
     setRefreshToken(refresh);
     localStorage.setItem('access_token', access);
     localStorage.setItem('refresh_token', refresh);
-    
+
     const payload = parseJwt(access);
     if (payload) {
       setUser({
@@ -72,24 +126,25 @@ export function AuthProvider(props) {
   const isAuthenticated = () => {
     const token = accessToken();
     if (!token) return false;
-    
+
     const payload = parseJwt(token);
     if (!payload) return false;
-    
+
     return payload.exp * 1000 > Date.now() + 30000;
   };
 
   const isTokenExpired = () => {
     const token = accessToken();
     if (!token) return true;
-    
+
     const payload = parseJwt(token);
     if (!payload) return true;
-    
+
     return payload.exp * 1000 <= Date.now();
   };
 
   const logout = () => {
+    clearTimers();
     setAccessToken(null);
     setRefreshToken(null);
     setUser(null);
@@ -116,7 +171,7 @@ export function AuthProvider(props) {
 
       const { access_token, refresh_token } = response.data;
       setTokens(access_token, refresh_token);
-      
+
       return { success: true };
     } catch (error) {
       console.error('Ошибка при входе:', error);
@@ -132,6 +187,16 @@ export function AuthProvider(props) {
     if (!refresh) {
       logout();
       return false;
+    }
+
+    try {
+      const refreshPayload = parseJwt(refresh);
+      if (refreshPayload && refreshPayload.exp * 1000 <= Date.now()) {
+        console.warn('Refresh token истёк');
+        logout();
+        return false;
+      }
+    } catch (e) {
     }
 
     try {
@@ -151,7 +216,7 @@ export function AuthProvider(props) {
 
       const { access_token, refresh_token } = response.data;
       setTokens(access_token, refresh_token);
-      
+
       return true;
     } catch (error) {
       console.error('Ошибка при обновлении токена:', error);
@@ -163,36 +228,36 @@ export function AuthProvider(props) {
   onMount(() => {
     const storedAccess = localStorage.getItem('access_token');
     const storedRefresh = localStorage.getItem('refresh_token');
-    
+
     if (storedAccess && storedRefresh) {
       const payload = parseJwt(storedAccess);
-      
+
       if (payload && payload.exp * 1000 > Date.now()) {
         setTokens(storedAccess, storedRefresh);
       } else if (payload) {
-        refreshAccessToken();
+        refreshAccessToken().then(() => {
+          startTokenMonitoring();
+        });
+        setIsLoading(false);
+        return;
       } else {
         logout();
       }
     }
-    
+
     setIsLoading(false);
+    startTokenMonitoring();
   });
 
   createEffect(() => {
-    const userValue = user();
-    if (!userValue?.exp) return;
-
-    const timeUntilExpiry = userValue.exp * 1000 - Date.now();
-    const refreshTime = timeUntilExpiry - 60000; // Обновляем за 1 минуту до истечения
-
-    if (refreshTime > 0 && refreshTime < 60000) {
-      const timeoutId = setTimeout(() => {
-        refreshAccessToken();
-      }, refreshTime);
-
-      return () => clearTimeout(timeoutId);
+    const currentUser = user();
+    if (currentUser?.exp) {
+      startTokenMonitoring();
     }
+  });
+
+  onCleanup(() => {
+    clearTimers();
   });
 
   const value = {

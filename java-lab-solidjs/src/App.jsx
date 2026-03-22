@@ -40,8 +40,8 @@ function Tasks() {
 export default function App() {
   return (
     <ThemeProvider>
-      <UsersProvider>
-        <AuthProvider>
+      <AuthProvider>
+        <UsersProvider>
           <RegisterProvider>
             <ProfileProvider>
               <div class="app">
@@ -61,8 +61,8 @@ export default function App() {
               </div>
             </ProfileProvider>
           </RegisterProvider>
-        </AuthProvider>
-      </UsersProvider>
+        </UsersProvider>
+      </AuthProvider>
     </ThemeProvider>
   );
 }

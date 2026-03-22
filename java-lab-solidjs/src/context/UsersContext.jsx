@@ -1,131 +1,106 @@
-import { createContext, useContext, createSignal } from 'solid-js';
+import { createContext, useContext, createSignal, createMemo } from 'solid-js';
+import axios from 'axios';
+import { config } from '../config';
+import { useAuth } from './AuthContext';
 
 const UsersContext = createContext();
 
-// Моковые данные пользователей
-const mockUsers = [
-  {
-    id: '1',
-    username: 'john_doe',
-    firstName: 'Иван',
-    lastName: 'Петров',
-    registrationDate: 1640995200000,
-    lastLogin: 1710864000000,
-    isVerified: true,
-  },
-  {
-    id: '2',
-    username: 'jane_smith',
-    firstName: 'Анна',
-    lastName: 'Смирнова',
-    registrationDate: 1672531200000,
-    lastLogin: 1710950400000,
-    isVerified: true,
-  },
-  {
-    id: '3',
-    username: 'alex_wilson',
-    firstName: null,
-    lastName: null,
-    registrationDate: 1680307200000,
-    lastLogin: null,
-    isVerified: false,
-  },
-  {
-    id: '4',
-    username: 'maria_garcia',
-    firstName: 'Мария',
-    lastName: 'Гарсия',
-    registrationDate: 1688169600000,
-    lastLogin: 1710777600000,
-    isVerified: true,
-  },
-  {
-    id: '5',
-    username: 'david_brown',
-    firstName: 'Дэвид',
-    lastName: 'Браун',
-    registrationDate: 1696118400000,
-    lastLogin: 1710691200000,
-    isVerified: false,
-  },
-  {
-    id: '6',
-    username: 'emma_davis',
-    firstName: 'Эмма',
-    lastName: 'Дэвис',
-    registrationDate: 1704067200000,
-    lastLogin: 1710604800000,
-    isVerified: true,
-  },
-  {
-    id: '7',
-    username: 'michael_johnson',
-    firstName: 'Майкл',
-    lastName: 'Джонсон',
-    registrationDate: 1704153600000,
-    lastLogin: 1710518400000,
-    isVerified: true,
-  },
-  {
-    id: '8',
-    username: 'sarah_williams',
-    firstName: null,
-    lastName: 'Уильямс',
-    registrationDate: 1704240000000,
-    lastLogin: 1710432000000,
-    isVerified: false,
-  },
-  {
-    id: '9',
-    username: 'robert_miller',
-    firstName: 'Роберт',
-    lastName: 'Миллер',
-    registrationDate: 1704326400000,
-    lastLogin: 1710345600000,
-    isVerified: true,
-  },
-  {
-    id: '10',
-    username: 'lisa_anderson',
-    firstName: 'Лиза',
-    lastName: 'Андерсон',
-    registrationDate: 1704412800000,
-    lastLogin: null,
-    isVerified: true,
-  },
-  {
-    id: '11',
-    username: 'james_taylor',
-    firstName: 'Джеймс',
-    lastName: 'Тейлор',
-    registrationDate: 1704499200000,
-    lastLogin: 1710172800000,
-    isVerified: false,
-  },
-  {
-    id: '12',
-    username: 'olivia_thomas',
-    firstName: 'Оливия',
-    lastName: 'Томас',
-    registrationDate: 1704585600000,
-    lastLogin: 1710086400000,
-    isVerified: true,
-  },
-];
+const DEFAULT_PAGE_SIZE = 30;
 
 export function UsersProvider(props) {
-  const [users] = createSignal(mockUsers);
+  const { accessToken } = useAuth();
+  
+  const [users, setUsers] = createSignal([]);
   const [blockedUsers, setBlockedUsers] = createSignal(new Set());
+  const [currentPage, setCurrentPage] = createSignal(0);
+  const [hasMore, setHasMore] = createSignal(true);
+  const [isLoading, setIsLoading] = createSignal(false);
+  const [error, setError] = createSignal(null);
+  
+  const [filters, setFilters] = createSignal({
+    activity: null,
+    notifyEnabled: null,
+  });
 
-  // Функция блокировки пользователя
+  const loadUsers = async (page = 0, append = false) => {
+    if (isLoading()) return;
+    
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const currentFilters = filters();
+      const params = new URLSearchParams({
+        page: page.toString(),
+        size: DEFAULT_PAGE_SIZE.toString(),
+      });
+      
+      if (currentFilters.activity !== null) {
+        params.append('activity', currentFilters.activity.toString());
+      }
+      if (currentFilters.notifyEnabled !== null) {
+        params.append('notifyEnabled', currentFilters.notifyEnabled.toString());
+      }
+      
+      const response = await axios.get(`${config.backendUrl}/api/v1/user`, {
+        params,
+        headers: {
+          'Authorization': `Bearer ${accessToken()}`,
+        },
+      });
+      
+      const data = response.data;
+      
+      if (append) {
+        setUsers(prev => [...prev, ...data]);
+      } else {
+        setUsers(data);
+      }
+      
+      setCurrentPage(page);
+      setHasMore(data.length === DEFAULT_PAGE_SIZE);
+    } catch (err) {
+      console.error('Ошибка при загрузке пользователей:', err);
+      setError('Не удалось загрузить данные');
+      setTimeout(() => {
+        setError(null);
+      }, 5000);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadMore = async () => {
+    if (!hasMore() || isLoading()) return;
+    await loadUsers(currentPage() + 1, true);
+  };
+
+  const setFilter = (filterName, value) => {
+    setFilters(prev => ({
+      ...prev,
+      [filterName]: value,
+    }));
+    setCurrentPage(0);
+    setUsers([]);
+    loadUsers(0, false);
+  };
+
+  const resetFilters = () => {
+    setFilters({
+      activity: null,
+      notifyEnabled: null,
+    });
+    setCurrentPage(0);
+    setUsers([]);
+    loadUsers(0, false);
+  };
+
   const blockUser = (userId, reason, duration) => {
     console.log(`Блокировка пользователя ${userId}: ${reason}, срок: ${duration}`);
     setBlockedUsers(prev => new Set([...prev, userId]));
     // TODO: отправить запрос на сервер для блокировки
   };
 
-  // Функция разблокировки пользователя
   const unblockUser = (userId) => {
     setBlockedUsers(prev => {
       const newSet = new Set(prev);
@@ -135,16 +110,43 @@ export function UsersProvider(props) {
     // TODO: отправить запрос на сервер для разблокировки
   };
 
-  // Проверка, заблокирован ли пользователь
   const isUserBlocked = (userId) => {
     return blockedUsers().has(userId);
   };
 
+  const activeFilters = createMemo(() => {
+    const currentFilters = filters();
+    const active = {};
+    if (currentFilters.activity !== null) {
+      active.activity = currentFilters.activity;
+    }
+    if (currentFilters.notifyEnabled !== null) {
+      active.notifyEnabled = currentFilters.notifyEnabled;
+    }
+    return active;
+  });
+
+  const isFilterActive = (filterName) => {
+    return filters()[filterName] !== null;
+  };
+
   const value = {
     users,
+    blockedUsers,
+    currentPage,
+    hasMore,
+    isLoading,
+    error,
+    filters,
+    loadUsers,
+    loadMore,
+    setFilter,
+    resetFilters,
     blockUser,
     unblockUser,
     isUserBlocked,
+    activeFilters,
+    isFilterActive,
   };
 
   return (
