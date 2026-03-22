@@ -30,11 +30,13 @@ public record TaskDetailedResponseDto(
 
 ) implements Serializable
 {
-    public TaskDetailedResponseDto(TaskResponseDto dto, Collection<TestCaseResponseDto> testCases)
+    public TaskDetailedResponseDto(
+            TaskResponseDto dto,
+            Collection<TestCaseResponseDto> testCases
+    )
     {
         this(dto.idTask(), dto.title(), dto.description(), dto.difficulty(),
                 dto.createdAt(), dto.updatedAt(), dto.idAuthor(), dto.categories(),
                 dto.starterCode(), testCases);
     }
-
 }
