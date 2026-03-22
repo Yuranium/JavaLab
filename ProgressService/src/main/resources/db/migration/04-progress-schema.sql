@@ -12,7 +12,6 @@ CREATE TABLE user_progress (
     longest_streak      INT NOT NULL DEFAULT 0,
     last_login_date     DATE,
     last_activity_date  DATE,
-    created_at          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 

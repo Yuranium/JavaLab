@@ -10,12 +10,12 @@ spring:
       bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      group-id: ${KAFKA_CONSUMER_GROUP}
+      group-id: ${spring.application.name}
       properties:
         spring:
           json:
             trusted:
-              packages: com.javalab.core
+              packages: com.javalab.core.events
     properties:
       telemetry.enabled: false
 
