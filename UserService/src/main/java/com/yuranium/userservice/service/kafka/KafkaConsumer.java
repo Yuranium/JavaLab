@@ -10,8 +10,6 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 
 @Slf4j
 @Component
@@ -26,11 +24,10 @@ public class KafkaConsumer
     {
         try
         {
-            LocalDateTime loginTime = LocalDateTime.ofInstant(
-                    Instant.ofEpochMilli(event.loginTimestamp()),
-                    ZoneId.systemDefault()
+            userService.updateLastLogin(
+                    event.keycloakUserId(),
+                    Instant.ofEpochMilli(event.loginTimestamp())
             );
-            userService.updateLastLogin(event.keycloakUserId(), loginTime);
         } catch (Exception e)
         {
             log.error("Error while handling UserLoggedInEvent", e);

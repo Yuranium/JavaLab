@@ -11,7 +11,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,7 +40,7 @@ public class FileService
 
             Map<String, String> metadata = new HashMap<>();
             metadata.put("original-filename", file.getOriginalFilename());
-            metadata.put("upload-timestamp", LocalDateTime.now().toString());
+            metadata.put("upload-timestamp", Instant.now().toString());
 
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                     .bucket(minioConfig.getBucketName())

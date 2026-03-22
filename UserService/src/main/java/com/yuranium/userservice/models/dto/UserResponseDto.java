@@ -1,7 +1,7 @@
 package com.yuranium.userservice.models.dto;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public record UserResponseDto(
         Long id,
@@ -16,9 +16,9 @@ public record UserResponseDto(
 
         String avatar,
 
-        LocalDateTime dateRegistration,
+        Instant dateRegistration,
 
-        LocalDateTime lastLogin,
+        Instant lastLogin,
 
         Boolean activity,
 

@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
@@ -73,7 +73,7 @@ public class AuthService
                             "User with id=%d not found.".formatted(userId)
                     ));
             userEntity.getBackground().setActivity(true);
-            userEntity.getBackground().setLastLogin(LocalDateTime.now());
+            userEntity.getBackground().setLastLogin(Instant.now());
             keycloakService.verifyUser(userEntity.getKeycloakId());
             codeRepository.delete(confirmCode);
             return true;
@@ -85,7 +85,7 @@ public class AuthService
 
     private Boolean isCodeActive(ConfirmationCodeEntity code)
     {
-        return code.getCreatedDate().plus(codeLifetime).isAfter(LocalDateTime.now());
+        return code.getCreatedDate().plus(codeLifetime).isAfter(Instant.now());
     }
 
     public Integer generateAuthCode()

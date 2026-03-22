@@ -20,7 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 import static com.yuranium.userservice.util.data.UserSpecifications.hasActivity;
@@ -142,7 +142,7 @@ public class UserService
     }
 
     @Transactional
-    public void updateLastLogin(UUID keycloakId, LocalDateTime loginTime)
+    public void updateLastLogin(UUID keycloakId, Instant loginTime)
     {
         UserEntity userEntity = userRepository.findByKeycloakId(keycloakId)
                 .orElseThrow(() -> new ResourceNotFoundException(
