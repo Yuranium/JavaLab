@@ -56,7 +56,6 @@ public class UserTests
     @SneakyThrows
     void testCreateUserSuccess()
     {
-        UUID idempotencyKey = UUID.randomUUID();
         MultipartFile avatarFile = createMultipartFile();
 
         UserRequestDto requestDto = createRequestDto(avatarFile);
