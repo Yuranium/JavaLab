@@ -1,0 +1,118 @@
+.progress-page {
+  min-height: calc(100vh - 128px);
+  background-color: var(--background-color);
+  padding: 40px 24px;
+}
+
+.progress-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.progress-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.progress-content {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.progress-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 24px;
+}
+
+.progress-stat-card {
+  background-color: var(--surface-color);
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s ease;
+}
+
+.progress-stat-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.progress-stat-value {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 8px;
+}
+
+.progress-stat-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.progress-chart {
+  background-color: var(--surface-color);
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.progress-chart-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+}
+
+.progress-chart-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  background-color: var(--background-color);
+  border-radius: 12px;
+  border: 2px dashed var(--border-color);
+}
+
+.progress-chart-placeholder p {
+  color: var(--text-secondary);
+  font-size: 16px;
+}
+
+.progress-loading,
+.progress-error {
+  text-align: center;
+  padding: 40px;
+  font-size: 18px;
+  color: var(--text-secondary);
+}
+
+.progress-error {
+  color: var(--error-color, #ef4444);
+}
+
+@media (max-width: 768px) {
+  .progress-page {
+    padding: 24px 16px;
+  }
+
+  .progress-title {
+    font-size: 24px;
+    margin-bottom: 24px;
+  }
+
+  .progress-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .progress-stat-value {
+    font-size: 36px;
+  }
+}

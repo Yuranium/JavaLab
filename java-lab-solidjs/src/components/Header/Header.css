@@ -160,7 +160,6 @@
   cursor: pointer;
   padding: 8px;
   border-radius: 8px;
-  font-size: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -169,6 +168,17 @@
 
 .theme-toggle:hover {
   background-color: var(--hover-color);
+}
+
+.theme-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--text-secondary);
+  transition: color 0.2s ease;
+}
+
+.theme-toggle:hover .theme-icon {
+  color: var(--text-primary);
 }
 
 @media (max-width: 768px) {

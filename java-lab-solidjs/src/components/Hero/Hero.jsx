@@ -1,6 +1,13 @@
+import { Show, createMemo } from 'solid-js';
+import { useAuth } from '../../context/AuthContext';
 import './Hero.css';
 
 export default function Hero() {
+  const auth = useAuth();
+  const isAuthenticated = createMemo(() => {
+    return !!auth.accessToken() && !auth.isLoading();
+  });
+
   return (
     <section class="hero">
       <div class="hero-container">
@@ -13,7 +20,9 @@ export default function Hero() {
             Решай задачи, получай мгновенную проверку кода и прокачивай свои навыки.
           </p>
           <div class="hero-actions">
-            <a href="/register" class="btn btn--primary btn--large">Начать обучение</a>
+            <Show when={!isAuthenticated}>
+              <a href="/register" class="btn btn--primary btn--large">Начать обучение</a>
+            </Show>
             <a href="/tasks" class="btn btn--secondary btn--large">Смотреть задачи</a>
           </div>
           <div class="hero-stats">

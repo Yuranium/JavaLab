@@ -4,13 +4,13 @@ import UserListItem from './UserListItem';
 import ErrorToast from './ErrorToast';
 import './UserList.css';
 
-export default function UserList() {
-  const { 
-    users, 
-    hasMore, 
-    isLoading, 
-    loadMore, 
-    setFilter, 
+export default function UserList(props) {
+  const {
+    users,
+    hasMore,
+    isLoading,
+    loadMore,
+    setFilter,
     resetFilters,
     isFilterActive,
     filters,
@@ -23,11 +23,11 @@ export default function UserList() {
   return (
     <div class="user-list">
       <ErrorToast />
-      
+
       <div class="user-list-filters">
         <div class="user-list-filter-group">
           <span class="user-list-filter-label">Активность:</span>
-          <select 
+          <select
             class="user-list-filter-select"
             value={filters().activity ?? ''}
             onChange={(e) => {
@@ -43,7 +43,7 @@ export default function UserList() {
 
         <div class="user-list-filter-group">
           <span class="user-list-filter-label">Уведомления:</span>
-          <select 
+          <select
             class="user-list-filter-select"
             value={filters().notifyEnabled ?? ''}
             onChange={(e) => {
@@ -58,7 +58,7 @@ export default function UserList() {
         </div>
 
         <Show when={isFilterActive('activity') || isFilterActive('notifyEnabled')}>
-          <button 
+          <button
             class="user-list-filter-reset"
             onClick={resetFilters}
           >
@@ -68,7 +68,7 @@ export default function UserList() {
       </div>
 
       <div class="user-list-container">
-        <Show 
+        <Show
           when={users().length > 0}
           fallback={
             <div class="user-list-empty">
@@ -77,7 +77,7 @@ export default function UserList() {
           }
         >
           {users().map((user) => (
-            <UserListItem user={user} />
+            <UserListItem user={user} onBlockClick={props.onBlockClick} />
           ))}
         </Show>
       </div>

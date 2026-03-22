@@ -15,6 +15,8 @@ import AdminUsersPage from './pages/AdminUsersPage';
 import RegisterPage from './pages/RegisterPage';
 import VerificationPage from './pages/VerificationPage';
 import LoginPage from './pages/LoginPage';
+import ProgressPage from './pages/ProgressPage';
+import UserProfilePage from './pages/UserProfilePage';
 import './App.css';
 
 function Home() {
@@ -54,6 +56,8 @@ export default function App() {
                     <Route path="/register" component={RegisterPage} />
                     <Route path="/register/verify" component={VerificationPage} />
                     <Route path="/profile" component={Profile} />
+                    <Route path="/profile/:id" component={UserProfilePage} />
+                    <Route path="/progress" component={ProgressPage} />
                     <Route path="/admin/users" component={AdminUsersPage} />
                   </Router>
                 </main>

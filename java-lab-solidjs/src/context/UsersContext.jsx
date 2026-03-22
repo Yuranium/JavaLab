@@ -5,18 +5,20 @@ import { useAuth } from './AuthContext';
 
 const UsersContext = createContext();
 
-const DEFAULT_PAGE_SIZE = 30;
+const DEFAULT_PAGE_SIZE = 20;
 
 export function UsersProvider(props) {
   const { accessToken } = useAuth();
-  
+
   const [users, setUsers] = createSignal([]);
   const [blockedUsers, setBlockedUsers] = createSignal(new Set());
   const [currentPage, setCurrentPage] = createSignal(0);
+  const [totalElements, setTotalElements] = createSignal(0);
+  const [totalPages, setTotalPages] = createSignal(0);
   const [hasMore, setHasMore] = createSignal(true);
   const [isLoading, setIsLoading] = createSignal(false);
   const [error, setError] = createSignal(null);
-  
+
   const [filters, setFilters] = createSignal({
     activity: null,
     notifyEnabled: null,
@@ -24,41 +26,45 @@ export function UsersProvider(props) {
 
   const loadUsers = async (page = 0, append = false) => {
     if (isLoading()) return;
-    
+
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const currentFilters = filters();
       const params = new URLSearchParams({
         page: page.toString(),
         size: DEFAULT_PAGE_SIZE.toString(),
       });
-      
+
       if (currentFilters.activity !== null) {
         params.append('activity', currentFilters.activity.toString());
       }
       if (currentFilters.notifyEnabled !== null) {
         params.append('notifyEnabled', currentFilters.notifyEnabled.toString());
       }
-      
+
       const response = await axios.get(`${config.backendUrl}/api/v1/user`, {
         params,
         headers: {
           'Authorization': `Bearer ${accessToken()}`,
         },
       });
-      
+
       const data = response.data;
-      
+      const content = data.content || [];
+      const pageData = data.page || {};
+
       if (append) {
-        setUsers(prev => [...prev, ...data]);
+        setUsers(prev => [...prev, ...content]);
       } else {
-        setUsers(data);
+        setUsers(content);
       }
-      
-      setCurrentPage(page);
-      setHasMore(data.length === DEFAULT_PAGE_SIZE);
+
+      setCurrentPage(pageData.number ?? page);
+      setTotalElements(pageData.totalElements ?? 0);
+      setTotalPages(pageData.totalPages ?? 0);
+      setHasMore((pageData.number ?? page) < (pageData.totalPages ?? 1) - 1);
     } catch (err) {
       console.error('Ошибка при загрузке пользователей:', err);
       setError('Не удалось загрузить данные');

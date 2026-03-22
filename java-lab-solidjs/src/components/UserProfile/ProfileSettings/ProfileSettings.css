@@ -99,3 +99,9 @@
   color: var(--text-secondary);
   margin-left: 12px;
 }
+
+.profile-settings-value {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}

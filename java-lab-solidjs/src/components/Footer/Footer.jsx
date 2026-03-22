@@ -1,6 +1,12 @@
+import { Show, createMemo } from 'solid-js';
+import { useAuth } from '../../context/AuthContext';
 import './Footer.css';
 
 export default function Footer() {
+  const auth = useAuth();
+  const isAuthenticated = createMemo(() => {
+    return !!auth.accessToken() && !auth.isLoading();
+  });
   const currentYear = new Date().getFullYear();
 
   return (
@@ -22,8 +28,10 @@ export default function Footer() {
             <div class="footer-column">
               <h4 class="footer-column-title">Платформа</h4>
               <a href="/tasks" class="footer-link">Задачи</a>
-              <a href="/register" class="footer-link">Регистрация</a>
-              <a href="/login" class="footer-link">Вход</a>
+              <Show when={!isAuthenticated()}>
+                <a href="/register" class="footer-link">Регистрация</a>
+                <a href="/login" class="footer-link">Вход</a>
+              </Show>
             </div>
 
             <div class="footer-column">

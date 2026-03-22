@@ -1,4 +1,4 @@
-import { createSignal, Show } from 'solid-js';
+import { createSignal, createEffect, Show } from 'solid-js';
 import './ProfileInfo.css';
 
 export default function ProfileInfo(props) {
@@ -7,11 +7,19 @@ export default function ProfileInfo(props) {
   const [firstNameValue, setFirstNameValue] = createSignal(props.firstName || '');
   const [lastNameValue, setLastNameValue] = createSignal(props.lastName || '');
 
+  createEffect(() => {
+    setFirstNameValue(props.firstName || '');
+  });
+
+  createEffect(() => {
+    setLastNameValue(props.lastName || '');
+  });
+
   const handleFirstNameSubmit = () => {
     const newValue = firstNameValue();
     setIsEditingFirstName(false);
     if (props.onNameUpdate && newValue !== props.firstName) {
-      props.onNameUpdate('name', newValue);
+      props.onNameUpdate('name', newValue.trim() === '' ? '' : newValue);
     }
   };
 
@@ -19,7 +27,7 @@ export default function ProfileInfo(props) {
     const newValue = lastNameValue();
     setIsEditingLastName(false);
     if (props.onNameUpdate && newValue !== props.lastName) {
-      props.onNameUpdate('lastName', newValue);
+      props.onNameUpdate('lastName', newValue.trim() === '' ? '' : newValue);
     }
   };
 
@@ -34,6 +42,8 @@ export default function ProfileInfo(props) {
     }
   };
 
+  const isReadOnly = props.isReadOnly || false;
+
   return (
     <div class="profile-info">
       <div class="profile-info-section">
@@ -42,7 +52,7 @@ export default function ProfileInfo(props) {
         <div class="profile-info-grid">
           <div class="profile-info-field">
             <label class="profile-info-label">Имя</label>
-            {isEditingFirstName() ? (
+            {!isReadOnly && isEditingFirstName() ? (
               <div class="profile-info-editable">
                 <input
                   type="text"
@@ -61,20 +71,25 @@ export default function ProfileInfo(props) {
               </div>
             ) : (
               <div
-                class="profile-info-value profile-info-value--clickable"
-                onClick={() => setIsEditingFirstName(true)}
+                class="profile-info-value"
+                classList={{
+                  'profile-info-value--clickable': !isReadOnly,
+                }}
+                onClick={() => !isReadOnly && setIsEditingFirstName(true)}
               >
-                {props.firstName}
-                <svg class="profile-info-edit-icon" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                  <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-                </svg>
+                {props.firstName || '—'}
+                {!isReadOnly && (
+                  <svg class="profile-info-edit-icon" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                  </svg>
+                )}
               </div>
             )}
           </div>
 
           <div class="profile-info-field">
             <label class="profile-info-label">Фамилия</label>
-            {isEditingLastName() ? (
+            {!isReadOnly && isEditingLastName() ? (
               <div class="profile-info-editable">
                 <input
                   type="text"
@@ -93,20 +108,25 @@ export default function ProfileInfo(props) {
               </div>
             ) : (
               <div
-                class="profile-info-value profile-info-value--clickable"
-                onClick={() => setIsEditingLastName(true)}
+                class="profile-info-value"
+                classList={{
+                  'profile-info-value--clickable': !isReadOnly,
+                }}
+                onClick={() => !isReadOnly && setIsEditingLastName(true)}
               >
-                {props.lastName}
-                <svg class="profile-info-edit-icon" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                  <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-                </svg>
+                {props.lastName || '—'}
+                {!isReadOnly && (
+                  <svg class="profile-info-edit-icon" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                  </svg>
+                )}
               </div>
             )}
           </div>
 
           <div class="profile-info-field">
             <label class="profile-info-label">Email</label>
-            <div class="profile-info-value">{props.email}</div>
+            <div class="profile-info-value">{props.email || '—'}</div>
           </div>
         </div>
       </div>
