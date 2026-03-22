@@ -11,7 +11,6 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 
 import java.util.Collection;
@@ -24,8 +23,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SecurityConfig
 {
-    private final UserActivityFilter activityFilter;
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity security) throws Exception
     {
@@ -44,7 +41,6 @@ public class SecurityConfig
                 .oauth2ResourceServer(auth -> auth.jwt(Customizer.withDefaults()))
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterAfter(activityFilter, BearerTokenAuthenticationFilter.class)
                 .build();
     }
 
