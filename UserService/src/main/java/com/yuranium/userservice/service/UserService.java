@@ -4,6 +4,7 @@ import com.javalab.core.events.UserRegisteredEvent;
 import com.javalab.core.exception.ResourceAlreadyExistsException;
 import com.javalab.core.exception.ResourceNotCreatedException;
 import com.yuranium.userservice.mapper.UserMapper;
+import com.yuranium.userservice.models.dto.UserFilterDto;
 import com.yuranium.userservice.models.dto.UserRequestDto;
 import com.yuranium.userservice.models.dto.UserResponseDto;
 import com.yuranium.userservice.models.dto.UserUpdateDto;
@@ -17,12 +18,16 @@ import com.yuranium.userservice.service.kafka.KafkaSender;
 import com.yuranium.userservice.util.exception.UnconfirmedAccountException;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+import static com.yuranium.userservice.util.data.UserSpecifications.hasActivity;
+import static com.yuranium.userservice.util.data.UserSpecifications.hasNotifyEnabled;
 
 @Service
 @RequiredArgsConstructor
@@ -45,17 +50,21 @@ public class UserService
     private final KafkaSender kafkaSender;
 
     @Transactional(readOnly = true)
-    public Iterable<UserResponseDto> getUsers(PageRequest pageRequest)
+    public Page<UserResponseDto> getUsers(Pageable page, UserFilterDto filterDto)
     {
-        return userMapper.toResponseDto(
-                userRepository.findAll(pageRequest).getContent()
+        Page<UserEntity> users = userRepository.findAll(
+                hasActivity(filterDto.activity())
+                        .and(hasNotifyEnabled(filterDto.notifyEnabled())),
+                page
         );
+
+        return users.map(userMapper::toResponseDto);
     }
 
     @Transactional(readOnly = true)
-    public Iterable<String> getEmailsForNotify(PageRequest pageRequest)
+    public Page<String> getEmailsForNotify(Pageable page)
     {
-        return userRepository.findSuitableEmails(pageRequest).getContent();
+        return userRepository.findSuitableEmails(page);
     }
 
     @Transactional(readOnly = true)
