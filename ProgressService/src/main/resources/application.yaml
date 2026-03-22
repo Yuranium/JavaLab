@@ -5,6 +5,30 @@ spring:
   application:
     name: ProgressService
 
+  datasource:
+    url: ${PG_URL}
+    username: ${PG_USERNAME}
+    password: ${PG_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    open-in-view: false
+    show-sql: true
+    hibernate:
+      ddl-auto: validate
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      group-id: progress-service-group
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: com.yuranium.javalabcore
+
   security:
     oauth2:
       client:
@@ -20,3 +44,18 @@ spring:
             client-secret: ${PROGRESS_CLIENT_SECRET}
             client-authentication-method: client_secret_basic
             scope: openid
+
+s3:
+  minio:
+    endpoint: ${MINIO_ENDPOINT}
+    region: ${MINIO_REGION}
+    bucket-name: java-lab
+    access-key: ${MINIO_ACCESS_KEY}
+    application-key: ${MINIO_APP_KEY}
+    path-style: true
+  achievement-prefix: achievements
+
+logging:
+  level:
+    org.springframework: INFO
+    com.wenn.progressservice: DEBUG
