@@ -6,9 +6,7 @@ import com.yuranium.userservice.models.dto.UserRequestDto;
 import com.yuranium.userservice.models.dto.UserResponseDto;
 import com.yuranium.userservice.models.entity.UserBackgroundEntity;
 import com.yuranium.userservice.models.entity.UserEntity;
-import com.yuranium.userservice.models.entity.UserIdempotencyEntity;
 import com.yuranium.userservice.repository.UserBackgroundRepository;
-import com.yuranium.userservice.repository.UserIdempotencyRepository;
 import com.yuranium.userservice.repository.UserRepository;
 import com.yuranium.userservice.service.AuthService;
 import com.yuranium.userservice.service.FileService;
@@ -34,9 +32,6 @@ import static org.mockito.Mockito.*;
 public class UserTests
 {
     @Mock
-    private UserIdempotencyRepository idempotencyRepository;
-
-    @Mock
     private FileService fileService;
 
     @Mock
@@ -61,7 +56,6 @@ public class UserTests
     @SneakyThrows
     void testCreateUserSuccess()
     {
-        UUID idempotencyKey = UUID.randomUUID();
         MultipartFile avatarFile = createMultipartFile();
 
         UserRequestDto requestDto = createRequestDto(avatarFile);
@@ -75,25 +69,22 @@ public class UserTests
         String avatarUrl = "http://example.com/avatar.jpg";
         Integer confirmCode = 1234;
 
-        when(idempotencyRepository.existsById(idempotencyKey)).thenReturn(false);
         when(fileService.uploadFile(requestDto.avatar())).thenReturn(avatarUrl);
         when(userMapper.toEntity(requestDto)).thenReturn(userEntity);
         when(userRepository.save(any(UserEntity.class))).thenReturn(userEntity);
         when(authService.generateAuthCode()).thenReturn(confirmCode);
         when(userMapper.toResponseDto(userEntity)).thenReturn(responseDto);
 
-        UserResponseDto result = userService.createUser(requestDto, idempotencyKey);
+        UserResponseDto result = userService.createUser(requestDto);
 
         assertThat(result).isEqualTo(responseDto);
 
-        verify(idempotencyRepository).existsById(idempotencyKey);
         verify(fileService).uploadFile(requestDto.avatar());
         verify(userMapper).toEntity(requestDto);
         verify(userRepository).save(userEntity);
         verify(backgroundRepository).save(any(UserBackgroundEntity.class));
         verify(kafkaSender).sendUserRegisteredEvent(any(UserRegisteredEvent.class));
         verify(authService).createConfirmCode(userEntity.getId(), confirmCode);
-        verify(idempotencyRepository).save(any(UserIdempotencyEntity.class));
 
         verify(fileService, never()).deleteFile(anyString());
     }
@@ -105,6 +96,8 @@ public class UserTests
                 "username",
                 "John",
                 "Doe",
+                "example@example.com",
+                "user-avatars/" + UUID.randomUUID() + "image.png",
                 LocalDateTime.now(),
                 null,
                 false,
