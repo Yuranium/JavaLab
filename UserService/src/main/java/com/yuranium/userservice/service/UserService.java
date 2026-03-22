@@ -127,9 +127,10 @@ public class UserService
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User with kc-id=%s not found.".formatted(keycloakId)
                 ));
-        userEntity.setAvatar(fileService.updateFile(
-                userEntity.getAvatar(), userDto.avatar())
-        );
+        if (userDto.avatar() != null)
+            userEntity.setAvatar(fileService.updateFile(
+                    userEntity.getAvatar(), userDto.avatar())
+            );
         userMapper.updateEntity(userEntity, userDto);
 
         return userMapper.toResponseDto(
