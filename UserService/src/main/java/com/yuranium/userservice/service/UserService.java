@@ -10,9 +10,7 @@ import com.yuranium.userservice.models.dto.UserResponseDto;
 import com.yuranium.userservice.models.dto.UserUpdateDto;
 import com.yuranium.userservice.models.entity.UserBackgroundEntity;
 import com.yuranium.userservice.models.entity.UserEntity;
-import com.yuranium.userservice.models.entity.UserIdempotencyEntity;
 import com.yuranium.userservice.repository.UserBackgroundRepository;
-import com.yuranium.userservice.repository.UserIdempotencyRepository;
 import com.yuranium.userservice.repository.UserRepository;
 import com.yuranium.userservice.service.kafka.KafkaSender;
 import lombok.RequiredArgsConstructor;
@@ -39,8 +37,6 @@ public class UserService
     private final AuthService authService;
 
     private final UserRepository userRepository;
-
-    private final UserIdempotencyRepository idempotencyRepository;
 
     private final UserBackgroundRepository backgroundRepository;
 
@@ -84,13 +80,12 @@ public class UserService
     }
 
     @Transactional
-    public UserResponseDto createUser(UserRequestDto userDto, UUID idempotencyKey)
+    public UserResponseDto createUser(UserRequestDto userDto)
     {
-        if (idempotencyRepository.existsById(idempotencyKey))
+        if (userRepository.existsByUsernameOrEmail(userDto.username(), userDto.email()))
             throw new ResourceAlreadyExistsException(
-                    "The user with this id-key=%s already exists.".formatted(idempotencyKey)
+                    "The user with this username or email already exists."
             );
-        idempotencyRepository.save(new UserIdempotencyEntity(idempotencyKey));
 
         String uploadedAvatarUrl = fileService.uploadFile(userDto.avatar());
         UUID keycloakUserId = null;

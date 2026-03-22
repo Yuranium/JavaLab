@@ -33,4 +33,6 @@ public interface UserRepository extends
 
     @Query(value = "SELECT u.email FROM UserEntity u WHERE u.background.notifyEnabled = true")
     Page<String> findSuitableEmails(Pageable pageable);
+
+    Boolean existsByUsernameOrEmail(String username, String email);
 }

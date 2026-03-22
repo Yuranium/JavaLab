@@ -1,6 +1,5 @@
 package com.yuranium.userservice.service;
 
-import com.yuranium.userservice.repository.UserIdempotencyRepository;
 import com.yuranium.userservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,13 +15,8 @@ public class SchedulerService
 {
     private final UserRepository userRepository;
 
-    private final UserIdempotencyRepository idempotencyRepository;
-
     @Value("${spring.application.scheduler.delete-user.key-lifetime}")
     private Duration inactiveUserKeyLifetime;
-
-    @Value("${spring.application.scheduler.delete-id-key.key-lifetime}")
-    private Duration idempotencyKeyLifetime;
 
     @Scheduled(
             cron = "${spring.application.scheduler.delete-user.cron}",
@@ -32,15 +26,5 @@ public class SchedulerService
     {
         LocalDateTime offsetDateTime = LocalDateTime.now().minus(inactiveUserKeyLifetime);
         userRepository.deleteInactiveUsers(offsetDateTime);
-    }
-
-    @Scheduled(
-            cron = "${spring.application.scheduler.delete-id-key.cron}",
-            zone = "${spring.application.scheduler.zone}"
-    )
-    public void deleteIdempotencyKey()
-    {
-        LocalDateTime offsetDateTime = LocalDateTime.now().minus(idempotencyKeyLifetime);
-        idempotencyRepository.deleteExpiredIdempotencyKey(offsetDateTime);
     }
 }

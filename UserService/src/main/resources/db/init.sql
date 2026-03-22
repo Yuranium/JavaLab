@@ -1,8 +1,7 @@
 DROP TABLE IF EXISTS
     public.user,
     user_background,
-    confirmation_code,
-    user_idempotency_key
+    confirmation_code
     CASCADE;
 
 CREATE TABLE IF NOT EXISTS public.user
@@ -34,10 +33,4 @@ CREATE TABLE IF NOT EXISTS confirmation_code
     code         INTEGER   NOT NULL,
     created_date TIMESTAMP NOT NULL DEFAULT current_timestamp,
     UNIQUE (id_user, code)
-);
-
-CREATE TABLE IF NOT EXISTS user_idempotency_key
-(
-    id_key     UUID PRIMARY KEY,
-    created_at DATE NOT NULL DEFAULT current_date
 );
