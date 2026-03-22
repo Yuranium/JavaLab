@@ -1,0 +1,216 @@
+.verification-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--background-color);
+  padding: 24px;
+}
+
+.verification-container {
+  max-width: 480px;
+  width: 100%;
+  background-color: var(--background-secondary);
+  border-radius: 16px;
+  padding: 40px 32px;
+  box-shadow: var(--shadow-lg);
+}
+
+.verification-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.verification-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 24px;
+  background-color: var(--primary-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.verification-icon svg {
+  width: 40px;
+  height: 40px;
+  color: white;
+}
+
+.verification-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.verification-subtitle {
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.verification-success,
+.verification-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  font-size: 14px;
+}
+
+.verification-success {
+  background-color: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.verification-success svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.verification-error {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.verification-error svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.verification-form {
+  margin-bottom: 24px;
+}
+
+.code-inputs-container {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.code-input {
+  width: 52px;
+  height: 64px;
+  font-size: 28px;
+  font-weight: 600;
+  text-align: center;
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  background-color: var(--background-secondary);
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.code-input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb), 0.1);
+}
+
+.code-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.verification-submit-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 24px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.verification-submit-btn:hover:not(:disabled) {
+  background-color: var(--primary-dark);
+  box-shadow: var(--shadow-md);
+}
+
+.verification-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.verification-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.resend-container {
+  text-align: center;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color);
+}
+
+.resend-text {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.resend-btn {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.resend-btn:hover:not(:disabled) {
+  background-color: rgba(var(--primary-color-rgb), 0.1);
+}
+
+.resend-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  color: var(--text-secondary);
+}
+
+.verification-back-link {
+  text-align: center;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-color);
+  font-size: 14px;
+}
+
+.verification-back-link a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.verification-back-link a:hover {
+  color: var(--primary-color);
+}

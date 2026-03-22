@@ -1,0 +1,26 @@
+.error-toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #dc2626;
+  color: white;
+  padding: 16px 24px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+  z-index: 10000;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}

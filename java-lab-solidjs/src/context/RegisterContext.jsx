@@ -1,4 +1,6 @@
-import { createContext, useContext, createSignal } from 'solid-js';
+import { createContext, useContext, createSignal, createEffect } from 'solid-js';
+import { config } from '../config';
+import axios from 'axios';
 
 const RegisterContext = createContext();
 
@@ -32,6 +34,15 @@ export function RegisterProvider(props) {
   const [errors, setErrors] = createSignal({ ...initialErrorsState });
   const [isSubmitting, setIsSubmitting] = createSignal(false);
   const [isSuccess, setIsSuccess] = createSignal(false);
+  const [isVerificationSent, setIsVerificationSent] = createSignal(false);
+  const [verificationCode, setVerificationCode] = createSignal('');
+  const [verificationError, setVerificationError] = createSignal('');
+  const [isVerifying, setIsVerifying] = createSignal(false);
+  const [resendTimer, setResendTimer] = createSignal(60);
+  const [userId, setUserId] = createSignal(null);
+  const [userCredentials, setUserCredentials] = createSignal({ username: '', password: '' });
+  let wasVerificationSent = false;
+  let timerInterval = null;
 
   const initTimezone = () => {
     const offset = new Date().getTimezoneOffset();
@@ -41,6 +52,36 @@ export function RegisterProvider(props) {
     const timezone = `UTC${sign}${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
     setFormData(prev => ({ ...prev, timezone }));
   };
+
+  createEffect(() => {
+    const isSent = isVerificationSent();
+    
+    if (isSent && !wasVerificationSent) {
+      wasVerificationSent = true;
+      
+      if (timerInterval) {
+        clearInterval(timerInterval);
+      }
+      
+      timerInterval = setInterval(() => {
+        setResendTimer(prev => {
+          if (prev <= 1) {
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } 
+    else if (!isSent && wasVerificationSent) {
+      wasVerificationSent = false;
+      
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      setResendTimer(60);
+    }
+  });
 
   const isValidEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -153,21 +194,69 @@ export function RegisterProvider(props) {
     setIsSuccess(false);
 
     try {
+      const currentFormData = formData();
+      
+      const idempotencyKey = crypto.randomUUID();
+      
+      const formDataToSend = new FormData();
+      formDataToSend.append('username', currentFormData.username);
+      formDataToSend.append('name', currentFormData.firstName);
+      formDataToSend.append('lastName', currentFormData.lastName);
+      formDataToSend.append('password', currentFormData.password);
+      formDataToSend.append('email', currentFormData.email);
+      formDataToSend.append('notifyEnabled', currentFormData.notificationsEnabled.toString());
+      formDataToSend.append('timezone', currentFormData.timezone);
+      
+      if (currentFormData.avatar) {
+        formDataToSend.append('avatar', currentFormData.avatar);
+      }
+
       console.log('Отправка данных на сервер:', {
-        ...formData(),
-        avatar: formData().avatar?.name ?? null,
+        username: currentFormData.username,
+        name: currentFormData.firstName,
+        lastName: currentFormData.lastName,
+        email: currentFormData.email,
+        notifyEnabled: currentFormData.notificationsEnabled,
+        timezone: currentFormData.timezone,
+        avatar: currentFormData.avatar?.name ?? null,
+        idempotencyKey,
       });
 
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await axios.post(`${config.backendUrl}/api/v1/user`, formDataToSend, {
+        headers: {
+          'X-idempotency-key': idempotencyKey,
+        },
+      });
+
+      if (response.status >= 400) {
+        throw new Error(response.data?.message || 'Ошибка при регистрации');
+      }
+
+      const result = response.data;
+      console.log('Ответ от сервера:', result);
+
+      const newUserId = result.id;
+      localStorage.setItem('userId', newUserId.toString());
+      setUserId(newUserId);
+
+      setUserCredentials({
+        username: currentFormData.username,
+        password: currentFormData.password,
+      });
 
       setIsSuccess(true);
+      setIsVerificationSent(true);
       setFormData(prev => ({ ...initialFormState, timezone: prev.timezone }));
       setErrors({ ...initialErrorsState });
       initTimezone();
 
       return true;
     } catch (error) {
-      setErrors(prev => ({ ...prev, general: 'Ошибка при регистрации. Попробуйте позже.' }));
+      console.error('Ошибка при регистрации:', error);
+      setErrors(prev => ({ 
+        ...prev, 
+        general: error.message || 'Ошибка при регистрации. Попробуйте позже.' 
+      }));
       return false;
     } finally {
       setIsSubmitting(false);
@@ -178,7 +267,103 @@ export function RegisterProvider(props) {
     setFormData({ ...initialFormState });
     setErrors({ ...initialErrorsState });
     setIsSuccess(false);
+    setIsVerificationSent(false);
+    setVerificationCode('');
+    setVerificationError('');
+    setIsVerifying(false);
+    setResendTimer(60);
+    setUserCredentials({ username: '', password: '' });
     initTimezone();
+  };
+
+  const getUserCredentials = () => {
+    return userCredentials();
+  };
+
+  const submitVerificationCode = async (code) => {
+    const currentUserId = userId() || localStorage.getItem('userId');
+
+    if (!currentUserId) {
+      setVerificationError('Пользователь не найден');
+      return false;
+    }
+
+    setIsVerifying(true);
+    setVerificationError('');
+
+    try {
+      console.log('Отправка кода подтверждения на сервер:', {
+        userId: currentUserId,
+        code: code,
+      });
+
+      const response = await axios.post(
+        `${config.backendUrl}/api/v1/auth/verify-account?userId=${currentUserId}&code=${code}`
+      );
+
+      if (response.status >= 400) {
+        throw new Error(response.data?.message || 'Неверный код подтверждения');
+      }
+
+      const result = response.data;
+      console.log('Ответ от сервера:', result);
+
+      return true;
+    } catch (error) {
+      console.error('Ошибка при проверке кода:', error);
+      setVerificationError(error.message || 'Ошибка при проверке кода. Попробуйте позже.');
+      return false;
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  const resendVerificationCode = async () => {
+    if (resendTimer() > 0) {
+      return false;
+    }
+
+    const currentUserId = userId() || localStorage.getItem('userId');
+
+    if (!currentUserId) {
+      setVerificationError('Пользователь не найден');
+      return false;
+    }
+
+    try {
+      console.log('Повторная отправка кода подтверждения:', {
+        userId: currentUserId,
+      });
+
+      const response = await axios.post(
+        `${config.backendUrl}/api/v1/auth/resend-verification?userId=${currentUserId}`
+      );
+
+      if (response.status >= 400) {
+        throw new Error(response.data?.message || 'Ошибка при отправке кода');
+      }
+
+      setResendTimer(60);
+      setVerificationError('');
+      return true;
+    } catch (error) {
+      console.error('Ошибка при повторной отправке кода:', error);
+      setVerificationError(error.message || 'Ошибка при отправке кода. Попробуйте позже.');
+      return false;
+    }
+  };
+
+  const updateVerificationCode = (code) => {
+    setVerificationCode(code);
+    setVerificationError('');
+  };
+
+  const resetVerification = () => {
+    setIsVerificationSent(false);
+    setVerificationCode('');
+    setVerificationError('');
+    setIsVerifying(false);
+    setResendTimer(60);
   };
 
   const value = {
@@ -186,6 +371,13 @@ export function RegisterProvider(props) {
     errors,
     isSubmitting,
     isSuccess,
+    isVerificationSent,
+    verificationCode,
+    verificationError,
+    isVerifying,
+    resendTimer,
+    userId,
+    userCredentials,
     updateField,
     updateAvatar,
     toggleNotifications,
@@ -193,6 +385,11 @@ export function RegisterProvider(props) {
     resetForm,
     validateForm,
     initTimezone,
+    submitVerificationCode,
+    resendVerificationCode,
+    updateVerificationCode,
+    resetVerification,
+    getUserCredentials,
   };
 
   return (

@@ -15,7 +15,6 @@ import com.yuranium.userservice.repository.UserBackgroundRepository;
 import com.yuranium.userservice.repository.UserIdempotencyRepository;
 import com.yuranium.userservice.repository.UserRepository;
 import com.yuranium.userservice.service.kafka.KafkaSender;
-import com.yuranium.userservice.util.exception.UnconfirmedAccountException;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
@@ -136,14 +135,25 @@ public class UserService
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User with kc-id=%s not found.".formatted(keycloakId)
                 ));
-        userEntity.setAvatar(fileService.updateFile(
-                userEntity.getAvatar(), userDto.avatar())
-        );
+        if (userDto.avatar() != null)
+            userEntity.setAvatar(fileService.updateFile(
+                    userEntity.getAvatar(), userDto.avatar())
+            );
         userMapper.updateEntity(userEntity, userDto);
 
         return userMapper.toResponseDto(
                 userRepository.save(userEntity)
         );
+    }
+
+    @Transactional
+    public void updateLastLogin(UUID keycloakId, LocalDateTime loginTime)
+    {
+        UserEntity userEntity = userRepository.findByKeycloakId(keycloakId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User with kc-id=%s not found.".formatted(keycloakId)
+                ));
+        userEntity.getBackground().setLastLogin(loginTime);
     }
 
     @Transactional
@@ -153,21 +163,6 @@ public class UserService
         fileService.deleteFile(userEntity.getAvatar());
         keycloakService.deleteUser(userEntity.getKeycloakId());
         userRepository.deleteById(id);
-    }
-
-    @Transactional
-    public void validateUser(UUID keycloakId)
-    {
-        UserEntity user = userRepository.findByKeycloakId(keycloakId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "User with kc-id=%s not found.".formatted(keycloakId)
-                ));
-
-        if (!user.getBackground().getActivity())
-            throw new UnconfirmedAccountException(
-                    "User account with keycloak_id=%s is disabled".formatted(keycloakId)
-            );
-        user.getBackground().setLastLogin(LocalDateTime.now());
     }
 
     private UserEntity findByIdOrThrow(Long id)

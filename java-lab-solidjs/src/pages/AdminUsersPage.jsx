@@ -1,5 +1,6 @@
-import { createSignal } from 'solid-js';
+import { createSignal, onMount } from 'solid-js';
 import { useUsers } from '../context/UsersContext';
+import { useAuth } from '../context/AuthContext';
 import AdminLayout from '../components/Admin/AdminLayout/AdminLayout';
 import UserList from '../components/Admin/UserList/UserList';
 import BlockUserModal from '../components/Admin/BlockUserModal/BlockUserModal';
@@ -7,14 +8,14 @@ import './AdminUsersPage.css';
 import { Show } from 'solid-js';
 
 export default function AdminUsersPage() {
-  const { blockUser } = useUsers();
-  const [visibleCount, setVisibleCount] = createSignal(1);
+  const { loadUsers, blockUser } = useUsers();
+  const { isAuthenticated } = useAuth();
   const [selectedUser, setSelectedUser] = createSignal(null);
   const [isModalOpen, setIsModalOpen] = createSignal(false);
 
-  const handleLoadMore = () => {
-    setVisibleCount((prev) => prev + 1);
-  };
+  onMount(() => {
+    loadUsers(0, false);
+  });
 
   const handleBlockClick = (user) => {
     setSelectedUser(user);
@@ -34,20 +35,20 @@ export default function AdminUsersPage() {
   return (
     <AdminLayout activePage="users" title="Управление пользователями">
       <div class="admin-users-page">
-        <UserList
-          visibleCount={visibleCount()}
-          onLoadMore={handleLoadMore}
-          onBlockClick={handleBlockClick}
-        />
+        <Show when={isAuthenticated()}>
+          <UserList
+            onBlockClick={handleBlockClick}
+          />
+        </Show>
 
         <Show when={isModalOpen()}>
-        <BlockUserModal
-          isOpen={isModalOpen()}
-          user={selectedUser()}
-          onClose={handleModalClose}
-          onConfirm={handleBlockConfirm}
-        />
-      </Show>
+          <BlockUserModal
+            isOpen={isModalOpen()}
+            user={selectedUser()}
+            onClose={handleModalClose}
+            onConfirm={handleBlockConfirm}
+          />
+        </Show>
       </div>
     </AdminLayout>
   );

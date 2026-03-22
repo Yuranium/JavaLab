@@ -36,6 +36,15 @@ spring:
           idempotence: true
       acks: all
 
+    consumer:
+      group-id: ${spring.application.name}
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: com.javalab.core.events
+        spring.json.value.default.type: com.javalab.core.events.UserLoggedInEvent
+        spring.json.use.type.headers: false
+
   security:
     oauth2:
       resourceserver:
@@ -68,3 +77,4 @@ s3:
 kafka:
   topic-names:
     user-registered: ${USER_CREATED_TOPIC}
+    user-logged-in: ${USER_LOGGED_IN_TOPIC}

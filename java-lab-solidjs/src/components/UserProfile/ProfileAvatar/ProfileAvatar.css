@@ -66,6 +66,26 @@
   margin: 0;
 }
 
+.profile-avatar-error {
+  font-size: 13px;
+  color: var(--error-color, #ef4444);
+  margin: 4px 0 0 0;
+  text-align: center;
+}
+
+.profile-avatar-spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* Кнопка активности */
 .profile-activity-btn {
   width: 44px;

@@ -1,4 +1,5 @@
-import { onMount, createMemo, Show } from 'solid-js';
+import { onMount, createMemo, Show, createEffect } from 'solid-js';
+import { useNavigate } from '@solidjs/router';
 import { useRegister } from '../../../context/RegisterContext';
 import FormFileInput from '../FormFileInput/FormFileInput';
 import FormCheckbox from '../FormCheckbox/FormCheckbox';
@@ -7,12 +8,19 @@ import './RegisterForm.css';
 
 export default function RegisterForm() {
   const register = useRegister();
-  
+  const navigate = useNavigate();
+
   const errors = createMemo(() => register.errors());
   const formData = createMemo(() => register.formData());
 
   onMount(() => {
     register.initTimezone();
+  });
+
+  createEffect(() => {
+    if (register.isVerificationSent()) {
+      navigate('/register/verify');
+    }
   });
 
   const handleSubmit = (e) => {
@@ -28,16 +36,6 @@ export default function RegisterForm() {
           Создайте аккаунт, чтобы получить доступ ко всем возможностям
         </p>
       </div>
-
-      <Show when={register.isSuccess()}>
-        <div class="register-success-message">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-            <polyline points="22 4 12 14.01 9 11.01" />
-          </svg>
-          <span>Регистрация успешна! Теперь вы можете войти.</span>
-        </div>
-      </Show>
 
       <Show when={errors().general}>
         <div class="register-error-message">
