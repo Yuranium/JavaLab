@@ -1,10 +1,12 @@
 package com.javalab.taskservice.controller;
 
 import com.javalab.taskservice.dto.request.TaskRequestDto;
+import com.javalab.taskservice.dto.response.TaskAttributeResponseDto;
 import com.javalab.taskservice.dto.response.TaskDetailedResponseDto;
 import com.javalab.taskservice.dto.response.TaskResponseDto;
 import com.javalab.taskservice.dto.response.TaskUpdatedResponseDto;
 import com.javalab.taskservice.enums.DifficultyType;
+import com.javalab.taskservice.enums.JavaCategory;
 import com.javalab.taskservice.service.TaskService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +47,9 @@ public class TaskController
     }
 
     @PostMapping
-    public ResponseEntity<@NonNull TaskResponseDto> createTask(@RequestBody TaskRequestDto taskDto)
+    public ResponseEntity<@NonNull TaskResponseDto> createTask(
+            @RequestBody TaskRequestDto taskDto
+    )
     {
         return new ResponseEntity<>(
                 taskService.createTask(taskDto),
@@ -72,11 +76,14 @@ public class TaskController
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @GetMapping("/difficulty")
-    public ResponseEntity<?> getDifficulties()
+    @GetMapping("/attributes")
+    public ResponseEntity<?> getAttributes()
     {
         return new ResponseEntity<>(
-                List.of(DifficultyType.values()),
+                new TaskAttributeResponseDto(
+                        List.of(DifficultyType.values()),
+                        List.of(JavaCategory.values())
+                ),
                 HttpStatus.OK
         );
     }
