@@ -1,5 +1,6 @@
 package com.javalab.taskservice.service;
 
+import com.javalab.core.events.TaskCreatedEvent;
 import com.javalab.taskservice.dto.request.TaskRequestDto;
 import com.javalab.taskservice.dto.response.CategoryResponseDto;
 import com.javalab.taskservice.dto.response.TaskDetailedResponseDto;
@@ -8,7 +9,6 @@ import com.javalab.taskservice.dto.response.TaskUpdatedResponseDto;
 import com.javalab.taskservice.repository.TaskRepository;
 import com.javalab.taskservice.service.kafka.KafkaSender;
 import com.javalab.taskservice.tables.records.TaskRecord;
-import com.javalab.core.events.TaskCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
@@ -36,10 +36,14 @@ public class TaskService
 
     public TaskDetailedResponseDto getTask(Long id)
     {
-        return taskRepository.getDetailedTask(id);
+        return taskRepository.getDetailedTask(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "The task with id=%d not found"
+                                .formatted(id)
+                ));
     }
 
-    public TaskResponseDto createTask(TaskRequestDto taskDto)
+    public void createTask(TaskRequestDto taskDto)
     {
         TaskRecord savedTask = taskRepository.saveTask(taskDto);
         var categories = categoryService.saveCategoryForTask(savedTask.getIdTask(), taskDto.categories());
@@ -54,11 +58,9 @@ public class TaskService
                                 .toList()
                 )
         );
-
-        return taskRepository.getTask(savedTask.getIdTask());
     }
 
-    public TaskUpdatedResponseDto updateTask(Long id, TaskRequestDto taskDto)
+    public TaskUpdatedResponseDto updateTask(Long id, TaskRequestDto taskDto) // todo добавить возможность обновления категорий, тестовых кейсов и тд у задачи
     {
         return taskRepository
                 .updateTask(id, taskDto)

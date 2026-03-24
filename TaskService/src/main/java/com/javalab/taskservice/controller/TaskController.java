@@ -47,14 +47,12 @@ public class TaskController
     }
 
     @PostMapping
-    public ResponseEntity<@NonNull TaskResponseDto> createTask(
+    public ResponseEntity<?> createTask(
             @RequestBody TaskRequestDto taskDto
     )
     {
-        return new ResponseEntity<>(
-                taskService.createTask(taskDto),
-                HttpStatus.CREATED
-        );
+        taskService.createTask(taskDto);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @PatchMapping("/{id}")

@@ -22,8 +22,6 @@ public record TaskResponseDto(
 
         Long idAuthor,
 
-        Collection<CategoryResponseDto> categories,
-
-        StarterCodeResponseDto starterCode
+        Collection<CategoryResponseDto> categories
 
 ) implements Serializable {}
