@@ -22,7 +22,7 @@ public class TestCaseService
             Long taskId, TestCaseRequestDto testCaseDto
     )
     {
-        if (taskRepository.getOnlyTask(taskId).isPresent())
+        if (taskRepository.existsById(taskId))
             return testCaseRepository.createTestCase(taskId, testCaseDto);
 
         throw new ResourceNotFoundException(

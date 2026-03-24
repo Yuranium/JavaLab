@@ -18,7 +18,7 @@ public class StarterCodeService
 
     public StarterCodeResponseDto getStarterCode(Long taskId)
     {
-        if (taskRepository.getOnlyTask(taskId).isPresent())
+        if (taskRepository.existsById(taskId))
             return starterCodeRepository.getStarterCode(taskId);
 
         throw new ResourceNotFoundException("The task with id=%d not found".formatted(taskId));
@@ -38,7 +38,7 @@ public class StarterCodeService
             Long taskId, StarterCodeRequestDto requestDto
     )
     {
-        if (taskRepository.getOnlyTask(taskId).isPresent())
+        if (taskRepository.existsById(taskId))
             return starterCodeRepository.updateStarterCode(taskId, requestDto);
 
         throw new ResourceNotFoundException(

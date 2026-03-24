@@ -102,11 +102,13 @@ public class TaskRepository
     }
 
     @Transactional(readOnly = true)
-    public Optional<TaskRecord> getOnlyTask(Long id)
+    public Boolean existsById(Long id)
     {
-        return dsl.selectFrom(TASK)
+        Integer count = dsl.select(count()).from(TASK)
                 .where(TASK.ID_TASK.eq(id))
-                .fetchOptional();
+                .fetchOne(count());
+
+        return count != null && count == 1;
     }
 
     @Transactional

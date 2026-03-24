@@ -12,6 +12,7 @@ import com.javalab.taskservice.tables.records.TaskRecord;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 
@@ -43,6 +44,7 @@ public class TaskService
                 ));
     }
 
+    @Transactional
     public void createTask(TaskRequestDto taskDto)
     {
         TaskRecord savedTask = taskRepository.saveTask(taskDto);
@@ -60,7 +62,8 @@ public class TaskService
         );
     }
 
-    public TaskUpdatedResponseDto updateTask(Long id, TaskRequestDto taskDto) // todo добавить возможность обновления категорий, тестовых кейсов и тд у задачи
+    @Transactional
+    public TaskUpdatedResponseDto updateTask(Long id, TaskRequestDto taskDto)
     {
         return taskRepository
                 .updateTask(id, taskDto)
