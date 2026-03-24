@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
@@ -44,17 +44,17 @@ public class AuthService
     @Transactional
     public void sendConfirmCode(UserRegisteredEvent event)
     {
-        if (userRepository.findById(event.id()).isPresent())
-        {
-            Integer confirmCode = generateAuthCode();
-            createConfirmCode(event.id(), confirmCode);
-            kafkaSender.sendUserRegisteredEvent(new UserRegisteredEvent(
-                    event.id(), event.username(), event.email(), confirmCode
-            ));
-        }
-        else throw new ResourceNotFoundException(
-                "User with id=%d not found.".formatted(event.id())
-        );
+        if (!userRepository.existsById(event.id()))
+            throw new ResourceNotFoundException(
+                    "User with id=%d not found".formatted(event.id())
+            );
+
+        codeRepository.deleteAllByUserId(event.id());
+        Integer confirmCode = generateAuthCode();
+        createConfirmCode(event.id(), confirmCode);
+        kafkaSender.sendUserRegisteredEvent(new UserRegisteredEvent(
+                event.id(), event.username(), event.email(), confirmCode
+        ));
     }
 
     @Transactional
@@ -63,17 +63,17 @@ public class AuthService
         ConfirmationCodeEntity confirmCode = codeRepository
                 .findByUserIdAndCode(userId, code)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "The confirm code for userId=%d was not found.".formatted(userId)
+                        "The confirm code for userId=%d was not found".formatted(userId)
                 ));
 
         if (isCodeActive(confirmCode))
         {
             UserEntity userEntity = userRepository.findById(userId)
                     .orElseThrow(() -> new ResourceNotFoundException(
-                            "User with id=%d not found.".formatted(userId)
+                            "User with id=%d not found".formatted(userId)
                     ));
             userEntity.getBackground().setActivity(true);
-            userEntity.getBackground().setLastLogin(LocalDateTime.now());
+            userEntity.getBackground().setLastLogin(Instant.now());
             keycloakService.verifyUser(userEntity.getKeycloakId());
             codeRepository.delete(confirmCode);
             return true;
@@ -85,7 +85,7 @@ public class AuthService
 
     private Boolean isCodeActive(ConfirmationCodeEntity code)
     {
-        return code.getCreatedDate().plus(codeLifetime).isAfter(LocalDateTime.now());
+        return code.getCreatedDate().plus(codeLifetime).isAfter(Instant.now());
     }
 
     public Integer generateAuthCode()

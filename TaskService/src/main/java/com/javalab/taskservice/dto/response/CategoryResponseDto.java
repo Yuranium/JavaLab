@@ -3,7 +3,7 @@ package com.javalab.taskservice.dto.response;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record CategoryResponseDto(
@@ -11,6 +11,6 @@ public record CategoryResponseDto(
 
         String description,
 
-        LocalDateTime createdAt
+        Instant createdAt
 
 ) implements Serializable {}

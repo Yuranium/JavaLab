@@ -3,7 +3,7 @@ package com.javalab.taskservice.dto.response;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Collection;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -16,9 +16,9 @@ public record TaskResponseDto(
 
         String difficulty,
 
-        LocalDateTime createdAt,
+        Instant createdAt,
 
-        LocalDateTime updatedAt,
+        Instant updatedAt,
 
         Long idAuthor,
 

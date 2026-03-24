@@ -21,7 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -98,7 +98,7 @@ public class UserTests
                 "Doe",
                 "example@example.com",
                 "user-avatars/" + UUID.randomUUID() + "image.png",
-                LocalDateTime.now(),
+                Instant.now(),
                 null,
                 false,
                 true,

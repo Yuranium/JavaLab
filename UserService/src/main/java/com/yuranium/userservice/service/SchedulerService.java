@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +24,7 @@ public class SchedulerService
     )
     public void deleteInactiveUsers()
     {
-        LocalDateTime offsetDateTime = LocalDateTime.now().minus(inactiveUserKeyLifetime);
+        Instant offsetDateTime = Instant.now().minus(inactiveUserKeyLifetime);
         userRepository.deleteInactiveUsers(offsetDateTime);
     }
 }

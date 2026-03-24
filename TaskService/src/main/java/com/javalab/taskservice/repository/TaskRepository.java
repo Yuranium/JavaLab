@@ -13,7 +13,7 @@ import org.jooq.Result;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -198,7 +198,7 @@ public class TaskRepository
                 .set(TASK.TITLE, taskDto.title())
                 .set(TASK.DESCRIPTION, taskDto.description())
                 .set(TASK.DIFFICULTY, taskDto.difficulty().name())
-                .set(TASK.UPDATED_AT, LocalDateTime.now())
+                .set(TASK.UPDATED_AT, Instant.now())
                 .where(TASK.ID_TASK.eq(id))
                 .returning()
                 .fetchOptionalInto(TaskUpdatedResponseDto.class);

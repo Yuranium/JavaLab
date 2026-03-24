@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -24,11 +24,11 @@ public class UserBackgroundEntity
     private Long id;
 
     @CreationTimestamp
-    @Column(name = "date_registration", columnDefinition = "TIMESTAMP",  nullable = false)
-    private LocalDateTime dateRegistration;
+    @Column(name = "date_registration", columnDefinition = "TIMESTAMPTZ",  nullable = false)
+    private Instant dateRegistration;
 
-    @Column(name = "last_login", columnDefinition = "TIMESTAMP")
-    private LocalDateTime lastLogin;
+    @Column(name = "last_login", columnDefinition = "TIMESTAMPTZ")
+    private Instant lastLogin;
 
     @Column(name = "timezone", columnDefinition = "VARCHAR(50)", nullable = false)
     private String timezone;

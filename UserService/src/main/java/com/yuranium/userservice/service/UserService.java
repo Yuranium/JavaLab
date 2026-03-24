@@ -20,7 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 import static com.yuranium.userservice.util.data.UserSpecifications.hasActivity;
@@ -65,18 +65,18 @@ public class UserService
     @Transactional(readOnly = true)
     public UserResponseDto getUser(Long id)
     {
-        return userMapper.toResponseDto(findByIdOrThrow(id));
+        return userMapper.toResponseDto(
+                userRepository.findById(id)
+                        .orElseThrow(() -> new ResourceNotFoundException(
+                                "User with id=%d not found".formatted(id)
+                        ))
+        );
     }
 
     @Transactional(readOnly = true)
     public UserResponseDto getUser(UUID id)
     {
-        return userMapper.toResponseDto(
-                userRepository.findByKeycloakId(id)
-                        .orElseThrow(() -> new ResourceNotFoundException(
-                                "User with kc-id=%s not found.".formatted(id)
-                        ))
-        );
+        return userMapper.toResponseDto(findByIdOrThrow(id));
     }
 
     @Transactional
@@ -84,7 +84,7 @@ public class UserService
     {
         if (userRepository.existsByUsernameOrEmail(userDto.username(), userDto.email()))
             throw new ResourceAlreadyExistsException(
-                    "The user with this username or email already exists."
+                    "The user with this username or email already exists"
             );
 
         String uploadedAvatarUrl = fileService.uploadFile(userDto.avatar());
@@ -126,10 +126,7 @@ public class UserService
     @Transactional
     public UserResponseDto updateUser(UUID keycloakId, UserUpdateDto userDto)
     {
-        UserEntity userEntity = userRepository.findByKeycloakId(keycloakId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "User with kc-id=%s not found.".formatted(keycloakId)
-                ));
+        UserEntity userEntity = findByIdOrThrow(keycloakId);
         if (userDto.avatar() != null)
             userEntity.setAvatar(fileService.updateFile(
                     userEntity.getAvatar(), userDto.avatar())
@@ -142,29 +139,26 @@ public class UserService
     }
 
     @Transactional
-    public void updateLastLogin(UUID keycloakId, LocalDateTime loginTime)
+    public void updateLastLogin(UUID keycloakId, Instant loginTime)
     {
-        UserEntity userEntity = userRepository.findByKeycloakId(keycloakId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "User with kc-id=%s not found.".formatted(keycloakId)
-                ));
+        UserEntity userEntity = findByIdOrThrow(keycloakId);
         userEntity.getBackground().setLastLogin(loginTime);
     }
 
     @Transactional
-    public void deleteUser(Long id)
+    public void deleteUser(UUID keycloakId)
     {
-        UserEntity userEntity = findByIdOrThrow(id);
+        UserEntity userEntity = findByIdOrThrow(keycloakId);
         fileService.deleteFile(userEntity.getAvatar());
         keycloakService.deleteUser(userEntity.getKeycloakId());
-        userRepository.deleteById(id);
+        userRepository.deleteByKeycloakId(keycloakId);
     }
 
-    private UserEntity findByIdOrThrow(Long id)
+    private UserEntity findByIdOrThrow(UUID keycloakId)
     {
-        return userRepository.findById(id)
+        return userRepository.findByKeycloakId(keycloakId)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "User with id=%d not found.".formatted(id)
+                        "User with k-id=%s not found".formatted(keycloakId)
                 ));
     }
 }

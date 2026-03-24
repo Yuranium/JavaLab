@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -29,6 +29,6 @@ public class ConfirmationCodeEntity
     private Integer code;
 
     @CreationTimestamp
-    @Column(name = "created_date", columnDefinition = "TIMESTAMP")
-    private LocalDateTime createdDate;
+    @Column(name = "created_date", columnDefinition = "TIMESTAMPTZ")
+    private Instant createdDate;
 }

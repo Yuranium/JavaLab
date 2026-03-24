@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,7 +23,7 @@ public interface UserRepository extends
               AND ub.date_registration <= :expiration_time
             """, nativeQuery = true)
     @Transactional
-    void deleteInactiveUsers(@Param("expiration_time") LocalDateTime expirationTime);
+    void deleteInactiveUsers(@Param("expiration_time") Instant expirationTime);
 
     @EntityGraph(attributePaths = "background")
     Optional<UserEntity> findByKeycloakId(UUID keycloakId);
@@ -31,8 +31,15 @@ public interface UserRepository extends
     @EntityGraph(attributePaths = "background")
     Page<UserEntity> findAll(Specification<UserEntity> specification, Pageable pageable);
 
-    @Query(value = "SELECT u.email FROM UserEntity u WHERE u.background.notifyEnabled = true")
+    @Query(value = """
+            SELECT u.email FROM UserEntity u
+            WHERE u.background.notifyEnabled = true
+                AND u.background.activity = true
+            """)
     Page<String> findSuitableEmails(Pageable pageable);
 
     Boolean existsByUsernameOrEmail(String username, String email);
+
+    @Modifying
+    void deleteByKeycloakId(UUID keycloakId);
 }
