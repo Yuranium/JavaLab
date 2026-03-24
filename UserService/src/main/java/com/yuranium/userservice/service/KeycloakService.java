@@ -69,26 +69,13 @@ public class KeycloakService
         usersResource.delete(keycloakUserId.toString());
     }
 
-    public void verifyUser(UUID keycloakUserId) // todo возможно удалить
+    public void changeUserActivity(UUID userId, boolean activityState)
     {
-        UserRepresentation user = keycloak.realm(keycloakConfig.getCurrentRealm())
-                .users()
-                .get(String.valueOf(keycloakUserId))
-                .toRepresentation();
-        user.setEmailVerified(true);
-        keycloak.realm(keycloakConfig.getCurrentRealm())
-                .users()
-                .get(String.valueOf(keycloakUserId))
-                .update(user);
-    }
-
-    public void changeUserActivity(UUID userId)
-    {
-        var user =  keycloak.realm(keycloakConfig.getCurrentRealm())
+        var user = keycloak.realm(keycloakConfig.getCurrentRealm())
                 .users()
                 .get(String.valueOf(userId))
                 .toRepresentation();
-        user.setEmailVerified(!user.isEmailVerified());
+        user.setEmailVerified(activityState);
         keycloak.realm(keycloakConfig.getCurrentRealm())
                 .users()
                 .get(String.valueOf(userId))

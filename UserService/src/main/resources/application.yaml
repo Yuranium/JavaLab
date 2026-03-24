@@ -22,6 +22,10 @@ spring:
     hibernate:
       ddl-auto: none
 
+  redis:
+    user-lock:
+      key: delayed:users
+
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     producer:

@@ -64,12 +64,12 @@ public class UserController
     }
 
     @PostMapping("/{id}/change-activity")
-    public ResponseEntity<?> changeUserActivity(
+    public ResponseEntity<?> changeActivity(
             @PathVariable Long id,
             @RequestBody UserLockDuration duration
     )
     {
-        schedulerService.dynamicBlock(id, duration);
+        schedulerService.dynamicLock(id, duration);
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
 }
