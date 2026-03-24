@@ -1,3 +1,5 @@
+\c user_service_main;
+
 DROP TABLE IF EXISTS
     public.user,
     user_background,
