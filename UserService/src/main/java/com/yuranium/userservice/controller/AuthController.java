@@ -68,4 +68,11 @@ public class AuthController
                 HttpStatus.OK
         );
     }
+
+    @DeleteMapping
+    public ResponseEntity<?> deleteUser(@AuthenticationPrincipal Jwt jwt)
+    {
+        userService.deleteUser(UUID.fromString(jwt.getSubject()));
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }

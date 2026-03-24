@@ -31,8 +31,15 @@ public interface UserRepository extends
     @EntityGraph(attributePaths = "background")
     Page<UserEntity> findAll(Specification<UserEntity> specification, Pageable pageable);
 
-    @Query(value = "SELECT u.email FROM UserEntity u WHERE u.background.notifyEnabled = true")
+    @Query(value = """
+            SELECT u.email FROM UserEntity u
+            WHERE u.background.notifyEnabled = true
+                AND u.background.activity = true
+            """)
     Page<String> findSuitableEmails(Pageable pageable);
 
     Boolean existsByUsernameOrEmail(String username, String email);
+
+    @Modifying
+    void deleteByKeycloakId(UUID keycloakId);
 }

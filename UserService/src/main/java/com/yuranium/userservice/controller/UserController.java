@@ -11,8 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 @RestController
 @CrossOrigin("*")
 @RequestMapping("/api/v1/user")
@@ -32,15 +30,6 @@ public class UserController
         );
     }
 
-    @GetMapping("/internal/email-notification")
-    public ResponseEntity<Page<String>> getEmails(Pageable page)
-    {
-        return new ResponseEntity<>(
-                userService.getEmailsForNotify(page),
-                HttpStatus.OK
-        );
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDto> getUser(@PathVariable Long id)
     {
@@ -50,19 +39,23 @@ public class UserController
         );
     }
 
+    @GetMapping("/internal/email-notification")
+    public ResponseEntity<Page<String>> getEmails(Pageable page)
+    {
+        return new ResponseEntity<>(
+                userService.getEmailsForNotify(page),
+                HttpStatus.OK
+        );
+    }
+
     @PostMapping
-    public ResponseEntity<UserResponseDto> createUser(@ModelAttribute UserRequestDto userDto)
+    public ResponseEntity<UserResponseDto> createUser(
+            @ModelAttribute UserRequestDto userDto
+    )
     {
         return new ResponseEntity<>(
                 userService.createUser(userDto),
                 HttpStatus.CREATED
         );
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Long id)
-    {
-        userService.deleteUser(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
