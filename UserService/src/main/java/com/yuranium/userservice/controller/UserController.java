@@ -1,8 +1,10 @@
 package com.yuranium.userservice.controller;
 
 import com.yuranium.userservice.models.dto.UserFilterDto;
+import com.yuranium.userservice.models.dto.userlock.UserLockDuration;
 import com.yuranium.userservice.models.dto.UserRequestDto;
 import com.yuranium.userservice.models.dto.UserResponseDto;
+import com.yuranium.userservice.service.SchedulerService;
 import com.yuranium.userservice.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,6 +20,8 @@ import org.springframework.web.bind.annotation.*;
 public class UserController
 {
     private final UserService userService;
+
+    private final SchedulerService schedulerService;
 
     @GetMapping
     public ResponseEntity<Page<UserResponseDto>> getUsers(
@@ -57,5 +61,15 @@ public class UserController
                 userService.createUser(userDto),
                 HttpStatus.CREATED
         );
+    }
+
+    @PostMapping("/{id}/change-activity")
+    public ResponseEntity<?> changeUserActivity(
+            @PathVariable Long id,
+            @RequestBody UserLockDuration duration
+    )
+    {
+        schedulerService.dynamicBlock(id, duration);
+        return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
 }

@@ -36,6 +36,13 @@ services:
       POSTGRES_PASSWORD: ${PG_PASSWORD:-postgres}
       POSTGRES_DB: postgres
 
+  redis:
+    container_name: redis
+    image: redis:8.6.1-alpine
+    restart: "no"
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+
   keycloak:
     image: quay.io/keycloak/keycloak:latest
     command: start-dev

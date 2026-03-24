@@ -40,7 +40,7 @@ public class UserExceptionHandler
                 .body(new ExceptionBody(HttpStatus.UNAUTHORIZED.value(), exc.getMessage()));
     }
 
-    @ExceptionHandler(ConfirmationCodeExpiredException.class)
+    @ExceptionHandler({ConfirmationCodeExpiredException.class, IllegalArgumentException.class})
     public ResponseEntity<ExceptionBody> handleException(ConfirmationCodeExpiredException exc)
     {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)

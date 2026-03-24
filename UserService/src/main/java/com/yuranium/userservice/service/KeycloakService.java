@@ -69,7 +69,7 @@ public class KeycloakService
         usersResource.delete(keycloakUserId.toString());
     }
 
-    public void verifyUser(UUID keycloakUserId)
+    public void verifyUser(UUID keycloakUserId) // todo возможно удалить
     {
         UserRepresentation user = keycloak.realm(keycloakConfig.getCurrentRealm())
                 .users()
@@ -79,6 +79,19 @@ public class KeycloakService
         keycloak.realm(keycloakConfig.getCurrentRealm())
                 .users()
                 .get(String.valueOf(keycloakUserId))
+                .update(user);
+    }
+
+    public void changeUserActivity(UUID userId)
+    {
+        var user =  keycloak.realm(keycloakConfig.getCurrentRealm())
+                .users()
+                .get(String.valueOf(userId))
+                .toRepresentation();
+        user.setEmailVerified(!user.isEmailVerified());
+        keycloak.realm(keycloakConfig.getCurrentRealm())
+                .users()
+                .get(String.valueOf(userId))
                 .update(user);
     }
 }

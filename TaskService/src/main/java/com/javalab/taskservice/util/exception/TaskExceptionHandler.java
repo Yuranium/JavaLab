@@ -35,7 +35,7 @@ public class TaskExceptionHandler
             ResourceAlreadyExistsException exc
     )
     {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ExceptionBody(HttpStatus.BAD_REQUEST.value(), exc.getMessage()));
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ExceptionBody(HttpStatus.CONFLICT.value(), exc.getMessage()));
     }
 }
