@@ -44,17 +44,17 @@ public class AuthService
     @Transactional
     public void sendConfirmCode(UserRegisteredEvent event)
     {
-        if (userRepository.findById(event.id()).isPresent())
-        {
-            Integer confirmCode = generateAuthCode();
-            createConfirmCode(event.id(), confirmCode);
-            kafkaSender.sendUserRegisteredEvent(new UserRegisteredEvent(
-                    event.id(), event.username(), event.email(), confirmCode
-            ));
-        }
-        else throw new ResourceNotFoundException(
-                "User with id=%d not found.".formatted(event.id())
-        );
+        if (!userRepository.existsById(event.id()))
+            throw new ResourceNotFoundException(
+                    "User with id=%d not found".formatted(event.id())
+            );
+
+        codeRepository.deleteAllByUserId(event.id());
+        Integer confirmCode = generateAuthCode();
+        createConfirmCode(event.id(), confirmCode);
+        kafkaSender.sendUserRegisteredEvent(new UserRegisteredEvent(
+                event.id(), event.username(), event.email(), confirmCode
+        ));
     }
 
     @Transactional
@@ -63,14 +63,14 @@ public class AuthService
         ConfirmationCodeEntity confirmCode = codeRepository
                 .findByUserIdAndCode(userId, code)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "The confirm code for userId=%d was not found.".formatted(userId)
+                        "The confirm code for userId=%d was not found".formatted(userId)
                 ));
 
         if (isCodeActive(confirmCode))
         {
             UserEntity userEntity = userRepository.findById(userId)
                     .orElseThrow(() -> new ResourceNotFoundException(
-                            "User with id=%d not found.".formatted(userId)
+                            "User with id=%d not found".formatted(userId)
                     ));
             userEntity.getBackground().setActivity(true);
             userEntity.getBackground().setLastLogin(Instant.now());

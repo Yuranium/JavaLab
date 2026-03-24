@@ -2,6 +2,7 @@ package com.yuranium.userservice.repository;
 
 import com.yuranium.userservice.models.entity.ConfirmationCodeEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -10,4 +11,7 @@ import java.util.Optional;
 public interface ConfirmCodeRepository extends JpaRepository<ConfirmationCodeEntity, Long>
 {
     Optional<ConfirmationCodeEntity> findByUserIdAndCode(Long userId, Integer code);
+
+    @Modifying
+    void deleteAllByUserId(Long userId);
 }
