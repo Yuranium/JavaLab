@@ -4,8 +4,8 @@ import com.javalab.core.exception.ResourceNotCreatedException;
 import com.yuranium.userservice.config.KeycloakConfig;
 import com.yuranium.userservice.enums.RoleType;
 import com.yuranium.userservice.models.dto.UserRequestDto;
-import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
+import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.UUID;
+
+import static jakarta.ws.rs.core.Response.Status.Family.SUCCESSFUL;
 
 @Service
 @RequiredArgsConstructor
@@ -35,9 +37,9 @@ public class KeycloakService
         RoleRepresentation role = keycloak.realm(keycloakConfig.getCurrentRealm())
                 .roles().get(RoleType.ROLE_USER.name()).toRepresentation();
 
-        try (Response response = usersResource.create(userRep))
+        try (var response = usersResource.create(userRep))
         {
-            if (response.getStatus() != 201)
+            if (response.getStatusInfo().getFamily() != SUCCESSFUL)
                 throw new ResourceNotCreatedException("Failed to create user in Keycloak");
             String location = response.getLocation().getPath();
             String userId = location.substring(location.lastIndexOf("/") + 1);
@@ -66,19 +68,62 @@ public class KeycloakService
     public void deleteUser(UUID keycloakUserId)
     {
         UsersResource usersResource = keycloak.realm(keycloakConfig.getCurrentRealm()).users();
-        usersResource.delete(keycloakUserId.toString());
+        try (var response = usersResource.delete(keycloakUserId.toString()))
+        {
+            if (response.getStatusInfo().getFamily() != SUCCESSFUL)
+                throw new ResourceNotCreatedException("Failed to delete user in Keycloak");
+        }
     }
 
     public void changeUserActivity(UUID userId, boolean activityState)
     {
-        var user = keycloak.realm(keycloakConfig.getCurrentRealm())
-                .users()
-                .get(String.valueOf(userId))
-                .toRepresentation();
-        user.setEmailVerified(activityState);
-        keycloak.realm(keycloakConfig.getCurrentRealm())
-                .users()
-                .get(String.valueOf(userId))
-                .update(user);
+        var user = getUserRepresentation(userId);
+        if (user.isEnabled() == activityState)
+            return;
+
+        user.setEnabled(activityState);
+        saveChanges(user);
+    }
+
+    public void changeEmailStatus(UUID userId, boolean emailStatus)
+    {
+        var user = getUserRepresentation(userId);
+        if (user.isEmailVerified() == emailStatus)
+            return;
+
+        user.setEmailVerified(emailStatus);
+        saveChanges(user);
+    }
+
+    private UserRepresentation getUserRepresentation(UUID userId)
+    {
+        try
+        {
+            return keycloak.realm(keycloakConfig.getCurrentRealm())
+                    .users()
+                    .get(String.valueOf(userId))
+                    .toRepresentation();
+        } catch (Exception e)
+        {
+            throw new ResourceNotFoundException(
+                    "Failed to fetch user with k-id=%s".formatted(userId), e
+            );
+        }
+    }
+
+    private void saveChanges(UserRepresentation user)
+    {
+        try
+        {
+            keycloak.realm(keycloakConfig.getCurrentRealm())
+                    .users()
+                    .get(user.getId())
+                    .update(user);
+        } catch (Exception e)
+        {
+            throw new ResourceNotFoundException(
+                    "Failed to update user with k-id=%s".formatted(user.getId()), e
+            );
+        }
     }
 }
