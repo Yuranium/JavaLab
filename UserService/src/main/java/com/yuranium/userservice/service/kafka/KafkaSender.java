@@ -20,4 +20,12 @@ public class KafkaSender
                 message
         );
     }
+
+    public void sendUserLockedEvent(Object message)
+    {
+        kafkaTemplate.send(
+                environment.getProperty("kafka.topic-names.user-locked"),
+                message
+        );
+    }
 }

@@ -1,11 +1,13 @@
 package com.yuranium.userservice.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.javalab.core.events.UserLockedEvent;
 import com.yuranium.userservice.enums.LockAction;
 import com.yuranium.userservice.models.dto.userlock.UserLockDuration;
 import com.yuranium.userservice.models.dto.userlock.UserLockTask;
 import com.yuranium.userservice.models.entity.UserEntity;
 import com.yuranium.userservice.repository.UserRepository;
+import com.yuranium.userservice.service.kafka.KafkaSender;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Set;
 
 @Slf4j
@@ -31,6 +34,8 @@ public class SchedulerService
     private final RedisTemplate<String, String> redisTemplate;
 
     private final UserLockService userLockService;
+
+    private final KafkaSender kafkaSender;
 
     @Value("${spring.redis.user-lock.key}")
     private String userLockKey;
@@ -65,7 +70,6 @@ public class SchedulerService
             }
     }
 
-    @SneakyThrows
     public void dynamicLock(Long id, UserLockDuration duration)
     {
         if (!validLockDate(duration.startLock(), duration.endLock()))
@@ -77,9 +81,25 @@ public class SchedulerService
                         "User with id=%d not found".formatted(id)
                 ));
 
+        addToQueue(duration, userEntity);
+        ZoneId zoneId = ZoneId.of(userEntity.getBackground().getTimezone());
+        kafkaSender.sendUserLockedEvent(new UserLockedEvent(
+                userEntity.getUsername(),
+                userEntity.getEmail(),
+                duration.startLock().atZone(zoneId).toOffsetDateTime(),
+                duration.endLock().atZone(zoneId).toOffsetDateTime(),
+                duration.isPermanentLock()
+        ));
+    }
+
+    @SneakyThrows
+    private void addToQueue(UserLockDuration duration, UserEntity userEntity)
+    {
         UserLockTask lockTask = new UserLockTask(userEntity.getKeycloakId(), LockAction.LOCK);
         String lockJson = objectMapper.writeValueAsString(lockTask);
-        redisTemplate.opsForZSet().add(userLockKey, lockJson, duration.startLock().toEpochMilli());
+        redisTemplate.opsForZSet().add(
+                userLockKey, lockJson, duration.startLock().toEpochMilli());
+
         if (!duration.isPermanentLock())
         {
             UserLockTask unlockTask = new UserLockTask(
@@ -87,7 +107,8 @@ public class SchedulerService
                     LockAction.UNLOCK
             );
             String unlockJson = objectMapper.writeValueAsString(unlockTask);
-            redisTemplate.opsForZSet().add(userLockKey, unlockJson, duration.endLock().toEpochMilli());
+            redisTemplate.opsForZSet().add(userLockKey, unlockJson,
+                    duration.endLock().toEpochMilli());
         }
     }
 

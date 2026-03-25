@@ -79,3 +79,4 @@ kafka:
   topic-names:
     user-registered: ${USER_CREATED_TOPIC}
     user-logged-in: ${USER_LOGGED_IN_TOPIC}
+    user-locked: ${USER_LOCKED_TOPIC}
