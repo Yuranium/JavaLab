@@ -1,4 +1,5 @@
 import { createSignal, createMemo, Show } from 'solid-js';
+import { useNavigate } from '@solidjs/router';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import './Header.css';
@@ -6,6 +7,7 @@ import './Header.css';
 export default function Header() {
   const { theme, toggleTheme } = useTheme();
   const auth = useAuth();
+  const navigate = useNavigate();
   const [isAdminMenuOpen, setIsAdminMenuOpen] = createSignal(false);
 
   const menuItems = createMemo(() => {
@@ -48,7 +50,7 @@ export default function Header() {
   const handleLogout = (e) => {
     e.preventDefault();
     auth.logout();
-    window.location.href = '/';
+    navigate('/');
   };
 
   return (
