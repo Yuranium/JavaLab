@@ -101,11 +101,12 @@ export default function UserActionModal(props) {
     setIsSubmitting(true);
     setError('');
 
+    let startLockUTC = null;
+    let endLockUTC = null;
+    let unlockTimeUTC = null;
+
     try {
       if (mode === 'block') {
-        let startLockUTC = null;
-        let endLockUTC = null;
-
         if (duration().length > 0) {
           const now = new Date();
           startLockUTC = now.toISOString();
@@ -147,7 +148,7 @@ export default function UserActionModal(props) {
         );
       } else {
         const hasUnlockTime = unlockTime().length > 0;
-        const unlockTimeUTC = hasUnlockTime ? formatToUTCTimestamp(unlockTime()) : null;
+        unlockTimeUTC = hasUnlockTime ? formatToUTCTimestamp(unlockTime()) : null;
 
         const payload = {
           unlockTime: unlockTimeUTC,
@@ -165,10 +166,15 @@ export default function UserActionModal(props) {
         );
       }
 
-      handleClose();
       if (props.onSuccess) {
-        props.onSuccess(props.user.id);
+        if (mode === 'block') {
+          props.onSuccess(props.user.id, 'block', { startLock: startLockUTC, endLock: endLockUTC });
+        } else {
+          props.onSuccess(props.user.id, 'unblock', { unlockTime: unlockTimeUTC });
+        }
       }
+
+      handleClose();
     } catch (err) {
       if (err.response) {
         const status = err.response.status;

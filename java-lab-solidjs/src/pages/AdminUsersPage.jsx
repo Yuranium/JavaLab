@@ -8,7 +8,7 @@ import './AdminUsersPage.css';
 import { Show } from 'solid-js';
 
 export default function AdminUsersPage() {
-  const { loadUsers } = useUsers();
+  const { loadUsers, updateUserInList } = useUsers();
   const auth = useAuth();
   const [selectedUser, setSelectedUser] = createSignal(null);
   const [modalMode, setModalMode] = createSignal('block');
@@ -35,8 +35,36 @@ export default function AdminUsersPage() {
     setSelectedUser(null);
   };
 
-  const handleSuccess = async (userId) => {
-    await loadUsers(0, false);
+  const shouldUpdateStatusImmediately = (mode, dates) => {
+    const now = new Date();
+
+    if (mode === 'block') {
+      const { startLock, endLock } = dates;
+      if (startLock && new Date(startLock) <= now) {
+        return true;
+      }
+      if (!startLock && endLock && new Date(endLock) <= now) {
+        return false;
+      }
+      return false;
+    } else {
+      const { unlockTime } = dates;
+      if (unlockTime === null) {
+        return true;
+      }
+      return new Date(unlockTime) <= now;
+    }
+  };
+
+  const handleSuccess = (userId, mode, dates) => {
+    const user = selectedUser();
+    if (user) {
+      const shouldUpdate = shouldUpdateStatusImmediately(mode, dates);
+      if (shouldUpdate) {
+        const newActivityStatus = mode !== 'block';
+        updateUserInList(userId, newActivityStatus);
+      }
+    }
     handleModalClose();
   };
 

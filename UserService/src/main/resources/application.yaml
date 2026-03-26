@@ -9,6 +9,10 @@ spring:
       delete-user:
         cron: "* * 6 * * *"
         key-lifetime: 1d
+  task:
+    scheduling:
+      pool:
+        size: 2
 
   datasource:
     url: ${PG_URL}
