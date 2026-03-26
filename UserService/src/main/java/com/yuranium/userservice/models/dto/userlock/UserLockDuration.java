@@ -8,6 +8,6 @@ public record UserLockDuration(
 
         Instant endLock,
 
-        boolean isPermanentLock
+        String message
 
 ) implements Serializable {}

@@ -2,7 +2,8 @@ import './ProfileUserDates.css';
 
 function formatDate(timestamp) {
   if (!timestamp) return '—';
-  return new Date(timestamp).toLocaleString('ru-RU', {
+  const date = new Date(timestamp);
+  return date.toLocaleString('ru-RU', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',

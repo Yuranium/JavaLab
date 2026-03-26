@@ -12,6 +12,8 @@ public record UserLockedEvent(
 
         OffsetDateTime endLock,
 
-        boolean isPermanentLock
+        boolean isLock,
+
+        String message
 
 ) implements Serializable {}

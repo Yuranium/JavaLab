@@ -14,11 +14,6 @@
   box-shadow: var(--shadow-md);
 }
 
-.user-list-item--blocked {
-  opacity: 0.6;
-  background-color: var(--background-secondary);
-}
-
 .user-list-item-link {
   display: flex;
   align-items: center;
@@ -124,6 +119,41 @@
 .user-list-item-date-value {
   color: var(--text-primary);
   font-weight: 500;
+}
+
+.user-list-item-activity-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  background-color: transparent;
+}
+
+.user-list-item-activity-btn--active {
+  border: 1px solid #f74e4e;
+  color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.user-list-item-activity-btn--active:hover {
+  border-color: #dc2626;
+  color: #dc2626;
+  background-color: rgba(239, 68, 68, 0.15);
+}
+
+.user-list-item-activity-btn--inactive {
+  border: 1px solid #22c55e;
+  color: #22c55e;
+  background-color: rgba(34, 197, 94, 0.1);
+}
+
+.user-list-item-activity-btn--inactive:hover {
+  border-color: #16a34a;
+  color: #16a34a;
+  background-color: rgba(34, 197, 94, 0.15);
 }
 
 .user-list-item-block-btn {

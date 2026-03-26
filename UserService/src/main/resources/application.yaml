@@ -24,7 +24,7 @@ spring:
 
   redis:
     user-lock:
-      key: delayed:users
+      key: delayed-tasks
 
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}

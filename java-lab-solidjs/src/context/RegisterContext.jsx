@@ -45,11 +45,7 @@ export function RegisterProvider(props) {
   let timerInterval = null;
 
   const initTimezone = () => {
-    const offset = new Date().getTimezoneOffset();
-    const hours = Math.floor(Math.abs(offset) / 60);
-    const minutes = Math.abs(offset) % 60;
-    const sign = offset <= 0 ? '+' : '-';
-    const timezone = `UTC${sign}${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     setFormData(prev => ({ ...prev, timezone }));
   };
 

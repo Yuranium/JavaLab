@@ -77,7 +77,11 @@ export default function UserList(props) {
           }
         >
           {users().map((user) => (
-            <UserListItem user={user} onBlockClick={props.onBlockClick} />
+            <UserListItem
+              user={user}
+              onBlockClick={props.onBlockClick}
+              onUnblockClick={props.onUnblockClick}
+            />
           ))}
         </Show>
       </div>
