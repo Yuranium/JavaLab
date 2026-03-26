@@ -86,7 +86,6 @@
   }
 }
 
-/* Кнопка активности */
 .profile-activity-btn {
   width: 44px;
   height: 44px;
@@ -113,7 +112,6 @@
   transform: scale(0.95);
 }
 
-/* Столбцы гистограммы */
 .activity-bars {
   display: flex;
   align-items: flex-end;

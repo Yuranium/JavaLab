@@ -98,7 +98,6 @@
   background-color: var(--hover-color);
 }
 
-/* Dropdown styles */
 .nav-dropdown {
   position: relative;
   display: flex;

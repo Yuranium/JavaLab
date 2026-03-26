@@ -42,7 +42,6 @@
   color: var(--text-secondary);
 }
 
-/* Toggle Switch */
 .profile-settings-toggle {
   position: relative;
   display: inline-block;

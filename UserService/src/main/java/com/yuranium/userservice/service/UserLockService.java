@@ -2,7 +2,8 @@ package com.yuranium.userservice.service;
 
 import com.javalab.core.events.UserLockedEvent;
 import com.yuranium.userservice.enums.LockAction;
-import com.yuranium.userservice.models.dto.userlock.UserLockDuration;
+import com.yuranium.userservice.models.dto.userlock.UserUnlockRequest;
+import com.yuranium.userservice.models.dto.userlock.UserLockRequest;
 import com.yuranium.userservice.models.dto.userlock.UserLockTask;
 import com.yuranium.userservice.models.entity.UserEntity;
 import com.yuranium.userservice.repository.UserRepository;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.net.ConnectException;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 
 @Slf4j
 @Service
@@ -62,11 +64,12 @@ public class UserLockService
      * 4. Если не введено ничего - блокировка перманента, начиная с текущей даты
      */
     @Transactional
-    public void lockUser(Long id, UserLockDuration duration)
+    public void lockUser(Long id, UserLockRequest duration)
     {
         if (!validLockDate(duration.startLock(), duration.endLock()))
             throw new IllegalArgumentException("Incorrect startLock or endLock time");
         UserEntity user = findUserById(id);
+
         if (duration.startLock() == null && duration.endLock() == null)
             actionService.scheduleTask(id, LockAction.LOCK, Instant.now());
         if (duration.startLock() == null && duration.endLock() != null)
@@ -91,14 +94,14 @@ public class UserLockService
      * 2. Если ничего не введено - разблокировать сейчас
      */
     @Transactional
-    public void unlockUser(Long id, Instant unlockTime)
+    public void unlockUser(Long id, UserUnlockRequest request)
     {
         UserEntity user = findUserById(id);
-        if (unlockTime != null && unlockTime.isBefore(Instant.now()))
+        if (request.unlockTime() != null && request.unlockTime().isBefore(Instant.now()))
             throw new IllegalArgumentException("The unlock time cannot be less than now");
-        if (unlockTime == null)
+        if (request.unlockTime() == null)
             actionService.scheduleTask(id, LockAction.UNLOCK, Instant.now());
-        else actionService.scheduleTask(id, LockAction.UNLOCK, unlockTime);
+        else actionService.scheduleTask(id, LockAction.UNLOCK, request.unlockTime());
         sendUnlockEvent(user);
     }
 
@@ -116,7 +119,7 @@ public class UserLockService
         kafkaSender.sendUserLockedEvent(new UserLockedEvent(
                         user.getUsername(),
                         user.getEmail(),
-                        start.atZone(zone).toOffsetDateTime(),
+                        start != null ? start.atZone(zone).toOffsetDateTime() : null,
                         end != null ? end.atZone(zone).toOffsetDateTime() : null,
                         true,
                         message
@@ -141,6 +144,7 @@ public class UserLockService
     {
         if (startLock == null || endLock == null)
             return true;
-        return !endLock.isBefore(startLock) || !endLock.isBefore(Instant.now());
+        Instant nowWithDelay = Instant.now().plus(1, ChronoUnit.MINUTES);
+        return !endLock.isBefore(startLock) || !endLock.isBefore(nowWithDelay);
     }
 }
