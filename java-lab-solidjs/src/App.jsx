@@ -41,11 +41,7 @@ function Tasks() {
 function AdminUsersRoute() {
   return (
     <UsersProvider>
-      <RegisterProvider>
-        <ProfileProvider>
-          <AdminUsersPage />
-        </ProfileProvider>
-      </RegisterProvider>
+      <AdminUsersPage />
     </UsersProvider>
   );
 }
@@ -54,17 +50,21 @@ export default function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <Router root={Layout}>
-          <Route path="/" component={Home} />
-          <Route path="/tasks" component={Tasks} />
-          <Route path="/login" component={LoginPage} />
-          <Route path="/register" component={RegisterPage} />
-          <Route path="/register/verify" component={VerificationPage} />
-          <Route path="/profile" component={Profile} />
-          <Route path="/profile/:id" component={UserProfilePage} />
-          <Route path="/progress" component={ProgressPage} />
-          <Route path="/admin/users" component={AdminUsersRoute} />
-        </Router>
+        <RegisterProvider>
+          <ProfileProvider>
+            <Router root={Layout}>
+              <Route path="/" component={Home} />
+              <Route path="/tasks" component={Tasks} />
+              <Route path="/login" component={LoginPage} />
+              <Route path="/register" component={RegisterPage} />
+              <Route path="/register/verify" component={VerificationPage} />
+              <Route path="/profile" component={Profile} />
+              <Route path="/profile/:id" component={UserProfilePage} />
+              <Route path="/progress" component={ProgressPage} />
+              <Route path="/admin/users" component={AdminUsersRoute} />
+            </Router>
+          </ProfileProvider>
+        </RegisterProvider>
       </AuthProvider>
     </ThemeProvider>
   );
