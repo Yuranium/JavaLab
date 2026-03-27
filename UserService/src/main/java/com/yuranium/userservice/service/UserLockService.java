@@ -8,6 +8,7 @@ import com.yuranium.userservice.models.dto.userlock.UserLockTask;
 import com.yuranium.userservice.models.entity.UserEntity;
 import com.yuranium.userservice.repository.UserRepository;
 import com.yuranium.userservice.service.kafka.KafkaSender;
+import com.yuranium.userservice.util.UserLockActionTaskQueue;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.net.ConnectException;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
@@ -33,7 +35,7 @@ public class UserLockService
 
     private final KafkaSender kafkaSender;
 
-    private final UserLockActionService actionService;
+    private final UserLockActionTaskQueue taskQueue;
 
     @Transactional
     @Retryable(
@@ -68,22 +70,13 @@ public class UserLockService
     {
         if (!validLockDate(duration.startLock(), duration.endLock()))
             throw new IllegalArgumentException("Incorrect startLock or endLock time");
-        UserEntity user = findUserById(id);
 
-        if (duration.startLock() == null && duration.endLock() == null)
-            actionService.scheduleTask(id, LockAction.LOCK, Instant.now());
-        if (duration.startLock() == null && duration.endLock() != null)
-        {
-            actionService.scheduleTask(id, LockAction.LOCK, Instant.now());
-            actionService.scheduleTask(id, LockAction.UNLOCK, duration.endLock());
-        }
-        if (duration.startLock() != null && duration.endLock() == null)
-            actionService.scheduleTask(id, LockAction.LOCK, duration.startLock());
-        if (duration.startLock() != null && duration.endLock() != null)
-        {
-            actionService.scheduleTask(id, LockAction.LOCK, duration.startLock());
-            actionService.scheduleTask(id, LockAction.UNLOCK, duration.endLock());
-        }
+        UserEntity user = findUserById(id);
+        Instant start = duration.startLock() != null ? duration.startLock() : Instant.now();
+        taskQueue.scheduleTask(id, LockAction.LOCK, start);
+
+        if (duration.endLock() != null)
+            taskQueue.scheduleTask(id, LockAction.UNLOCK, duration.endLock());
 
         sendLockEvent(user, duration.startLock(), duration.endLock(), duration.message());
     }
@@ -97,11 +90,14 @@ public class UserLockService
     public void unlockUser(Long id, UserUnlockRequest request)
     {
         UserEntity user = findUserById(id);
-        if (request.unlockTime() != null && request.unlockTime().isBefore(Instant.now()))
-            throw new IllegalArgumentException("The unlock time cannot be less than now");
-        if (request.unlockTime() == null)
-            actionService.scheduleTask(id, LockAction.UNLOCK, Instant.now());
-        else actionService.scheduleTask(id, LockAction.UNLOCK, request.unlockTime());
+        Instant unlockTime = request.unlockTime() != null
+                ? request.unlockTime()
+                : Instant.now();
+
+        if (!validUnlockDate(request.unlockTime()))
+            throw new IllegalArgumentException("Unlock time cannot be in the past");
+
+        taskQueue.scheduleTask(id, LockAction.UNLOCK, unlockTime);
         sendUnlockEvent(user);
     }
 
@@ -140,11 +136,25 @@ public class UserLockService
         );
     }
 
-    public boolean validLockDate(Instant startLock, Instant endLock)
+    private boolean validLockDate(Instant startLock, Instant endLock)
     {
         if (startLock == null || endLock == null)
             return true;
-        Instant nowWithDelay = Instant.now().plus(1, ChronoUnit.MINUTES);
-        return !endLock.isBefore(startLock) || !endLock.isBefore(nowWithDelay);
+        Instant now = Instant.now();
+        Instant earliestAllowed = now.minus(1, ChronoUnit.MINUTES);
+
+        boolean sequenceValid = !endLock.isBefore(startLock);
+        boolean startValid = !startLock.isBefore(earliestAllowed);
+        boolean enoughDuration = Duration.between(startLock, endLock).getSeconds() > 60;
+
+        return sequenceValid && startValid && enoughDuration;
+    }
+
+    private boolean validUnlockDate(Instant unlockTime)
+    {
+        if (unlockTime == null)
+            return true;
+        Duration inaccuracy = Duration.between(unlockTime, Instant.now());
+        return inaccuracy.getSeconds() <= 60;
     }
 }
