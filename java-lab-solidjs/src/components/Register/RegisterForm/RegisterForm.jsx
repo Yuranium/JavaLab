@@ -65,6 +65,7 @@ export default function RegisterForm() {
               onInput={(e) => register.updateField('username', e.target.value)}
               placeholder="@username"
             />
+            <span class="form-input-hint">Вводите имя пользователя без символа '@' вначале</span>
             <Show when={errors().username}>
               <span class="form-input-error">{errors().username}</span>
             </Show>

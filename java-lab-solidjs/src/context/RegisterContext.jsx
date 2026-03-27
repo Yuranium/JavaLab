@@ -91,6 +91,9 @@ export function RegisterProvider(props) {
   };
 
   const updateField = (field, value) => {
+    if (field === 'username' && value) {
+      value = value.replace(/^@+/, '');
+    }
     setFormData(prev => ({ ...prev, [field]: value }));
     clearError(field);
   };
@@ -191,9 +194,7 @@ export function RegisterProvider(props) {
 
     try {
       const currentFormData = formData();
-      
-      const idempotencyKey = crypto.randomUUID();
-      
+            
       const formDataToSend = new FormData();
       formDataToSend.append('username', currentFormData.username);
       formDataToSend.append('name', currentFormData.firstName);
@@ -215,14 +216,9 @@ export function RegisterProvider(props) {
         notifyEnabled: currentFormData.notificationsEnabled,
         timezone: currentFormData.timezone,
         avatar: currentFormData.avatar?.name ?? null,
-        idempotencyKey,
       });
 
-      const response = await axios.post(`${config.backendUrl}/api/v1/user`, formDataToSend, {
-        headers: {
-          'X-idempotency-key': idempotencyKey,
-        },
-      });
+      const response = await axios.post(`${config.backendUrl}/api/v1/user`, formDataToSend);
 
       if (response.status >= 400) {
         throw new Error(response.data?.message || 'Ошибка при регистрации');
@@ -249,10 +245,19 @@ export function RegisterProvider(props) {
       return true;
     } catch (error) {
       console.error('Ошибка при регистрации:', error);
-      setErrors(prev => ({ 
-        ...prev, 
-        general: error.message || 'Ошибка при регистрации. Попробуйте позже.' 
-      }));
+      
+      if (error.response?.status === 409) {
+        const errorMessage = error.response.data?.message || 'Данный username или email уже используется';
+        setErrors(prev => ({
+          ...prev,
+          general: errorMessage
+        }));
+      } else {
+        setErrors(prev => ({
+          ...prev,
+          general: error.message || 'Ошибка при регистрации. Попробуйте позже.'
+        }));
+      }
       return false;
     } finally {
       setIsSubmitting(false);

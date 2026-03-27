@@ -23,6 +23,9 @@ export function LoginProvider(props) {
   };
 
   const updateField = (field, value) => {
+    if (field === 'username' && value) {
+      value = value.replace(/^@+/, '');
+    }
     setFormData(prev => ({ ...prev, [field]: value }));
     clearError(field);
   };

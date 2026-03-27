@@ -196,7 +196,7 @@ export default function Profile() {
 
             <div class="profile-main">
               <div class="profile-header-section">
-                <h2 class="profile-username">{user().username}</h2>
+                <h2 class="profile-username">@{user().username}</h2>
               </div>
 
               <ProfileInfo
