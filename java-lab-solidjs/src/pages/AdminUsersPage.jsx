@@ -40,19 +40,37 @@ export default function AdminUsersPage() {
 
     if (mode === 'block') {
       const { startLock, endLock } = dates;
-      if (startLock && new Date(startLock) <= now) {
+      
+      if (!startLock && !endLock) {
         return true;
       }
-      if (!startLock && endLock && new Date(endLock) <= now) {
+      
+      if (startLock) {
+        const start = new Date(startLock);
+        if (start <= now) {
+          return true;
+        }
         return false;
       }
+      
+      if (!startLock && endLock) {
+        const end = new Date(endLock);
+        if (end <= now) {
+          return false;
+        }
+        return true;
+      }
+      
       return false;
     } else {
       const { unlockTime } = dates;
+      
       if (unlockTime === null) {
         return true;
       }
-      return new Date(unlockTime) <= now;
+      
+      const unlock = new Date(unlockTime);
+      return unlock <= now;
     }
   };
 
