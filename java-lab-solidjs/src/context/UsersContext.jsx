@@ -101,10 +101,10 @@ export function UsersProvider(props) {
     loadUsers(0, false);
   };
 
-  const updateUserInList = (userId, newActivityStatus) => {
+  const updateUserInList = (username, newActivityStatus) => {
     setUsers(prevUsers =>
       prevUsers.map(user =>
-        user.id === userId ? { ...user, activity: newActivityStatus } : user
+        user.username === username ? { ...user, activity: newActivityStatus } : user
       )
     );
   };

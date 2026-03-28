@@ -16,22 +16,22 @@ public class UserLockController
     private final UserLockService userLockService;
 
     @ResponseStatus(HttpStatus.ACCEPTED)
-    @PostMapping("/{id}/lock")
+    @PostMapping("/{username}/lock")
     public void lockUser(
-            @PathVariable Long id,
+            @PathVariable String username,
             @RequestBody UserLockRequest duration
     )
     {
-        userLockService.lockUser(id, duration);
+        userLockService.lockUser(username, duration);
     }
 
     @ResponseStatus(HttpStatus.ACCEPTED)
-    @PostMapping("/{id}/unlock")
+    @PostMapping("/{username}/unlock")
     public void unlockUser(
-            @PathVariable Long id,
+            @PathVariable String username,
             @RequestBody UserUnlockRequest unlockTime
     )
     {
-        userLockService.unlockUser(id, unlockTime);
+        userLockService.unlockUser(username, unlockTime);
     }
 }

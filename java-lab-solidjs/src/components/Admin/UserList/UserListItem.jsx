@@ -44,7 +44,7 @@ export default function UserListItem(props) {
 
         <div class="user-list-item-content">
           <div class="user-list-item-header">
-            <span class="user-list-item-username">{user.username}</span>
+            <span class="user-list-item-username">@{user.username}</span>
             <span
               class="user-list-item-status"
               classList={{

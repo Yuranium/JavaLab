@@ -309,7 +309,7 @@ export default function UserActionModal(props) {
         };
 
         await axios.post(
-          `${config.backendUrl}/api/v1/user/access/${props.user.id}/lock`,
+          `${config.backendUrl}/api/v1/user/access/${props.user.username}/lock`,
           payload,
           {
             headers: {
@@ -329,7 +329,7 @@ export default function UserActionModal(props) {
         };
 
         await axios.post(
-          `${config.backendUrl}/api/v1/user/access/${props.user.id}/unlock`,
+          `${config.backendUrl}/api/v1/user/access/${props.user.username}/unlock`,
           payload,
           {
             headers: {
@@ -342,9 +342,9 @@ export default function UserActionModal(props) {
 
       if (props.onSuccess) {
         if (mode === 'block') {
-          props.onSuccess(props.user.id, 'block', { startLock: startLockUTC, endLock: endLockUTC });
+          props.onSuccess(props.user.username, 'block', { startLock: startLockUTC, endLock: endLockUTC });
         } else {
-          props.onSuccess(props.user.id, 'unblock', { unlockTime: unlockTimeUTC });
+          props.onSuccess(props.user.username, 'unblock', { unlockTime: unlockTimeUTC });
         }
       }
 

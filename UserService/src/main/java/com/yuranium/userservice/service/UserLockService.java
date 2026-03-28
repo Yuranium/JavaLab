@@ -44,7 +44,10 @@ public class UserLockService
     )
     public void executeLockAction(UserLockTask task)
     {
-        UserEntity user = findUserById(task.userId());
+        UserEntity user = userRepository.findById(task.userId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User with id=%d not found".formatted(task.userId())
+                ));
         boolean shouldBeActive = (task.action() == LockAction.UNLOCK);
 
         user.getBackground().setActivity(shouldBeActive);
@@ -66,17 +69,17 @@ public class UserLockService
      * 4. Если не введено ничего - блокировка перманента, начиная с текущей даты
      */
     @Transactional
-    public void lockUser(Long id, UserLockRequest duration)
+    public void lockUser(String username, UserLockRequest duration)
     {
         if (!validLockDate(duration.startLock(), duration.endLock()))
             throw new IllegalArgumentException("Incorrect startLock or endLock time");
 
-        UserEntity user = findUserById(id);
+        UserEntity user = findByUsername(username);
         Instant start = duration.startLock() != null ? duration.startLock() : Instant.now();
-        taskQueue.scheduleTask(id, LockAction.LOCK, start);
+        taskQueue.scheduleTask(user.getId(), LockAction.LOCK, start);
 
         if (duration.endLock() != null)
-            taskQueue.scheduleTask(id, LockAction.UNLOCK, duration.endLock());
+            taskQueue.scheduleTask(user.getId(), LockAction.UNLOCK, duration.endLock());
 
         sendLockEvent(user, duration.startLock(), duration.endLock(), duration.message());
     }
@@ -87,9 +90,9 @@ public class UserLockService
      * 2. Если ничего не введено - разблокировать сейчас
      */
     @Transactional
-    public void unlockUser(Long id, UserUnlockRequest request)
+    public void unlockUser(String username, UserUnlockRequest request)
     {
-        UserEntity user = findUserById(id);
+        UserEntity user = findByUsername(username);
         Instant unlockTime = request.unlockTime() != null
                 ? request.unlockTime()
                 : Instant.now();
@@ -97,15 +100,15 @@ public class UserLockService
         if (!validUnlockDate(request.unlockTime()))
             throw new IllegalArgumentException("Unlock time cannot be in the past");
 
-        taskQueue.scheduleTask(id, LockAction.UNLOCK, unlockTime);
-        sendUnlockEvent(user);
+        taskQueue.scheduleTask(user.getId(), LockAction.UNLOCK, unlockTime);
+        sendUnlockEvent(user, unlockTime);
     }
 
-    private UserEntity findUserById(Long id)
+    private UserEntity findByUsername(String username)
     {
-        return userRepository.findById(id)
+        return userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "User with id=%d not found".formatted(id))
+                        "User with username=%s not found".formatted(username))
                 );
     }
 
@@ -123,13 +126,14 @@ public class UserLockService
         );
     }
 
-    private void sendUnlockEvent(UserEntity user)
+    private void sendUnlockEvent(UserEntity user, Instant unlockTime)
     {
+        ZoneId zone = ZoneId.of(user.getBackground().getTimezone());
         kafkaSender.sendUserLockedEvent(new UserLockedEvent(
                         user.getUsername(),
                         user.getEmail(),
                         null,
-                        null,
+                        unlockTime != null ? unlockTime.atZone(zone).toOffsetDateTime() : null,
                         false,
                         null
                 )

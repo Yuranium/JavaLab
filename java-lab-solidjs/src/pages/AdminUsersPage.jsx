@@ -74,13 +74,13 @@ export default function AdminUsersPage() {
     }
   };
 
-  const handleSuccess = (userId, mode, dates) => {
+  const handleSuccess = (username, mode, dates) => {
     const user = selectedUser();
     if (user) {
       const shouldUpdate = shouldUpdateStatusImmediately(mode, dates);
       if (shouldUpdate) {
         const newActivityStatus = mode !== 'block';
-        updateUserInList(userId, newActivityStatus);
+        updateUserInList(username, newActivityStatus);
       }
     }
     handleModalClose();
