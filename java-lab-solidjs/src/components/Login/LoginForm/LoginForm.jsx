@@ -42,7 +42,7 @@ export default function LoginForm() {
       </Show>
 
       <form class="login-form" onSubmit={handleSubmit} novalidate>
-        <div class="login-form-row">
+          <div class="login-form-row">
           <div class="form-input-wrapper">
             <label class="form-input-label" for="username">
               Имя пользователя
@@ -58,6 +58,7 @@ export default function LoginForm() {
               onInput={(e) => login.updateField('username', e.target.value)}
               placeholder="@username"
             />
+            <span class="form-input-hint">Вводите имя пользователя без символа '@' вначале</span>
             <Show when={errors().username}>
               <span class="form-input-error">{errors().username}</span>
             </Show>

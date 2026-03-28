@@ -1,4 +1,4 @@
-import { formatDistanceToNow } from './utils';
+import { formatDistanceToNow, formatDateToClientTimezone, formatFullDateToClientTimezone } from './utils';
 import { getS3Url } from '../../../config';
 import './UserListItem.css';
 
@@ -7,7 +7,7 @@ export default function UserListItem(props) {
 
   const parseDate = (dateString) => {
     if (!dateString) return null;
-    return new Date(dateString).getTime();
+    return formatDateToClientTimezone(dateString);
   };
 
   const formatDate = (dateString) => {
@@ -18,14 +18,7 @@ export default function UserListItem(props) {
 
   const formatFullDate = (dateString) => {
     if (!dateString) return '';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ru-RU', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    return formatFullDateToClientTimezone(dateString);
   };
 
   const avatarUrl = user.avatar ? getS3Url(user.avatar) : null;
@@ -35,9 +28,9 @@ export default function UserListItem(props) {
       <a href={`/profile/@${user.username}`} class="user-list-item-link">
         <div class="user-list-item-avatar">
           {avatarUrl ? (
-            <img 
-              src={avatarUrl} 
-              alt="Аватар" 
+            <img
+              src={avatarUrl}
+              alt="Аватар"
               onError={(e) => {
                 e.target.style.display = 'none';
                 e.target.nextElementSibling.style.display = 'flex';
@@ -104,16 +97,22 @@ export default function UserListItem(props) {
       </a>
 
       <button
-        class="user-list-item-block-btn"
+        class="user-list-item-activity-btn"
+        classList={{
+          'user-list-item-activity-btn--active': user.activity,
+          'user-list-item-activity-btn--inactive': !user.activity
+        }}
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          props.onBlockClick(user);
+          if (user.activity) {
+            props.onBlockClick(user);
+          } else {
+            props.onUnblockClick(user);
+          }
         }}
-        disabled={props.isBlocked}
-        classList={{ 'user-list-item-block-btn--blocked': props.isBlocked }}
       >
-        {props.isBlocked ? 'Заблокирован' : 'Заблокировать'}
+        {user.activity ? 'Заблокировать' : 'Разблокировать'}
       </button>
     </div>
   );

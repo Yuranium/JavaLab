@@ -75,7 +75,7 @@ public class AuthService
         {
             userEntity.getBackground().setActivity(true);
             userEntity.getBackground().setLastLogin(Instant.now());
-            keycloakService.verifyUser(userEntity.getKeycloakId());
+            keycloakService.changeEmailStatus(userEntity.getKeycloakId(), true);
             codeRepository.delete(confirmCode);
         }
         else throw new ConfirmationCodeExpiredException(

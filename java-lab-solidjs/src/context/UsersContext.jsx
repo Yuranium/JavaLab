@@ -101,19 +101,12 @@ export function UsersProvider(props) {
     loadUsers(0, false);
   };
 
-  const blockUser = (username, reason, duration) => {
-    console.log(`Блокировка пользователя ${username}: ${reason}, срок: ${duration}`);
-    setBlockedUsers(prev => new Set([...prev, username]));
-    // TODO: отправить запрос на сервер для блокировки
-  };
-
-  const unblockUser = (username) => {
-    setBlockedUsers(prev => {
-      const newSet = new Set(prev);
-      newSet.delete(username);
-      return newSet;
-    });
-    // TODO: отправить запрос на сервер для разблокировки
+  const updateUserInList = (userId, newActivityStatus) => {
+    setUsers(prevUsers =>
+      prevUsers.map(user =>
+        user.id === userId ? { ...user, activity: newActivityStatus } : user
+      )
+    );
   };
 
   const isUserBlocked = (username) => {
@@ -148,8 +141,7 @@ export function UsersProvider(props) {
     loadMore,
     setFilter,
     resetFilters,
-    blockUser,
-    unblockUser,
+    updateUserInList,
     isUserBlocked,
     activeFilters,
     isFilterActive,

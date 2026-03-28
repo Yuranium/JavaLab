@@ -1,4 +1,3 @@
-/* Переменные для уровней активности */
 :root {
   --activity-level-0: #ebedf0;
   --activity-level-1: #9be9a8;
@@ -15,7 +14,6 @@
   --activity-level-4: #5ae36d;
 }
 
-/* Backdrop */
 .activity-modal-backdrop {
   position: fixed;
   top: 0;
@@ -38,7 +36,6 @@
   visibility: visible;
 }
 
-/* Modal */
 .activity-modal {
   background-color: var(--surface-color);
   border-radius: 16px;
@@ -58,7 +55,6 @@
   transform: scale(1) translateY(0);
 }
 
-/* Close button */
 .activity-modal-close {
   position: absolute;
   top: 16px;
@@ -80,7 +76,6 @@
   color: var(--text-primary);
 }
 
-/* Title */
 .activity-modal-title {
   font-size: 24px;
   font-weight: 700;
@@ -96,7 +91,6 @@
   padding-right: 40px;
 }
 
-/* Выпадающий список годов */
 .activity-year-select {
   padding: 6px 12px;
   border-radius: 6px;
@@ -119,7 +113,6 @@
   box-shadow: 0 0 0 2px var(--primary-color);
 }
 
-/* Stats */
 .activity-stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -148,14 +141,12 @@
   text-align: center;
 }
 
-/* Heatmap container */
 .activity-heatmap-container {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-/* Названия месяцев */
 .activity-months-header {
   width: 100% !important;
   display: flex;
@@ -172,7 +163,6 @@
   white-space: nowrap;
 }
 
-/* Контейнер heatmap с прокруткой */
 .activity-heatmap-wrapper {
   overflow-x: auto;
   padding-bottom: 8px;
@@ -196,21 +186,18 @@
   background: var(--text-secondary);
 }
 
-/* Heatmap - 7 строк */
 .activity-heatmap {
   display: flex;
   flex-direction: column;
   /* gap: 3px; */
 }
 
-/* Строка heatmap */
 .activity-heatmap-row {
   display: flex;
   align-items: center;
   gap: 4px;
 }
 
-/* Подпись дня недели */
 .activity-day-label {
   font-size: 11px;
   color: var(--text-secondary);
@@ -219,14 +206,12 @@
   text-align: right;
 }
 
-/* Контейнер ячеек */
 .activity-cells {
   display: flex;
   row-gap: 3px;
   column-gap: 5px;
 }
 
-/* Activity cells */
 .activity-cell {
   width: 10px;
   height: 10px;
@@ -264,7 +249,6 @@
   position: relative;
 }
 
-/* Legend */
 .activity-legend {
   display: flex;
   align-items: center;
@@ -280,7 +264,6 @@
   gap: 4px;
 }
 
-/* Scrollbar */
 .activity-modal::-webkit-scrollbar {
   width: 8px;
 }
@@ -299,7 +282,6 @@
   background: var(--text-secondary);
 }
 
-/* Responsive */
 @media (max-width: 576px) {
   .activity-modal {
     padding: 20px;

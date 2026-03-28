@@ -23,3 +23,21 @@ export function formatDistanceToNow(timestamp) {
     return `${years} г. назад`;
   }
 }
+
+export function formatDateToClientTimezone(dateString) {
+  if (!dateString) return null;
+  const date = new Date(dateString);
+  return date.getTime();
+}
+
+export function formatFullDateToClientTimezone(dateString) {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('ru-RU', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}

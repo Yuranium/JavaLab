@@ -6,9 +6,9 @@ import './RegisterPage.css';
 
 function VerificationContent() {
   const register = useRegister();
-  
+
   return (
-    <Show when={register.isVerificationSent()} fallback={<Navigate href="/register" />}>
+    <Show when={register.isVerificationSent()} fallback={<Navigate href="/" />}>
       <VerificationCodePage />
     </Show>
   );

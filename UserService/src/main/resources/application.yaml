@@ -9,6 +9,10 @@ spring:
       delete-user:
         cron: "* * 6 * * *"
         key-lifetime: 1d
+  task:
+    scheduling:
+      pool:
+        size: 2
 
   datasource:
     url: ${PG_URL}
@@ -21,6 +25,13 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: none
+
+  redis:
+    user-lock:
+      queue-key: delayed:user:locks
+      processed-prefix: "lock:processed:"
+      dlq-key: lock:dead-letter
+      processed-ttl: 24h
 
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
@@ -75,3 +86,4 @@ kafka:
   topic-names:
     user-registered: ${USER_CREATED_TOPIC}
     user-logged-in: ${USER_LOGGED_IN_TOPIC}
+    user-locked: ${USER_LOCKED_TOPIC}

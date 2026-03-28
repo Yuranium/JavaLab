@@ -234,6 +234,7 @@ export function AuthProvider(props) {
 
       if (payload && payload.exp * 1000 > Date.now()) {
         setTokens(storedAccess, storedRefresh);
+        setIsLoading(false);
       } else if (payload) {
         refreshAccessToken().then(() => {
           startTokenMonitoring();
@@ -242,10 +243,12 @@ export function AuthProvider(props) {
         return;
       } else {
         logout();
+        setIsLoading(false);
       }
+    } else {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
+    
     startTokenMonitoring();
   });
 

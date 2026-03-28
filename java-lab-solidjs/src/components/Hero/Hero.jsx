@@ -20,7 +20,7 @@ export default function Hero() {
             Решай задачи, получай мгновенную проверку кода и прокачивай свои навыки.
           </p>
           <div class="hero-actions">
-            <Show when={!isAuthenticated}>
+            <Show when={!isAuthenticated()} fallback={null}>
               <a href="/register" class="btn btn--primary btn--large">Начать обучение</a>
             </Show>
             <a href="/tasks" class="btn btn--secondary btn--large">Смотреть задачи</a>

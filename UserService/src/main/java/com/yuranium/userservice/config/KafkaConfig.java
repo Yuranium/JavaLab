@@ -21,4 +21,13 @@ public class KafkaConfig
                 .replicas(1)
                 .build();
     }
+
+    @Bean
+    public NewTopic userLockedTopic()
+    {
+        return TopicBuilder.name(environment.getProperty("kafka.topic-names.user-locked"))
+                .partitions(1)
+                .replicas(1)
+                .build();
+    }
 }

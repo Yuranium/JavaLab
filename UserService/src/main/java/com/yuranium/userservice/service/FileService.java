@@ -13,7 +13,6 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -38,15 +37,11 @@ public class FileService
         {
             String key = generateKey(file.getOriginalFilename());
 
-            Map<String, String> metadata = new HashMap<>();
-            metadata.put("original-filename", file.getOriginalFilename());
-            metadata.put("upload-timestamp", Instant.now().toString());
-
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                     .bucket(minioConfig.getBucketName())
                     .key(key)
                     .contentType(file.getContentType())
-                    .metadata(metadata)
+                    .metadata(Map.of("upload-timestamp", Instant.now().toString()))
                     .build();
 
             s3Client.putObject(putObjectRequest,
@@ -97,9 +92,58 @@ public class FileService
 
     private String validateFilename(String fileName)
     {
-        return Arrays.stream(fileName.split("\\."))
+        return transliterate(Arrays.stream(fileName.split("\\."))
                 .map(str -> str.isBlank() ? "unnamed" : str)
                 .collect(Collectors.joining("."))
-                .replaceAll(" ", "_");
+                .replaceAll(" ", "_"));
+    }
+
+    private String transliterate(String text)
+    {
+        if (text == null) return null;
+        StringBuilder sb = new StringBuilder(text.length());
+
+        for (int i = 0; i < text.length(); i++)
+        {
+            char c = text.charAt(i);
+            sb.append(switch (c)
+            {
+                case 'а' -> "a"; case 'А' -> "A";
+                case 'б' -> "b"; case 'Б' -> "B";
+                case 'в' -> "v"; case 'В' -> "V";
+                case 'г' -> "g"; case 'Г' -> "G";
+                case 'д' -> "d"; case 'Д' -> "D";
+                case 'е' -> "e"; case 'Е' -> "E";
+                case 'ё' -> "yo"; case 'Ё' -> "Yo";
+                case 'ж' -> "zh"; case 'Ж' -> "Zh";
+                case 'з' -> "z"; case 'З' -> "Z";
+                case 'и' -> "i"; case 'И' -> "I";
+                case 'й' -> "y"; case 'Й' -> "Y";
+                case 'к' -> "k"; case 'К' -> "K";
+                case 'л' -> "l"; case 'Л' -> "L";
+                case 'м' -> "m"; case 'М' -> "M";
+                case 'н' -> "n"; case 'Н' -> "N";
+                case 'о' -> "o"; case 'О' -> "O";
+                case 'п' -> "p"; case 'П' -> "P";
+                case 'р' -> "r"; case 'Р' -> "R";
+                case 'с' -> "s"; case 'С' -> "S";
+                case 'т' -> "t"; case 'Т' -> "T";
+                case 'у' -> "u"; case 'У' -> "U";
+                case 'ф' -> "f"; case 'Ф' -> "F";
+                case 'х' -> "h"; case 'Х' -> "H";
+                case 'ц' -> "c"; case 'Ц' -> "C";
+                case 'ч' -> "ch"; case 'Ч' -> "Ch";
+                case 'ш' -> "sh"; case 'Ш' -> "Sh";
+                case 'щ' -> "sch"; case 'Щ' -> "Sch";
+                case 'ъ' -> ""; case 'Ъ' -> "";
+                case 'ы' -> "y"; case 'Ы' -> "Y";
+                case 'ь' -> ""; case 'Ь' -> "";
+                case 'э' -> "e"; case 'Э' -> "E";
+                case 'ю' -> "yu"; case 'Ю' -> "Yu";
+                case 'я' -> "ya"; case 'Я' -> "Ya";
+                default -> String.valueOf(c);
+            });
+        }
+        return sb.toString();
     }
 }

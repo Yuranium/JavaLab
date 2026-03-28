@@ -1,22 +1,21 @@
 import { Router, Route } from '@solidjs/router';
 import { ThemeProvider } from './context/ThemeContext';
-import { UsersProvider } from './context/UsersContext';
-import { RegisterProvider } from './context/RegisterContext';
 import { AuthProvider } from './context/AuthContext';
-import { ProfileProvider } from './context/ProfileContext';
-import Header from './components/Header/Header';
-import Footer from './components/Footer/Footer';
+import Layout from './components/Layout/Layout';
 import Hero from './components/Hero/Hero';
 import Features from './components/Features/Features';
 import HowItWorks from './components/HowItWorks/HowItWorks';
 import CTA from './components/CTA/CTA';
 import Profile from './components/UserProfile/Profile/Profile';
-import AdminUsersPage from './pages/AdminUsersPage';
 import RegisterPage from './pages/RegisterPage';
 import VerificationPage from './pages/VerificationPage';
 import LoginPage from './pages/LoginPage';
 import ProgressPage from './pages/ProgressPage';
 import UserProfilePage from './pages/UserProfilePage';
+import { UsersProvider } from './context/UsersContext';
+import { RegisterProvider } from './context/RegisterContext';
+import { ProfileProvider } from './context/ProfileContext';
+import AdminUsersPage from './pages/AdminUsersPage';
 import './App.css';
 
 function Home() {
@@ -39,33 +38,33 @@ function Tasks() {
   );
 }
 
+function AdminUsersRoute() {
+  return (
+    <UsersProvider>
+      <AdminUsersPage />
+    </UsersProvider>
+  );
+}
+
 export default function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <UsersProvider>
-          <RegisterProvider>
-            <ProfileProvider>
-              <div class="app">
-                <Header />
-                <main class="main-content">
-                  <Router>
-                    <Route path="/" component={Home} />
-                    <Route path="/tasks" component={Tasks} />
-                    <Route path="/login" component={LoginPage} />
-                    <Route path="/register" component={RegisterPage} />
-                    <Route path="/register/verify" component={VerificationPage} />
-                    <Route path="/profile" component={Profile} />
-                    <Route path="/profile/:id" component={UserProfilePage} />
-                    <Route path="/progress" component={ProgressPage} />
-                    <Route path="/admin/users" component={AdminUsersPage} />
-                  </Router>
-                </main>
-                <Footer />
-              </div>
-            </ProfileProvider>
-          </RegisterProvider>
-        </UsersProvider>
+        <RegisterProvider>
+          <ProfileProvider>
+            <Router root={Layout}>
+              <Route path="/" component={Home} />
+              <Route path="/tasks" component={Tasks} />
+              <Route path="/login" component={LoginPage} />
+              <Route path="/register" component={RegisterPage} />
+              <Route path="/register/verify" component={VerificationPage} />
+              <Route path="/profile" component={Profile} />
+              <Route path="/profile/:id" component={UserProfilePage} />
+              <Route path="/progress" component={ProgressPage} />
+              <Route path="/admin/users" component={AdminUsersRoute} />
+            </Router>
+          </ProfileProvider>
+        </RegisterProvider>
       </AuthProvider>
     </ThemeProvider>
   );
