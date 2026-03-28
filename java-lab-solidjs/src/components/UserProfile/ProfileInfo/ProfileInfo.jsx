@@ -124,10 +124,12 @@ export default function ProfileInfo(props) {
             )}
           </div>
 
-          <div class="profile-info-field">
-            <label class="profile-info-label">Email</label>
-            <div class="profile-info-value">{props.email || '—'}</div>
-          </div>
+          <Show when={!isReadOnly}>
+            <div class="profile-info-field">
+              <label class="profile-info-label">Email</label>
+              <div class="profile-info-value">{props.email || '—'}</div>
+            </div>
+          </Show>
         </div>
       </div>
     </div>

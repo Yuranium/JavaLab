@@ -4,10 +4,7 @@ import com.javalab.core.events.UserRegisteredEvent;
 import com.javalab.core.exception.ResourceAlreadyExistsException;
 import com.javalab.core.exception.ResourceNotCreatedException;
 import com.yuranium.userservice.mapper.UserMapper;
-import com.yuranium.userservice.models.dto.UserFilterDto;
-import com.yuranium.userservice.models.dto.UserRequestDto;
-import com.yuranium.userservice.models.dto.UserResponseDto;
-import com.yuranium.userservice.models.dto.UserUpdateDto;
+import com.yuranium.userservice.models.dto.*;
 import com.yuranium.userservice.models.entity.UserBackgroundEntity;
 import com.yuranium.userservice.models.entity.UserEntity;
 import com.yuranium.userservice.repository.UserBackgroundRepository;
@@ -45,7 +42,7 @@ public class UserService
     private final KafkaSender kafkaSender;
 
     @Transactional(readOnly = true)
-    public Page<UserResponseDto> getUsers(Pageable page, UserFilterDto filterDto)
+    public Page<PublicUserResponseDto> getUsers(Pageable page, UserFilterDto filterDto)
     {
         Page<UserEntity> users = userRepository.findAll(
                 hasActivity(filterDto.activity())
@@ -53,7 +50,7 @@ public class UserService
                 page
         );
 
-        return users.map(userMapper::toResponseDto);
+        return users.map(userMapper::toPublicResponseDto);
     }
 
     @Transactional(readOnly = true)
@@ -63,9 +60,9 @@ public class UserService
     }
 
     @Transactional(readOnly = true)
-    public UserResponseDto getUser(String username)
+    public PublicUserResponseDto getUser(String username)
     {
-        return userMapper.toResponseDto(
+        return userMapper.toPublicResponseDto(
                 userRepository.findByUsername(username)
                         .orElseThrow(() -> new ResourceNotFoundException(
                                 "User with username=%s not found".formatted(username)

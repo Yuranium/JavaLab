@@ -1,5 +1,6 @@
 package com.yuranium.userservice.mapper;
 
+import com.yuranium.userservice.models.dto.PublicUserResponseDto;
 import com.yuranium.userservice.models.dto.UserRequestDto;
 import com.yuranium.userservice.models.dto.UserResponseDto;
 import com.yuranium.userservice.models.dto.UserUpdateDto;
@@ -16,7 +17,11 @@ public interface UserMapper
     @Mapping(target = "notifyEnabled", source = "background.notifyEnabled")
     UserResponseDto toResponseDto(UserEntity userEntity);
 
-    Iterable<UserResponseDto> toResponseDto(Iterable<UserEntity> userEntityList);
+    @Mapping(target = "dateRegistration", source = "background.dateRegistration")
+    @Mapping(target = "activity", source = "background.activity")
+    @Mapping(target = "lastLogin", source = "background.lastLogin")
+    @Mapping(target = "notifyEnabled", source = "background.notifyEnabled")
+    PublicUserResponseDto toPublicResponseDto(UserEntity userEntity);
 
     @Mapping(target = "avatar", ignore = true)
     UserEntity toEntity(UserRequestDto userRequestDto);

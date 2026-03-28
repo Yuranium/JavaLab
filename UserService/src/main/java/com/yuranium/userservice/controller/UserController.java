@@ -1,5 +1,6 @@
 package com.yuranium.userservice.controller;
 
+import com.yuranium.userservice.models.dto.PublicUserResponseDto;
 import com.yuranium.userservice.models.dto.UserFilterDto;
 import com.yuranium.userservice.models.dto.UserRequestDto;
 import com.yuranium.userservice.models.dto.UserResponseDto;
@@ -20,7 +21,7 @@ public class UserController
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<Page<UserResponseDto>> getUsers(
+    public ResponseEntity<Page<PublicUserResponseDto>> getUsers(
             Pageable page, @ModelAttribute UserFilterDto filterDto
     )
     {
@@ -31,7 +32,7 @@ public class UserController
     }
 
     @GetMapping("/{username}")
-    public ResponseEntity<UserResponseDto> getUser(@PathVariable String username)
+    public ResponseEntity<PublicUserResponseDto> getUser(@PathVariable String username)
     {
         return new ResponseEntity<>(
                 userService.getUser(username),

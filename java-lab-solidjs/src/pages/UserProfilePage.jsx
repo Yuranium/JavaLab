@@ -170,12 +170,12 @@ export default function UserProfilePage() {
                 firstName={user().firstName}
                 lastName={user().lastName}
                 email={user().email}
-                isReadOnly
+                isReadOnly={!isOwnProfile()}
               />
 
               <ProfileSettings
                 notificationsEnabled={user().notificationsEnabled}
-                isReadOnly
+                isReadOnly={!isOwnProfile()}
               />
             </div>
           </div>
