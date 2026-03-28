@@ -44,16 +44,17 @@ public class AuthService
     @Transactional
     public void sendConfirmCode(UserRegisteredEvent event)
     {
-        if (!userRepository.existsById(event.id()))
-            throw new ResourceNotFoundException(
-                    "User with id=%d not found".formatted(event.id())
-            );
+        UserEntity userEntity = userRepository.findById(event.id())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User with id=%d not found".formatted(event.id())
+                ));
 
         codeRepository.deleteAllByUserId(event.id());
         Integer confirmCode = generateAuthCode();
         createConfirmCode(event.id(), confirmCode);
         kafkaSender.sendUserRegisteredEvent(new UserRegisteredEvent(
-                event.id(), event.username(), event.email(), confirmCode
+                event.id(), userEntity.getKeycloakId(),
+                event.username(), event.email(), confirmCode
         ));
     }
 
