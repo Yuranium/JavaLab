@@ -95,7 +95,7 @@ public class UserService
             UserEntity savedUser = saveUserWithRelations(userDto, uploadedAvatarUrl, keycloakUserId);
             Integer confirmCode = authService.generateAuthCode();
             kafkaSender.sendUserRegisteredEvent(new UserRegisteredEvent(
-                    savedUser.getId(), savedUser.getUsername(),
+                    savedUser.getId(), keycloakUserId, savedUser.getUsername(),
                     savedUser.getEmail(), confirmCode
             ));
 
