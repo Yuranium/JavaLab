@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +42,7 @@ public class AchievementEntity {
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @OneToMany(mappedBy = "achievement", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

@@ -13,7 +13,7 @@ CREATE TABLE user_progress (
     longest_streak      INT NOT NULL DEFAULT 0,
     last_login_date     DATE,
     last_activity_date  DATE,
-    updated_at          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated_at          TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Ежедневная активность (для heat map)
@@ -38,7 +38,7 @@ CREATE TABLE achievement (
     icon_url         VARCHAR(255),
     threshold        INT NOT NULL,
     achievement_type VARCHAR(20) NOT NULL,
-    created_at       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at       TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Связь пользователь-ачивка
@@ -47,7 +47,7 @@ CREATE TABLE user_achievements (
     keycloak_id          UUID NOT NULL,
     id_achievement       BIGINT NOT NULL,
     unlocked             BOOLEAN NOT NULL DEFAULT FALSE,
-    unlocked_at          TIMESTAMP,
+    unlocked_at          TIMESTAMPTZ,
     CONSTRAINT fk_user_achievements_user_progress FOREIGN KEY (keycloak_id)
         REFERENCES user_progress(keycloak_id) ON DELETE CASCADE,
     CONSTRAINT fk_user_achievements_achievement FOREIGN KEY (id_achievement)
@@ -63,7 +63,7 @@ CREATE TABLE user_submissions (
     attempt_number   INT NOT NULL,
     user_code        TEXT NOT NULL,
     is_correct       BOOLEAN NOT NULL DEFAULT FALSE,
-    submitted_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    submitted_at     TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_user_submissions_user_progress FOREIGN KEY (keycloak_id)
         REFERENCES user_progress(keycloak_id) ON DELETE CASCADE
 );

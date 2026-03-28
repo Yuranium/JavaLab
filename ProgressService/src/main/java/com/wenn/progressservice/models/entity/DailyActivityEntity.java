@@ -3,7 +3,7 @@ package com.wenn.progressservice.models.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.Instant;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "daily_activity")
@@ -24,7 +24,7 @@ public class DailyActivityEntity {
     private UserProgressEntity userProgress;
 
     @Column(name = "activity_date", nullable = false)
-    private Instant activityDate;
+    private LocalDate activityDate;
 
     @Column(name = "tasks_solved", nullable = false)
     @Builder.Default
