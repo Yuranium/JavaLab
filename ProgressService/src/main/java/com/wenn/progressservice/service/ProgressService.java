@@ -44,7 +44,8 @@ public class ProgressService {
         // Проверяем существует ли уже пользователь
         if (userProgressRepository.existsByKeycloakId(keycloakId)) {
             log.info("User progress already exists for keycloakId: {}", keycloakId);
-            return userProgressRepository.findByKeycloakId(keycloakId).get();
+            return userProgressRepository.findByKeycloakId(keycloakId)
+                    .orElseThrow(() -> new IllegalArgumentException("User not found: " + keycloakId));
         }
         
         UserProgressEntity progress = UserProgressEntity.builder()

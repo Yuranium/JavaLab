@@ -83,7 +83,8 @@ public class KafkaConsumer {
         progressService.updateOnLogin(keycloakId, loginTime);
         
         // Проверяем ачивки LOGIN_STREAK
-        var progress = progressService.getProgress(keycloakId).orElseThrow();
+        var progress = progressService.getProgress(keycloakId)
+                .orElseThrow(() -> new IllegalArgumentException("User progress not found: " + keycloakId));
         achievementService.checkLoginStreakAchievements(keycloakId, progress.getCurrentStreak());
         
         log.info("UserLoggedInEvent processed successfully for keycloakId: {}. Streak: {}", 

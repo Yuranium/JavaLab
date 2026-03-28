@@ -1,5 +1,6 @@
 package com.wenn.progressservice.service;
 
+import com.wenn.progressservice.enums.AchievementType;
 import com.wenn.progressservice.models.entity.AchievementEntity;
 import com.wenn.progressservice.models.entity.UserAchievementEntity;
 import com.wenn.progressservice.models.entity.UserProgressEntity;
@@ -73,7 +74,7 @@ public class AchievementService {
         
         // Находим все ачивки типа LOGIN_STREAK где threshold <= currentStreak
         List<AchievementEntity> eligibleAchievements = achievementRepository
-                .findByAchievementTypeAndThresholdLessThanEqual("LOGIN_STREAK", currentStreak);
+                .findByAchievementTypeAndThresholdLessThanEqual(AchievementType.LOGIN_STREAK.name(), currentStreak);
         
         // Активируем те, которые ещё не активированы
         for (AchievementEntity achievement : eligibleAchievements) {
@@ -96,7 +97,7 @@ public class AchievementService {
         
         // Находим все ачивки типа TASKS_SOLVED где threshold <= tasksSolved
         List<AchievementEntity> eligibleAchievements = achievementRepository
-                .findByAchievementTypeAndThresholdLessThanEqual("TASKS_SOLVED", (int) Math.min(tasksSolved, Integer.MAX_VALUE));
+                .findByAchievementTypeAndThresholdLessThanEqual(AchievementType.TASKS_SOLVED.name(), (int) Math.min(tasksSolved, Integer.MAX_VALUE));
         
         // Активируем те, которые ещё не активированы
         for (AchievementEntity achievement : eligibleAchievements) {
@@ -119,7 +120,7 @@ public class AchievementService {
         
         // Находим все ачивки типа TASK_STREAK где threshold <= currentStreak
         List<AchievementEntity> eligibleAchievements = achievementRepository
-                .findByAchievementTypeAndThresholdLessThanEqual("TASK_STREAK", currentStreak);
+                .findByAchievementTypeAndThresholdLessThanEqual(AchievementType.TASK_STREAK.name(), currentStreak);
         
         // Активируем те, которые ещё не активированы
         for (AchievementEntity achievement : eligibleAchievements) {
