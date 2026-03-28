@@ -24,7 +24,7 @@ public class UserEntity
     @Column(name = "keycloak_id", nullable = false)
     private UUID keycloakId;
 
-    @Column(name = "username", nullable = false)
+    @Column(name = "username", nullable = false, unique = true)
     private String username;
 
     @Column(name = "name")

@@ -30,8 +30,12 @@ export default function UserProfilePage() {
         return;
       }
 
-      const userId = params.id;
-      const response = await axios.get(`${config.backendUrl}/api/v1/user/${userId}`, {
+      let username = params.id;
+      if (username && username.startsWith('@')) {
+        username = username.slice(1);
+      }
+
+      const response = await axios.get(`${config.backendUrl}/api/v1/user/${username}`, {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
         },
@@ -39,11 +43,10 @@ export default function UserProfilePage() {
 
       const data = response.data;
 
-      const currentUserId = auth.user()?.id;
-      setIsOwnProfile(currentUserId === data.id);
+      const currentUserUsername = auth.user()?.username;
+      setIsOwnProfile(currentUserUsername === data.username);
 
       setUser({
-        id: data.id,
         username: data.username,
         firstName: data.name,
         lastName: data.lastName,
@@ -160,7 +163,7 @@ export default function UserProfilePage() {
 
             <div class="user-profile-main">
               <div class="user-profile-header-section">
-                <h2 class="user-profile-username">{user().username}</h2>
+                <h2 class="user-profile-username">@{user().username}</h2>
               </div>
 
               <ProfileInfo

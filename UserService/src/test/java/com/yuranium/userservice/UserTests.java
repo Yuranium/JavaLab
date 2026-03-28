@@ -92,7 +92,6 @@ public class UserTests
     private UserResponseDto createResponseDto()
     {
         return new UserResponseDto(
-                1L,
                 "username",
                 "John",
                 "Doe",

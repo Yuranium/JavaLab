@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.time.Instant;
 
 public record UserResponseDto(
-        Long id,
-
         String username,
 
         String name,

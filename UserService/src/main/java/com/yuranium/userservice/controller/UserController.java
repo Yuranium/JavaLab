@@ -30,11 +30,11 @@ public class UserController
         );
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UserResponseDto> getUser(@PathVariable Long id)
+    @GetMapping("/{username}")
+    public ResponseEntity<UserResponseDto> getUser(@PathVariable String username)
     {
         return new ResponseEntity<>(
-                userService.getUser(id),
+                userService.getUser(username),
                 HttpStatus.OK
         );
     }

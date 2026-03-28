@@ -28,7 +28,7 @@ export default function AdminUsersPage() {
   };
 
   const handleBlockConfirm = (data) => {
-    blockUser(data.userId, data.reason, data.duration);
+    blockUser(data.username, data.reason, data.duration);
     handleModalClose();
   };
 

@@ -32,7 +32,7 @@ export default function UserListItem(props) {
 
   return (
     <div class="user-list-item" classList={{ 'user-list-item--blocked': props.isBlocked }}>
-      <a href={`/profile/${user.id}`} class="user-list-item-link">
+      <a href={`/profile/@${user.username}`} class="user-list-item-link">
         <div class="user-list-item-avatar">
           {avatarUrl ? (
             <img 

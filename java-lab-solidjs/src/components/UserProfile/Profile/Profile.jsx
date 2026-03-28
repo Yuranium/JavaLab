@@ -47,7 +47,6 @@ export default function Profile() {
       console.log('Profile: полученные данные =', data);
 
       setUser({
-        id: data.id,
         username: data.username,
         firstName: data.name,
         lastName: data.lastName,
@@ -196,7 +195,7 @@ export default function Profile() {
 
             <div class="profile-main">
               <div class="profile-header-section">
-                <h2 class="profile-username">{user().username}</h2>
+                <h2 class="profile-username">@{user().username}</h2>
               </div>
 
               <ProfileInfo

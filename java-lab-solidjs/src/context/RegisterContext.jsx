@@ -235,9 +235,10 @@ export function RegisterProvider(props) {
       const result = response.data;
       console.log('Ответ от сервера:', result);
 
-      const newUserId = result.id;
-      localStorage.setItem('userId', newUserId.toString());
-      setUserId(newUserId);
+      const username = result.username || currentFormData.username;
+      
+      localStorage.setItem('username', username);
+      setUserId(username); // setUserId для обратной совместимости, но сохраняем username
 
       setUserCredentials({
         username: currentFormData.username,
@@ -281,9 +282,10 @@ export function RegisterProvider(props) {
   };
 
   const submitVerificationCode = async (code) => {
-    const currentUserId = userId() || localStorage.getItem('userId');
+    const credentials = userCredentials();
+    const username = credentials?.username;
 
-    if (!currentUserId) {
+    if (!username) {
       setVerificationError('Пользователь не найден');
       return false;
     }
@@ -292,13 +294,8 @@ export function RegisterProvider(props) {
     setVerificationError('');
 
     try {
-      console.log('Отправка кода подтверждения на сервер:', {
-        userId: currentUserId,
-        code: code,
-      });
-
       const response = await axios.post(
-        `${config.backendUrl}/api/v1/auth/verify-account?userId=${currentUserId}&code=${code}`
+        `${config.backendUrl}/api/v1/auth/${username}/verify-account?code=${code}`
       );
 
       if (response.status >= 400) {
@@ -323,20 +320,21 @@ export function RegisterProvider(props) {
       return false;
     }
 
-    const currentUserId = userId() || localStorage.getItem('userId');
+    const credentials = userCredentials();
+    const username = credentials?.username;
 
-    if (!currentUserId) {
+    if (!username) {
       setVerificationError('Пользователь не найден');
       return false;
     }
 
     try {
       console.log('Повторная отправка кода подтверждения:', {
-        userId: currentUserId,
+        username: username,
       });
 
       const response = await axios.post(
-        `${config.backendUrl}/api/v1/auth/resend-verification?userId=${currentUserId}`
+        `${config.backendUrl}/api/v1/auth/${username}/resend-verification`
       );
 
       if (response.status >= 400) {

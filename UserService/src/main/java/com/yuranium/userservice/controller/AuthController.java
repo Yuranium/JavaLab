@@ -12,7 +12,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -34,15 +33,13 @@ public class AuthController
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping("/verify-account")
-    public ResponseEntity<?> validateConfirmationCode(
-            @RequestParam Long userId, @RequestParam Integer code
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping("/{username}/verify-account")
+    public void validateConfirmationCode(
+            @PathVariable String username, @RequestParam Integer code
     )
     {
-        return new ResponseEntity<>(
-                Map.of("accountVerified", authService.verifyAccount(userId, code)),
-                HttpStatus.OK
-        );
+        authService.verifyAccount(username, code);
     }
 
     @GetMapping
@@ -70,9 +67,9 @@ public class AuthController
     }
 
     @DeleteMapping
-    public ResponseEntity<?> deleteUser(@AuthenticationPrincipal Jwt jwt)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteUser(@AuthenticationPrincipal Jwt jwt)
     {
         userService.deleteUser(UUID.fromString(jwt.getSubject()));
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

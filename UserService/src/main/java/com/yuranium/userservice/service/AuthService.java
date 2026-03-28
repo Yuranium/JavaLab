@@ -59,25 +59,24 @@ public class AuthService
     }
 
     @Transactional
-    public Boolean verifyAccount(Long userId, Integer code)
+    public void verifyAccount(String username, Integer code)
     {
-        ConfirmationCodeEntity confirmCode = codeRepository
-                .findByUserIdAndCode(userId, code)
+        UserEntity userEntity = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "The confirm code for userId=%d was not found".formatted(userId)
+                        "User with username=%s not found".formatted(username)
                 ));
-
+        ConfirmationCodeEntity confirmCode = codeRepository
+                .findByUserIdAndCode(userEntity.getId(), code)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "The confirm code for userId=%d was not found"
+                                .formatted(userEntity.getId())
+                ));
         if (isCodeActive(confirmCode))
         {
-            UserEntity userEntity = userRepository.findById(userId)
-                    .orElseThrow(() -> new ResourceNotFoundException(
-                            "User with id=%d not found".formatted(userId)
-                    ));
             userEntity.getBackground().setActivity(true);
             userEntity.getBackground().setLastLogin(Instant.now());
             keycloakService.verifyUser(userEntity.getKeycloakId());
             codeRepository.delete(confirmCode);
-            return true;
         }
         else throw new ConfirmationCodeExpiredException(
                 "The confirm code expired. Code lifetime is %s".formatted(codeLifetime)

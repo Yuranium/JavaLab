@@ -98,9 +98,9 @@ export default function VerificationCodePage() {
       }
       
       const result = await auth.login(credentials.username, credentials.password);
-      
+
       if (result.success) {
-        localStorage.removeItem('userId');
+        localStorage.removeItem('username');
         navigate('/');
       } else {
         setSubmitError(result.error || 'Ошибка при получении токенов');

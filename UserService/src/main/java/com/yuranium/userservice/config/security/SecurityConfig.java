@@ -30,7 +30,7 @@ public class SecurityConfig
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/send-confirmation-code").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/verify-account").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/*/verify-account").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/user").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/user/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/v1/user/internal/email-notification").hasRole("SERVICE")

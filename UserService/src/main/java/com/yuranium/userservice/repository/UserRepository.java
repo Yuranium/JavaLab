@@ -42,4 +42,6 @@ public interface UserRepository extends
 
     @Modifying
     void deleteByKeycloakId(UUID keycloakId);
+
+    Optional<UserEntity> findByUsername(String username);
 }

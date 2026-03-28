@@ -63,12 +63,12 @@ public class UserService
     }
 
     @Transactional(readOnly = true)
-    public UserResponseDto getUser(Long id)
+    public UserResponseDto getUser(String username)
     {
         return userMapper.toResponseDto(
-                userRepository.findById(id)
+                userRepository.findByUsername(username)
                         .orElseThrow(() -> new ResourceNotFoundException(
-                                "User with id=%d not found".formatted(id)
+                                "User with username=%s not found".formatted(username)
                         ))
         );
     }

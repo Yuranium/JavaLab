@@ -32,7 +32,7 @@ export default function BlockUserModal(props) {
   const handleSubmit = () => {
     if (isFormValid()) {
       props.onConfirm({
-        userId: props.user.id,
+        username: props.user.username,
         reason: reason().trim(),
         duration: duration(),
       });
