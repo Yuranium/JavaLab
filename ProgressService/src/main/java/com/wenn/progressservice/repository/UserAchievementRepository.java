@@ -6,18 +6,19 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface UserAchievementRepository extends JpaRepository<UserAchievementEntity, Long> {
 
-    List<UserAchievementEntity> findByUserProgressUsername(String username);
+    List<UserAchievementEntity> findByUserProgressKeycloakId(UUID keycloakId);
 
-    Optional<UserAchievementEntity> findByUserProgressUsernameAndAchievementCode(
-            String username,
+    Optional<UserAchievementEntity> findByUserProgressKeycloakIdAndAchievementCode(
+            UUID keycloakId,
             String achievementCode
     );
 
-    List<UserAchievementEntity> findByUserProgressUsernameAndUnlockedTrue(String username);
+    List<UserAchievementEntity> findByUserProgressKeycloakIdAndUnlockedTrue(UUID keycloakId);
 
-    List<UserAchievementEntity> findByUserProgressUsernameAndUnlockedFalse(String username);
+    List<UserAchievementEntity> findByUserProgressKeycloakIdAndUnlockedFalse(UUID keycloakId);
 }

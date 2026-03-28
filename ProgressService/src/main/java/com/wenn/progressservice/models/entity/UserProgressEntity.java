@@ -4,10 +4,11 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "user_progress")
@@ -19,8 +20,8 @@ import java.util.List;
 public class UserProgressEntity {
 
     @Id
-    @Column(name = "username", nullable = false, length = 50)
-    private String username;
+    @Column(name = "keycloak_id", nullable = false)
+    private UUID keycloakId;
 
     @Column(name = "total_tasks_solved", nullable = false)
     @Builder.Default
@@ -46,7 +47,7 @@ public class UserProgressEntity {
 
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
     @OneToMany(mappedBy = "userProgress", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

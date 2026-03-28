@@ -5,11 +5,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface UserProgressRepository extends JpaRepository<UserProgressEntity, String> {
+public interface UserProgressRepository extends JpaRepository<UserProgressEntity, UUID> {
 
-    Optional<UserProgressEntity> findByUsername(String username);
+    Optional<UserProgressEntity> findByKeycloakId(UUID keycloakId);
 
-    boolean existsByUsername(String username);
+    boolean existsByKeycloakId(UUID keycloakId);
 }

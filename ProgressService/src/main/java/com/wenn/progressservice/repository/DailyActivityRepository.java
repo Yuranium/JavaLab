@@ -4,23 +4,24 @@ import com.wenn.progressservice.models.entity.DailyActivityEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface DailyActivityRepository extends JpaRepository<DailyActivityEntity, Long> {
 
-    Optional<DailyActivityEntity> findByUserProgressUsernameAndActivityDate(
-            String username,
-            LocalDate activityDate
+    Optional<DailyActivityEntity> findByUserProgressKeycloakIdAndActivityDate(
+            UUID keycloakId,
+            Instant activityDate
     );
 
-    List<DailyActivityEntity> findByUserProgressUsernameOrderByActivityDateDesc(String username);
+    List<DailyActivityEntity> findByUserProgressKeycloakIdOrderByActivityDateDesc(UUID keycloakId);
 
-    List<DailyActivityEntity> findByUserProgressUsernameAndActivityDateBetween(
-            String username,
-            LocalDate fromDate,
-            LocalDate toDate
+    List<DailyActivityEntity> findByUserProgressKeycloakIdAndActivityDateBetween(
+            UUID keycloakId,
+            Instant fromDate,
+            Instant toDate
     );
 }

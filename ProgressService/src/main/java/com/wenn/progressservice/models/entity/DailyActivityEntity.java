@@ -3,7 +3,7 @@ package com.wenn.progressservice.models.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
+import java.time.Instant;
 
 @Entity
 @Table(name = "daily_activity")
@@ -20,11 +20,11 @@ public class DailyActivityEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "username", nullable = false, foreignKey = @ForeignKey(name = "fk_daily_activity_user_progress"))
+    @JoinColumn(name = "keycloak_id", nullable = false, foreignKey = @ForeignKey(name = "fk_daily_activity_user_progress"))
     private UserProgressEntity userProgress;
 
     @Column(name = "activity_date", nullable = false)
-    private LocalDate activityDate;
+    private Instant activityDate;
 
     @Column(name = "tasks_solved", nullable = false)
     @Builder.Default

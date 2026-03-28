@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Table(name = "user_achievements")
@@ -21,7 +21,7 @@ public class UserAchievementEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "username", nullable = false, foreignKey = @ForeignKey(name = "fk_user_achievements_user_progress"))
+    @JoinColumn(name = "keycloak_id", nullable = false, foreignKey = @ForeignKey(name = "fk_user_achievements_user_progress"))
     private UserProgressEntity userProgress;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -34,7 +34,7 @@ public class UserAchievementEntity {
 
     @CreationTimestamp
     @Column(name = "unlocked_at")
-    private LocalDateTime unlockedAt;
+    private Instant unlockedAt;
 
     @PrePersist
     public void prePersist() {

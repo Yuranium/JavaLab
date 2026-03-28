@@ -8,29 +8,30 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface UserSubmissionRepository extends JpaRepository<UserSubmissionEntity, Long> {
 
-    Page<UserSubmissionEntity> findByUserProgressUsername(String username, Pageable pageable);
+    Page<UserSubmissionEntity> findByUserProgressKeycloakId(UUID keycloakId, Pageable pageable);
 
-    Page<UserSubmissionEntity> findByUserProgressUsernameAndIdTask(
-            String username,
+    Page<UserSubmissionEntity> findByUserProgressKeycloakIdAndIdTask(
+            UUID keycloakId,
             Long idTask,
             Pageable pageable
     );
 
-    List<UserSubmissionEntity> findByUserProgressUsernameAndIdTaskOrderByAttemptNumberDesc(
-            String username,
+    List<UserSubmissionEntity> findByUserProgressKeycloakIdAndIdTaskOrderByAttemptNumberDesc(
+            UUID keycloakId,
             Long idTask
     );
 
-    Optional<UserSubmissionEntity> findFirstByUserProgressUsernameAndIdTaskOrderByAttemptNumberDesc(
-            String username,
+    Optional<UserSubmissionEntity> findFirstByUserProgressKeycloakIdAndIdTaskOrderByAttemptNumberDesc(
+            UUID keycloakId,
             Long idTask
     );
 
-    int countByUserProgressUsernameAndIdTask(String username, Long idTask);
+    int countByUserProgressKeycloakIdAndIdTask(UUID keycloakId, Long idTask);
 
-    List<UserSubmissionEntity> findByUserProgressUsernameAndIsCorrectTrue(String username);
+    List<UserSubmissionEntity> findByUserProgressKeycloakIdAndIsCorrectTrue(UUID keycloakId);
 }
