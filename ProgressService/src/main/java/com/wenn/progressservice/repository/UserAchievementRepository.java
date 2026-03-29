@@ -1,6 +1,7 @@
 package com.wenn.progressservice.repository;
 
 import com.wenn.progressservice.models.entity.UserAchievementEntity;
+import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,7 +12,7 @@ import java.util.UUID;
 @Repository
 public interface UserAchievementRepository extends JpaRepository<UserAchievementEntity, Long> {
 
-    List<UserAchievementEntity> findByUserProgressKeycloakId(UUID keycloakId);
+    Page<UserAchievementEntity> findByUserProgressKeycloakId(UUID keycloakId);
 
     Optional<UserAchievementEntity> findByUserProgressKeycloakIdAndAchievementCode(
             UUID keycloakId,

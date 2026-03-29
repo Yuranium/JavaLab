@@ -9,6 +9,7 @@ import com.wenn.progressservice.repository.UserAchievementRepository;
 import com.wenn.progressservice.repository.UserProgressRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -157,7 +158,7 @@ public class AchievementService {
      * @return список достижений пользователя
      */
     @Transactional(readOnly = true)
-    public List<UserAchievementEntity> getUserAchievements(UUID keycloakId) {
+    public Page<UserAchievementEntity> getUserAchievements(UUID keycloakId) {
         return userAchievementRepository.findByUserProgressKeycloakId(keycloakId);
     }
 

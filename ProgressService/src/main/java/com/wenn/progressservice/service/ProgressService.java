@@ -6,6 +6,7 @@ import com.wenn.progressservice.repository.DailyActivityRepository;
 import com.wenn.progressservice.repository.UserProgressRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -261,5 +262,17 @@ public class ProgressService {
      */
     public Optional<UserProgressEntity> getProgress(UUID keycloakId) {
         return userProgressRepository.findByKeycloakId(keycloakId);
+    }
+
+    /**
+     * Получает ежедневную активность пользователя за период.
+     * 
+     * @param keycloakId ID пользователя в Keycloak
+     * @param from дата начала периода
+     * @param to дата окончания периода
+     * @return список записей активности
+     */
+    public Page<DailyActivityEntity> getActivityByPeriod(UUID keycloakId, LocalDate from, LocalDate to) {
+        return dailyActivityRepository.findByUserProgressKeycloakIdAndActivityDateBetween(keycloakId, from, to);
     }
 }
