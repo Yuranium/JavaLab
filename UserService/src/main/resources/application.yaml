@@ -47,10 +47,9 @@ spring:
     consumer:
       group-id: ${spring.application.name}
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       properties:
         spring.json.trusted.packages: com.javalab.core.events
-        spring.json.value.default.type: com.javalab.core.events.UserLoggedInEvent
         spring.json.use.type.headers: false
 
   security:
@@ -86,4 +85,5 @@ kafka:
   topic-names:
     user-registered: ${USER_CREATED_TOPIC}
     user-logged-in: ${USER_LOGGED_IN_TOPIC}
+    oauth2-user-logged-in: ${OAUTH2_LOGIN_TOPIC}
     user-locked: ${USER_LOCKED_TOPIC}

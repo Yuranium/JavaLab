@@ -6,9 +6,27 @@ export const config = {
   clientId: import.meta.env.CLIENT_ID,
   s3Url: import.meta.env.S3_URL,
   s3Bucket: import.meta.env.S3_BUCKET,
+  redirectUri: import.meta.env.REDIRECT_URI || 'http://localhost:3000/callback',
+};
+
+export const oauthBrokers = {
+  google: 'google',
+  github: 'github',
+  yandex: 'yandex',
+  vk: 'vk',
 };
 
 export const getAuthUrl = () => `${config.authUrl}/realms/${config.realm}/protocol/openid-connect/token`;
+
+export const getOAuthBrokerUrl = (broker) => {
+  const params = new URLSearchParams({
+    client_id: config.clientId,
+    redirect_uri: config.redirectUri,
+    response_type: 'code',
+    scope: 'openid',
+  });
+  return `${config.authUrl}/realms/${config.realm}/broker/${broker}/login?${params.toString()}`;
+};
 
 export const getS3Url = (path = '') => {
   const basePath = `${config.s3Url}/${config.s3Bucket}`;

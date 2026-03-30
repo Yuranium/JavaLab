@@ -12,6 +12,7 @@ import VerificationPage from './pages/VerificationPage';
 import LoginPage from './pages/LoginPage';
 import ProgressPage from './pages/ProgressPage';
 import UserProfilePage from './pages/UserProfilePage';
+import CallbackPage from './pages/CallbackPage';
 import { UsersProvider } from './context/UsersContext';
 import { RegisterProvider } from './context/RegisterContext';
 import { ProfileProvider } from './context/ProfileContext';
@@ -58,6 +59,7 @@ export default function App() {
               <Route path="/login" component={LoginPage} />
               <Route path="/register" component={RegisterPage} />
               <Route path="/register/verify" component={VerificationPage} />
+              <Route path="/callback" component={CallbackPage} />
               <Route path="/profile" component={Profile} />
               <Route path="/profile/:id" component={UserProfilePage} />
               <Route path="/progress" component={ProgressPage} />

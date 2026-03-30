@@ -1,5 +1,6 @@
 package com.yuranium.userservice.service;
 
+import com.javalab.core.events.ExternalAuthEvent;
 import com.javalab.core.events.UserRegisteredEvent;
 import com.javalab.core.exception.ResourceAlreadyExistsException;
 import com.javalab.core.exception.ResourceNotCreatedException;
@@ -138,8 +139,11 @@ public class UserService
     @Transactional
     public void updateLastLogin(UUID keycloakId, Instant loginTime)
     {
-        UserEntity userEntity = findByIdOrThrow(keycloakId);
-        userEntity.getBackground().setLastLogin(loginTime);
+        try
+        {
+            UserEntity userEntity = findByIdOrThrow(keycloakId);
+            userEntity.getBackground().setLastLogin(loginTime);
+        } catch (Exception exc) {}
     }
 
     @Transactional
@@ -157,5 +161,24 @@ public class UserService
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User with k-id=%s not found".formatted(keycloakId)
                 ));
+    }
+
+    @Transactional
+    public void updateOAuth2User(ExternalAuthEvent event)
+    {
+        userRepository.findByKeycloakId(event.keycloakId())
+                .orElse(createUserFromExternal(event));
+    }
+
+    private UserEntity createUserFromExternal(ExternalAuthEvent event)
+    {
+        UserEntity user = userMapper.toEntity(event);
+        UserBackgroundEntity backgroundEntity = new UserBackgroundEntity();
+        backgroundEntity.setLastLogin(Instant.now());
+        backgroundEntity.setActivity(true);
+        user = userRepository.save(user);
+        backgroundEntity.setUser(user);
+        backgroundRepository.save(backgroundEntity);
+        return user;
     }
 }

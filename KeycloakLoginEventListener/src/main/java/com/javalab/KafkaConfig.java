@@ -4,7 +4,9 @@ public class KafkaConfig
 {
     private String bootstrapServers;
 
-    private String topicName;
+    private String loggedInTopicName;
+
+    private String oauth2LoggedInTopicName;
 
     private String keySerializer;
 
@@ -20,9 +22,13 @@ public class KafkaConfig
         if (bootstrapServers == null || bootstrapServers.isEmpty())
             this.bootstrapServers = "localhost:9092";
 
-        this.topicName = System.getenv("KAFKA_LOGIN_TOPIC");
-        if (topicName == null || topicName.isEmpty())
-            this.topicName = "login-timestamp-updated-topic";
+        this.loggedInTopicName = System.getenv("KAFKA_LOGIN_TOPIC");
+        if (loggedInTopicName == null || loggedInTopicName.isEmpty())
+            this.loggedInTopicName = "user-logged-in-topic";
+
+        this.oauth2LoggedInTopicName = System.getenv("KAFKA_OAUTH2_LOGIN_TOPIC");
+        if (oauth2LoggedInTopicName == null || oauth2LoggedInTopicName.isEmpty())
+            this.oauth2LoggedInTopicName = "oauth2-user-updated-topic";
 
         this.keySerializer = keySerializer;
         this.valueSerializer = valueSerializer;
@@ -50,9 +56,14 @@ public class KafkaConfig
         return retries;
     }
 
-    public String getTopicName()
+    public String getLoggedInTopicName()
     {
-        return topicName;
+        return loggedInTopicName;
+    }
+
+    public String getOauth2LoggedInTopicName()
+    {
+        return oauth2LoggedInTopicName;
     }
 
     public String getValueSerializer()

@@ -1,5 +1,6 @@
 package com.yuranium.userservice.mapper;
 
+import com.javalab.core.events.ExternalAuthEvent;
 import com.yuranium.userservice.models.dto.PublicUserResponseDto;
 import com.yuranium.userservice.models.dto.UserRequestDto;
 import com.yuranium.userservice.models.dto.UserResponseDto;
@@ -43,4 +44,9 @@ public interface UserMapper
         if (userUpdateDto.notifyEnabled() != null)
             userEntity.getBackground().setNotifyEnabled(userUpdateDto.notifyEnabled());
     }
+
+    @Mapping(target = "avatar", source = "avatarUrl")
+    @Mapping(target = "name", source = "firstName")
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    UserEntity toEntity(ExternalAuthEvent event);
 }
