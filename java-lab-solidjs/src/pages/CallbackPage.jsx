@@ -2,6 +2,7 @@ import { onMount } from 'solid-js';
 import { useNavigate } from '@solidjs/router';
 import { useAuth } from '../context/AuthContext';
 import { config } from '../config';
+import axios from "axios";
 
 export default function CallbackPage() {
   const navigate = useNavigate();
@@ -20,36 +21,27 @@ export default function CallbackPage() {
     }
 
     if (!code) {
-      console.error('Код авторизации не получен');
       navigate('/login');
       return;
     }
 
     try {
-      const tokenUrl = `${config.authUrl}/realms/java-lab-realm/protocol/openid-connect/token`;
-      const tokenResponse = await fetch(
-        `${config.authUrl}/realms/java-lab-realm/protocol/openid-connect/token`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: new URLSearchParams({
-            grant_type: 'authorization_code',
-            client_id: config.clientId,
-            code: code,
-            redirect_uri: `${window.location.origin}/callback`,
-          }),
-        }
-      );
+        const tokenResponse = await axios.post(
+            `${config.authUrl}/realms/${config.realm}/protocol/openid-connect/token`,
+            new URLSearchParams({
+                grant_type: 'authorization_code',
+                client_id: config.clientId,
+                code: code,
+                redirect_uri: config.redirectUri,
+            }),
+            {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+            }
+        );
 
-      if (!tokenResponse.ok) {
-        const errorData = await tokenResponse.json().catch(() => ({}));
-        throw new Error(`Token exchange failed: ${errorData.error || tokenResponse.statusText}`);
-      }
-
-      const tokenData = await tokenResponse.json();
-
+      const tokenData = tokenResponse.data;
       setTokens(tokenData.access_token, tokenData.refresh_token);
       navigate('/');
 

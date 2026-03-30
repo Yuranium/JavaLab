@@ -109,7 +109,6 @@ export function AuthProvider(props) {
     if (payload) {
       setUser({
         id: payload.sub,
-        username: payload.preferred_username,
         email: payload.email,
         roles: extractRoles(payload),
         exp: payload.exp,

@@ -5,6 +5,7 @@ import com.yuranium.userservice.enums.LockAction;
 import com.yuranium.userservice.models.dto.userlock.UserUnlockRequest;
 import com.yuranium.userservice.models.dto.userlock.UserLockRequest;
 import com.yuranium.userservice.models.dto.userlock.UserLockTask;
+import com.yuranium.userservice.models.entity.UserBackgroundEntity;
 import com.yuranium.userservice.models.entity.UserEntity;
 import com.yuranium.userservice.repository.UserRepository;
 import com.yuranium.userservice.service.kafka.KafkaSender;
@@ -23,6 +24,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -81,7 +83,7 @@ public class UserLockService
         if (duration.endLock() != null)
             taskQueue.scheduleTask(user.getId(), LockAction.UNLOCK, duration.endLock());
 
-        sendLockEvent(user, duration.startLock(), duration.endLock(), duration.message());
+        sendLockEvent(user, duration);
     }
 
     /**
@@ -112,26 +114,32 @@ public class UserLockService
                 );
     }
 
-    private void sendLockEvent(UserEntity user, Instant start, Instant end, String message)
+    private void sendLockEvent(UserEntity user, UserLockRequest duration)
     {
-        String timezone = user.getBackground().getTimezone() == null
-                ? "UTC" : user.getBackground().getTimezone();
+        String timezone = Optional.ofNullable(user.getBackground())
+                .map(UserBackgroundEntity::getTimezone)
+                .orElse("UTC");
+
         ZoneId zone = ZoneId.of(timezone);
-        kafkaSender.sendUserLockedEvent(new UserLockedEvent(
-                        user.getUsername(),
+        kafkaSender.sendUserLockedEvent(
+                new UserLockedEvent(user.getUsername(),
                         user.getEmail(),
-                        start != null ? start.atZone(zone).toOffsetDateTime() : null,
-                        end != null ? end.atZone(zone).toOffsetDateTime() : null,
+                        duration.startLock() != null ? duration.startLock()
+                                .atZone(zone).toOffsetDateTime() : null,
+                        duration.endLock() != null ? duration.endLock()
+                                .atZone(zone).toOffsetDateTime() : null,
                         true,
-                        message
+                        duration.message()
                 )
         );
     }
 
     private void sendUnlockEvent(UserEntity user, Instant unlockTime)
     {
-        String timezone = user.getBackground().getTimezone() == null
-                ? "UTC" : user.getBackground().getTimezone();
+        String timezone = Optional.ofNullable(user.getBackground())
+                .map(UserBackgroundEntity::getTimezone)
+                .orElse("UTC");
+
         ZoneId zone = ZoneId.of(timezone);
         kafkaSender.sendUserLockedEvent(new UserLockedEvent(
                         user.getUsername(),

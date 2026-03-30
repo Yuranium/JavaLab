@@ -1,15 +1,13 @@
 package com.yuranium.userservice.models.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.UUID;
 
 @Getter
 @Setter
+@EqualsAndHashCode
 @Entity
 @Table(name = "\"user\"")
 @NoArgsConstructor
@@ -39,6 +37,7 @@ public class UserEntity
     @Column(name = "avatar_link")
     private String avatar;
 
+    @EqualsAndHashCode.Exclude
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
     private UserBackgroundEntity background;
 

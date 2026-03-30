@@ -12,6 +12,8 @@ export function ProfileProvider(props) {
   const [isUpdatingName, setIsUpdatingName] = createSignal(false);
   const [isUpdatingLastName, setIsUpdatingLastName] = createSignal(false);
   const [isUpdatingNotifications, setIsUpdatingNotifications] = createSignal(false);
+  const [isUpdatingUsername, setIsUpdatingUsername] = createSignal(false);
+  const [usernameError, setUsernameError] = createSignal('');
 
   const validateAvatar = (file) => {
     if (!file) {
@@ -132,22 +134,64 @@ export function ProfileProvider(props) {
     }
   };
 
+  const updateUsername = async (username, accessToken) => {
+    setIsUpdatingUsername(true);
+    setUsernameError('');
+    try {
+      const formData = new FormData();
+      formData.append('username', username);
+
+      const response = await axios.patch(`${config.backendUrl}/api/v1/auth`, formData, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+
+      if (response.status >= 400) {
+        const errorMessage = response.data?.message || 'Ошибка при обновлении username';
+        setUsernameError(errorMessage);
+        throw new Error(errorMessage);
+      }
+
+      return { success: true, username: response.data?.username ?? username };
+    } catch (error) {
+      if (error.response?.status === 409) {
+        setUsernameError('Этот username уже занят');
+      } else if (error.response?.status >= 400 && error.response?.status < 500) {
+        setUsernameError(error.response?.data?.message || 'Ошибка при обновлении username');
+      } else {
+        setUsernameError(error.message || 'Ошибка при обновлении username');
+      }
+      throw error;
+    } finally {
+      setIsUpdatingUsername(false);
+    }
+  };
+
+  const clearUsernameError = () => {
+    setUsernameError('');
+  };
+
   const clearAvatarError = () => {
     setAvatarError('');
   };
 
   const value = {
     avatarError,
+    usernameError,
     isUpdatingAvatar,
     isUpdatingName,
     isUpdatingLastName,
     isUpdatingNotifications,
+    isUpdatingUsername,
     validateAvatar,
     updateName,
     updateLastName,
     updateAvatar,
     updateNotifications,
+    updateUsername,
     clearAvatarError,
+    clearUsernameError,
   };
 
   return (

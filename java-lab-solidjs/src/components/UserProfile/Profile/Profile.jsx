@@ -12,6 +12,7 @@ import ProfileSettings from '../ProfileSettings/ProfileSettings';
 import ProfileActions from '../ProfileActions/ProfileActions';
 import ProfileUserDates from '../ProfileUserDates/ProfileUserDates';
 import ActivityModal from '../../ProgressActivity/ActivityModal';
+import UsernameField from '../UsernameField/UsernameField';
 
 export default function Profile() {
   const auth = useAuth();
@@ -75,13 +76,19 @@ export default function Profile() {
     const token = auth.accessToken();
     const loading = auth.isLoading();
     console.log('Profile: createEffect сработал, token =', !!token, 'loading =', loading, 'hasLoadedProfile =', hasLoadedProfile());
-    
+
     if (token && !loading && !hasLoadedProfile()) {
       loadUserProfile();
     }
     else if (!token && !loading && !hasLoadedProfile()) {
       console.log('Profile: токена нет, перенаправление на /login');
       navigate('/login');
+    }
+  });
+
+  createEffect(() => {
+    if (hasLoadedProfile()) {
+      profile.clearUsernameError();
     }
   });
 
@@ -115,6 +122,21 @@ export default function Profile() {
     } catch (err) {
       console.error(`Ошибка при обновлении ${field}:`, err);
       setError('Ошибка при обновлении: ' + (err.message || ''));
+    }
+  };
+
+  const handleUsernameUpdate = async (username) => {
+    const accessToken = auth.accessToken();
+    if (!accessToken) {
+      setError('Пользователь не авторизован');
+      return;
+    }
+
+    try {
+      const result = await profile.updateUsername(username, accessToken);
+      setUser(prev => ({ ...prev, username: result.username }));
+    } catch (err) {
+      console.error('Ошибка при обновлении username:', err);
     }
   };
 
@@ -194,9 +216,13 @@ export default function Profile() {
             </div>
 
             <div class="profile-main">
-              <div class="profile-header-section">
-                <h2 class="profile-username">@{user().username}</h2>
-              </div>
+              <UsernameField
+                username={user().username}
+                usernameError={profile.usernameError()}
+                isUpdatingUsername={profile.isUpdatingUsername()}
+                onUsernameUpdate={handleUsernameUpdate}
+                clearUsernameError={profile.clearUsernameError}
+              />
 
               <ProfileInfo
                 firstName={user().firstName}

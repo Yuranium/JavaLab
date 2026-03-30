@@ -5,6 +5,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.Serializable;
 
 public record UserUpdateDto(
+        String username,
+
         String name,
 
         String lastName,

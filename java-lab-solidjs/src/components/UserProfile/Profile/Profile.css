@@ -55,19 +55,6 @@
   gap: 24px;
 }
 
-.profile-header-section {
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--border-color);
-  margin-bottom: 8px;
-}
-
-.profile-username {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0;
-}
-
 @media (max-width: 768px) {
   .profile-content {
     grid-template-columns: 1fr;

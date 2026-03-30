@@ -130,10 +130,27 @@ public class UserService
                     userEntity.getAvatar(), userDto.avatar())
             );
         userMapper.updateEntity(userEntity, userDto);
+        updateUsername(userEntity, userDto.username());
 
         return userMapper.toResponseDto(
                 userRepository.save(userEntity)
         );
+    }
+
+    private void updateUsername(UserEntity userEntity, String newUsername)
+    {
+        if (newUsername == null || newUsername.equals(userEntity.getUsername()))
+            return;
+
+        userRepository.findByUsername(newUsername)
+                .filter(u -> !u.equals(userEntity))
+                .ifPresent(u -> {
+                    throw new ResourceAlreadyExistsException(
+                            "The user with username=%s already exists".formatted(newUsername)
+                    );
+                });
+
+        userEntity.setUsername(newUsername);
     }
 
     @Transactional

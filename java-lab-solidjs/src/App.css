@@ -8,7 +8,8 @@
   --border-color: #d2d2d7;
   --hover-color: #f0f0f5;
   --code-background: #282c34;
-  
+  --error-color: #ef4444;
+
   /* Primary colors */
   --primary-color: #6366f1;
   --primary-light: #818cf8;
@@ -31,7 +32,8 @@
   --border-color: #2d2d35;
   --hover-color: #25252d;
   --code-background: #1e1e24;
-  
+  --error-color: #f87171;
+
   /* Primary colors */
   --primary-color: #818cf8;
   --primary-light: #a5b4fc;
