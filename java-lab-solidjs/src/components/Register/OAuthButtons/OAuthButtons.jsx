@@ -1,5 +1,5 @@
 import './OAuthButtons.css';
-import { getOAuthBrokerUrl, oauthBrokers } from '../../../config';
+import {getOAuthBrokerUrl, oauthBrokers} from '../../../config';
 
 const oauthProviders = [
   {
@@ -37,8 +37,7 @@ const oauthProviders = [
 
 export default function OAuthButtons() {
   const handleOAuthClick = (broker) => {
-    const oauthUrl = getOAuthBrokerUrl(broker);
-    window.location.href = oauthUrl;
+      window.location.href = getOAuthBrokerUrl(broker);
   };
 
   return (
