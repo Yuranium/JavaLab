@@ -1,18 +1,9 @@
 import { createSignal, Show } from 'solid-js';
-import { getS3Url } from '../../../config';
 import './ProfileAvatar.css';
 
 export default function ProfileAvatar(props) {
   const [isHovered, setIsHovered] = createSignal(false);
   let fileInputRef;
-
-  const getAvatarUrl = (avatarPath) => {
-    if (!avatarPath) return null;
-    if (avatarPath.startsWith('http://') || avatarPath.startsWith('https://')) {
-      return avatarPath;
-    }
-    return getS3Url(avatarPath);
-  };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -36,7 +27,7 @@ export default function ProfileAvatar(props) {
         onMouseLeave={() => setIsHovered(false)}
       >
         {props.avatar ? (
-          <img src={getAvatarUrl(props.avatar)} alt="Аватар" class="profile-avatar" />
+          <img src={props.avatar} alt="Аватар" class="profile-avatar" />
         ) : (
           <div class="profile-avatar-placeholder">
             <svg viewBox="0 0 24 24" width="48" height="48" fill="currentColor">

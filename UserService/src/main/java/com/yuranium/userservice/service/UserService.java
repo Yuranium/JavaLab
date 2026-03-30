@@ -166,8 +166,8 @@ public class UserService
     @Transactional
     public void updateOAuth2User(ExternalAuthEvent event)
     {
-        userRepository.findByKeycloakId(event.keycloakId())
-                .orElse(createUserFromExternal(event));
+        if (userRepository.findByKeycloakId(event.keycloakId()).isEmpty())
+            createUserFromExternal(event);
     }
 
     private UserEntity createUserFromExternal(ExternalAuthEvent event)

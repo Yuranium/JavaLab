@@ -114,7 +114,9 @@ public class UserLockService
 
     private void sendLockEvent(UserEntity user, Instant start, Instant end, String message)
     {
-        ZoneId zone = ZoneId.of(user.getBackground().getTimezone());
+        String timezone = user.getBackground().getTimezone() == null
+                ? "UTC" : user.getBackground().getTimezone();
+        ZoneId zone = ZoneId.of(timezone);
         kafkaSender.sendUserLockedEvent(new UserLockedEvent(
                         user.getUsername(),
                         user.getEmail(),
@@ -128,7 +130,9 @@ public class UserLockService
 
     private void sendUnlockEvent(UserEntity user, Instant unlockTime)
     {
-        ZoneId zone = ZoneId.of(user.getBackground().getTimezone());
+        String timezone = user.getBackground().getTimezone() == null
+                ? "UTC" : user.getBackground().getTimezone();
+        ZoneId zone = ZoneId.of(timezone);
         kafkaSender.sendUserLockedEvent(new UserLockedEvent(
                         user.getUsername(),
                         user.getEmail(),

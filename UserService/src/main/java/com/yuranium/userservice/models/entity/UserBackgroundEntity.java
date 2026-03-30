@@ -30,7 +30,7 @@ public class UserBackgroundEntity
     @Column(name = "last_login", columnDefinition = "TIMESTAMPTZ")
     private Instant lastLogin;
 
-    @Column(name = "timezone", columnDefinition = "VARCHAR(50)", nullable = false)
+    @Column(name = "timezone", columnDefinition = "VARCHAR(50)")
     private String timezone;
 
     @Column(name = "notify_enabled", columnDefinition = "BOOLEAN", nullable = false)

@@ -47,7 +47,7 @@ public class FileService
             s3Client.putObject(putObjectRequest,
                     RequestBody.fromBytes(file.getBytes()));
 
-            return key;
+            return generatePath(key);
         } catch (Exception e)
         {
             throw new ResourceNotCreatedException(
@@ -56,7 +56,7 @@ public class FileService
         }
     }
 
-    public String updateFile(String fileName, MultipartFile newFile)
+    public String updateFile(String fullPath, MultipartFile newFile)
     {
         if (newFile == null || newFile.isEmpty())
             return null;
@@ -64,8 +64,12 @@ public class FileService
         try
         {
             String newFileName = uploadFile(newFile);
-            if (fileName != null && !fileName.isEmpty())
-                deleteFile(fileName);
+            if (fullPath != null && !fullPath.isEmpty() && fullPath.contains(AVATAR_FOLDER))
+            {
+                String extractedKey = fullPath
+                        .substring(fullPath.indexOf(AVATAR_FOLDER));
+                deleteFile(extractedKey);
+            }
             return newFileName;
         } catch (Exception e)
         {
@@ -88,6 +92,15 @@ public class FileService
     private String generateKey(String fileName)
     {
         return AVATAR_FOLDER + "/" + UUID.randomUUID() + "_" + validateFilename(fileName);
+    }
+
+    private String generatePath(String fileKey)
+    {
+        return "%s/%s/%s".formatted(
+                minioConfig.getEndpoint(),
+                minioConfig.getBucketName(),
+                fileKey
+        );
     }
 
     private String validateFilename(String fileName)

@@ -1,5 +1,4 @@
 import { formatDistanceToNow, formatDateToClientTimezone, formatFullDateToClientTimezone } from './utils';
-import { getS3Url } from '../../../config';
 import './UserListItem.css';
 
 export default function UserListItem(props) {
@@ -21,15 +20,13 @@ export default function UserListItem(props) {
     return formatFullDateToClientTimezone(dateString);
   };
 
-  const avatarUrl = user.avatar ? getS3Url(user.avatar) : null;
-
   return (
     <div class="user-list-item" classList={{ 'user-list-item--blocked': props.isBlocked }}>
       <a href={`/profile/@${user.username}`} class="user-list-item-link">
         <div class="user-list-item-avatar">
-          {avatarUrl ? (
+          {user.avatar ? (
             <img
-              src={avatarUrl}
+              src={user.avatar}
               alt="Аватар"
               onError={(e) => {
                 e.target.style.display = 'none';
@@ -37,7 +34,7 @@ export default function UserListItem(props) {
               }}
             />
           ) : null}
-          <span style={avatarUrl ? 'display: none;' : ''}>
+          <span style={user.avatar ? 'display: none;' : ''}>
             {user.username.charAt(0).toUpperCase()}
           </span>
         </div>

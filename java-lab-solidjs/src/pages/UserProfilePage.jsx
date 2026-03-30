@@ -2,7 +2,7 @@ import { createSignal, createEffect, createMemo, Show } from 'solid-js';
 import { useParams, useNavigate } from '@solidjs/router';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import { config, getS3Url } from '../config';
+import { config } from '../config';
 import './UserProfilePage.css';
 import ProfileStatus from '../components/UserProfile/ProfileStatus/ProfileStatus';
 import ProfileUserDates from '../components/UserProfile/ProfileUserDates/ProfileUserDates';
@@ -99,14 +99,6 @@ export default function UserProfilePage() {
     navigate(getBackUrl());
   };
 
-  const getAvatarUrl = (avatarPath) => {
-    if (!avatarPath) return null;
-    if (avatarPath.startsWith('http://') || avatarPath.startsWith('https://')) {
-      return avatarPath;
-    }
-    return getS3Url(avatarPath);
-  };
-
   return (
     <Show when={hasUser()} fallback={
       <Show when={hasError()} fallback={
@@ -144,8 +136,8 @@ export default function UserProfilePage() {
           <div class="user-profile-content">
             <div class="user-profile-sidebar">
               <div class="user-profile-avatar-container">
-                {getAvatarUrl(user().avatar) ? (
-                  <img src={getAvatarUrl(user().avatar)} alt="Аватар" class="user-profile-avatar" />
+                {user().avatar ? (
+                  <img src={user().avatar} alt="Аватар" class="user-profile-avatar" />
                 ) : (
                   <div class="user-profile-avatar-placeholder">
                     <svg viewBox="0 0 24 24" width="48" height="48" fill="currentColor">

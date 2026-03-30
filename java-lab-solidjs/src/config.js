@@ -4,8 +4,6 @@ export const config = {
     realm: import.meta.env.VITE_REALM,
     grantType: import.meta.env.VITE_GRANT_TYPE,
     clientId: import.meta.env.VITE_CLIENT_ID,
-    s3Url: import.meta.env.VITE_S3_URL,
-    s3Bucket: import.meta.env.VITE_S3_BUCKET,
     redirectUri: import.meta.env.VITE_REDIRECT_URI,
 };
 
@@ -27,9 +25,4 @@ export const getOAuthBrokerUrl = (broker) => {
         kc_idp_hint: broker,
     });
     return `${config.authUrl}/realms/${config.realm}/protocol/openid-connect/auth?${params.toString()}`;
-};
-
-export const getS3Url = (path = '') => {
-    const basePath = `${config.s3Url}/${config.s3Bucket}`;
-    return path ? `${basePath}/${path}` : basePath;
 };
