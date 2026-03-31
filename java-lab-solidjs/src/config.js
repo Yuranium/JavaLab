@@ -21,6 +21,7 @@ export const getOAuthBrokerUrl = (broker) => {
         client_id: config.clientId,
         redirect_uri: config.redirectUri,
         response_type: 'code',
+        prompt: 'select_account',
         scope: 'openid',
         kc_idp_hint: broker,
     });

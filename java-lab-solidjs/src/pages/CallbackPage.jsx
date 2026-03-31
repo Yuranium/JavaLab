@@ -42,10 +42,12 @@ export default function CallbackPage() {
         );
 
       const tokenData = tokenResponse.data;
+      localStorage.setItem('id_token', tokenData.id_token);
       setTokens(tokenData.access_token, tokenData.refresh_token);
       navigate('/');
 
     } catch (err) {
+      localStorage.removeItem('id_token');
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
       navigate('/login');

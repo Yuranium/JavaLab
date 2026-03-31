@@ -142,14 +142,25 @@ export function AuthProvider(props) {
     return payload.exp * 1000 <= Date.now();
   };
 
-  const logout = () => {
-    clearTimers();
-    setAccessToken(null);
-    setRefreshToken(null);
-    setUser(null);
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-  };
+    const logout = () => {
+        clearTimers();
+
+        const idToken = localStorage.getItem('id_token');
+
+        const params = new URLSearchParams({
+            client_id: config.clientId,
+            post_logout_redirect_uri: window.location.origin,
+            ...(idToken && { id_token_hint: idToken }),
+        });
+
+        window.location.href = `${config.authUrl}/realms/${config.realm}/protocol/openid-connect/logout?${params}`;
+        setAccessToken(null);
+        setRefreshToken(null);
+        setUser(null);
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('id_token')
+    };
 
   const login = async (username, password) => {
     try {
