@@ -20,6 +20,8 @@ public record ExternalAuthEvent(
 
         String avatarUrl,
 
-        Long timestamp
+        Long timestamp,
+
+        String providerId
 
 ) implements Serializable {}

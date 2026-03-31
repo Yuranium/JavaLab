@@ -1,6 +1,7 @@
 package com.yuranium.userservice.mapper;
 
 import com.javalab.core.events.ExternalAuthEvent;
+import com.yuranium.userservice.enums.ProviderType;
 import com.yuranium.userservice.models.dto.PublicUserResponseDto;
 import com.yuranium.userservice.models.dto.UserRequestDto;
 import com.yuranium.userservice.models.dto.UserResponseDto;
@@ -49,4 +50,14 @@ public interface UserMapper
     @Mapping(target = "name", source = "firstName")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     UserEntity toEntity(ExternalAuthEvent event);
+
+    @AfterMapping
+    default void fullAvatarPath(@MappingTarget UserEntity user, ExternalAuthEvent event)
+    {
+        if (event.avatarUrl() != null && !event.avatarUrl().isBlank())
+        {
+            ProviderType provider = ProviderType.fromId(event.providerId());
+            user.setAvatar(provider.getAvatarUrl(event.avatarUrl()));
+        }
+    }
 }

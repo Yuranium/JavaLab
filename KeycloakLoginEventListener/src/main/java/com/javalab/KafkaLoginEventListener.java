@@ -118,7 +118,8 @@ public class KafkaLoginEventListener implements EventListenerProvider
                     user.getLastName(),
                     user.getEmail(),
                     user.getFirstAttribute("avatar_url"),
-                    event.getTime()
+                    event.getTime(),
+                    event.getDetails().getOrDefault("identity_provider", null)
             );
 
             String message = objectMapper.writeValueAsString(authEvent);
