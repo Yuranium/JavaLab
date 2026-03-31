@@ -27,7 +27,6 @@ public class TaskRepository
         return dsl.select(
                         TASK.ID_TASK,
                         TASK.TITLE,
-                        TASK.DESCRIPTION,
                         TASK.DIFFICULTY,
                         TASK.CREATED_AT,
                         TASK.UPDATED_AT,

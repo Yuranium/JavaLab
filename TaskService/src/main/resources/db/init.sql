@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS task
     difficulty  VARCHAR(50)  NOT NULL,
     created_at  TIMESTAMPTZ  NOT NULL DEFAULT now(),
     updated_at  TIMESTAMPTZ  NOT NULL DEFAULT now(),
-    id_author   BIGINT       NOT NULL
+    id_author   UUID         NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS category
