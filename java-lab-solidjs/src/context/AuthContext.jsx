@@ -16,6 +16,7 @@ const CHECK_INTERVAL_MS = 10000;
 export function AuthProvider(props) {
   const [accessToken, setAccessToken] = createSignal(null);
   const [refreshToken, setRefreshToken] = createSignal(null);
+  const [idToken, setIdToken] = createSignal(null);
   const [user, setUser] = createSignal(null);
   const [isLoading, setIsLoading] = createSignal(true);
   let refreshTimeoutId = null;
@@ -99,11 +100,13 @@ export function AuthProvider(props) {
     }, CHECK_INTERVAL_MS);
   };
 
-  const setTokens = (access, refresh) => {
+  const setTokens = (access, refresh, id) => {
     setAccessToken(access);
     setRefreshToken(refresh);
+    if (id) setIdToken(id);
     localStorage.setItem('access_token', access);
     localStorage.setItem('refresh_token', refresh);
+    if (id) localStorage.setItem('id_token', id);
 
     const payload = parseJwt(access);
     if (payload) {
@@ -142,25 +145,26 @@ export function AuthProvider(props) {
     return payload.exp * 1000 <= Date.now();
   };
 
-    const logout = () => {
-        clearTimers();
+  const logout = () => {
+    clearTimers();
 
-        const idToken = localStorage.getItem('id_token');
+    const idToken = localStorage.getItem('id_token');
 
-        const params = new URLSearchParams({
-            client_id: config.clientId,
-            post_logout_redirect_uri: window.location.origin,
-            ...(idToken && { id_token_hint: idToken }),
-        });
+    const params = new URLSearchParams({
+      client_id: config.clientId,
+      post_logout_redirect_uri: window.location.origin,
+      ...(idToken && { id_token_hint: idToken }),
+    });
 
-        window.location.href = `${config.authUrl}/realms/${config.realm}/protocol/openid-connect/logout?${params}`;
-        setAccessToken(null);
-        setRefreshToken(null);
-        setUser(null);
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        localStorage.removeItem('id_token')
-    };
+    window.location.href = `${config.authUrl}/realms/${config.realm}/protocol/openid-connect/logout?${params}`;
+    setAccessToken(null);
+    setRefreshToken(null);
+    setIdToken(null);
+    setUser(null);
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('id_token');
+  };
 
   const login = async (username, password) => {
     try {
@@ -238,12 +242,13 @@ export function AuthProvider(props) {
   onMount(() => {
     const storedAccess = localStorage.getItem('access_token');
     const storedRefresh = localStorage.getItem('refresh_token');
+    const storedId = localStorage.getItem('id_token');
 
     if (storedAccess && storedRefresh) {
       const payload = parseJwt(storedAccess);
 
       if (payload && payload.exp * 1000 > Date.now()) {
-        setTokens(storedAccess, storedRefresh);
+        setTokens(storedAccess, storedRefresh, storedId);
         setIsLoading(false);
       } else if (payload) {
         refreshAccessToken().then(() => {
@@ -258,7 +263,7 @@ export function AuthProvider(props) {
     } else {
       setIsLoading(false);
     }
-    
+
     startTokenMonitoring();
   });
 
@@ -276,6 +281,7 @@ export function AuthProvider(props) {
   const value = {
     accessToken,
     refreshToken,
+    idToken,
     user,
     isLoading,
     setTokens,
