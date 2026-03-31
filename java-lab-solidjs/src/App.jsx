@@ -13,6 +13,7 @@ import LoginPage from './pages/LoginPage';
 import ProgressPage from './pages/ProgressPage';
 import UserProfilePage from './pages/UserProfilePage';
 import CallbackPage from './pages/CallbackPage';
+import TasksPage from './pages/TasksPage';
 import { UsersProvider } from './context/UsersContext';
 import { RegisterProvider } from './context/RegisterContext';
 import { ProfileProvider } from './context/ProfileContext';
@@ -26,15 +27,6 @@ function Home() {
       <Features />
       <HowItWorks />
       <CTA />
-    </div>
-  );
-}
-
-function Tasks() {
-  return (
-    <div style="padding: 80px 24px; text-align: center;">
-      <h1 style="font-size: 36px; margin-bottom: 16px;">Задачи</h1>
-      <p style="color: var(--text-secondary);">Раздел с задачами в разработке</p>
     </div>
   );
 }
@@ -55,7 +47,7 @@ export default function App() {
           <ProfileProvider>
             <Router root={Layout}>
               <Route path="/" component={Home} />
-              <Route path="/tasks" component={Tasks} />
+              <Route path="/tasks" component={TasksPage} />
               <Route path="/login" component={LoginPage} />
               <Route path="/register" component={RegisterPage} />
               <Route path="/register/verify" component={VerificationPage} />

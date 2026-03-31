@@ -49,6 +49,7 @@ CREATE INDEX IF NOT EXISTS author_id_idx ON task (id_author);
 
 INSERT INTO category(title, description)
 VALUES ('JAVA_CORE', 'Основы языка, ООП, синтаксис, примитивные типы, исключения'),
+       ('JAVA_GENERICS', 'Обобщённые типы, вайлд-карды, стирание типов, ограничения типовй'),
        ('JAVA_COLLECTIONS', 'Работа со структурами данных: List, Set, Map, их реализациями'),
        ('JAVA_LAMBDAS', 'Лямбда-выражения, функциональные интерфейсы, ссылки на методы и конструкторы'),
        ('JAVA_STREAM_API', 'Функциональная обработка коллекций: filter, map, reduce, лямбда-выражения');
