@@ -92,4 +92,16 @@ public class TestCaseRepository
                 )
                 .fetchOptionalInto(TestCaseResponseDto.class);
     }
+
+    public Collection<TestCaseResponseDto> getTestCases(Long taskId)
+    {
+        return dsl.select(
+                        TEST_CASE.ID_CASE,
+                        TEST_CASE.INPUT,
+                        TEST_CASE.EXPECTED_OUTPUT
+                )
+                .from(TEST_CASE)
+                .where(TASK.ID_TASK.eq(taskId))
+                .fetchInto(TestCaseResponseDto.class);
+    }
 }

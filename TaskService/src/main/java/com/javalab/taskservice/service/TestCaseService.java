@@ -13,6 +13,7 @@ import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +35,7 @@ public class TestCaseService
             );
 
         TestCaseResponseDto testCase = testCaseRepository.createTestCase(taskId, testCaseDto);
-        sendEvent(taskId, testCase, TestCaseEventType.TEST_CASE_CREATED);
+        sendEvent(taskId, List.of(testCase), TestCaseEventType.TEST_CASE_CREATED);
         return testCase;
     }
 
@@ -45,12 +46,10 @@ public class TestCaseService
         if (taskId == null)
             throw new NullPointerException("taskId is null");
 
-        Collection<TestCaseResponseDto> cases = testCaseRepository.createTestCasesForTask(taskId, testCases);
-        cases.forEach(testCase -> sendEvent(
-                taskId,
-                testCase,
-                TestCaseEventType.TEST_CASE_CREATED
-        ));
+        Collection<TestCaseResponseDto> cases = testCaseRepository
+                .createTestCasesForTask(taskId, testCases);
+
+        sendEvent(taskId, cases, TestCaseEventType.TEST_CASE_CREATED);
         return cases;
     }
 
@@ -58,34 +57,52 @@ public class TestCaseService
             Long taskId, Long testCaseId, TestCaseRequestDto testCaseDto
     )
     {
-        TestCaseResponseDto responseDto = testCaseRepository.updateTestCase(taskId, testCaseId, testCaseDto)
+        TestCaseResponseDto responseDto = testCaseRepository
+                .updateTestCase(taskId, testCaseId, testCaseDto)
                 .orElseThrow(() -> new ResourceNotFoundException(
                                 "The test-case with id=%d not found".formatted(testCaseId)
                         )
                 );
-        sendEvent(taskId, responseDto, TestCaseEventType.TEST_CASE_UPDATED);
+        sendEvent(taskId, List.of(responseDto), TestCaseEventType.TEST_CASE_UPDATED);
         return responseDto;
     }
 
     public void deleteTestCase(Long taskId, Long testCaseId)
     {
-        TestCaseResponseDto responseDto = testCaseRepository.deleteTestCase(taskId, testCaseId)
+        TestCaseResponseDto responseDto = testCaseRepository
+                .deleteTestCase(taskId, testCaseId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                                 "The test-case with id=%d not found".formatted(testCaseId)
                         )
                 );
-        sendEvent(taskId, responseDto, TestCaseEventType.TEST_CASE_DELETED);
+
+        sendEvent(taskId, List.of(responseDto), TestCaseEventType.TEST_CASE_DELETED);
     }
 
-    private void sendEvent(Long taskId, TestCaseResponseDto testCase, TestCaseEventType type)
+    public void deleteAllTestCases(Long taskId)
+    {
+        Collection<TestCaseResponseDto> testCases = testCaseRepository
+                .getTestCases(taskId);
+
+        sendEvent(taskId, testCases, TestCaseEventType.TEST_CASE_TASK_DELETED);
+    }
+
+    private void sendEvent(
+            Long taskId,
+            Collection<TestCaseResponseDto> testCase,
+            TestCaseEventType type
+    )
     {
         kafkaSender.sendTestCaseEvent(new TestCaseEvent(
                 type,
                 taskId,
-                new TestCasePayload(
-                        testCase.id(),
-                        testCase.input(),
-                        testCase.expectedOutput())
-        ));
+                testCase.stream()
+                        .map(e -> new TestCasePayload(
+                                e.id(),
+                                e.input(),
+                                e.expectedOutput())
+                        )
+                        .toList())
+        );
     }
 }

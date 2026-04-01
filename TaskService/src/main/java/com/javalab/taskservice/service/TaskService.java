@@ -82,5 +82,6 @@ public class TaskService
                                 "The task with id=%d not found".formatted(id)
                         )
                 );
+        testCaseService.deleteAllTestCases(id);
     }
 }
