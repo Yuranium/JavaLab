@@ -18,31 +18,34 @@ public class TestCaseController
     private final TestCaseService testCaseService;
 
     @PostMapping("/{taskId}/test-case")
-    public ResponseEntity<@NonNull TestCaseResponseDto> createTestCaseForTask(
+    public ResponseEntity<@NonNull TestCaseResponseDto> createTestCase(
             @PathVariable Long taskId, @RequestBody TestCaseRequestDto testCaseDto
     )
     {
         return new ResponseEntity<>(
-                testCaseService.createTestCaseForTask(taskId, testCaseDto),
+                testCaseService.createTestCase(taskId, testCaseDto),
                 HttpStatus.OK);
     }
 
-    @PatchMapping("/test-case/{testCaseId}")
+    @PatchMapping("/{taskId}/test-case/{testCaseId}")
     public ResponseEntity<@NonNull TestCaseResponseDto> updateTestCase(
+            @PathVariable Long taskId,
             @PathVariable Long testCaseId,
             @RequestBody TestCaseRequestDto testCaseRequestDto
     )
     {
         return new ResponseEntity<>(
-                testCaseService.updateTestCase(testCaseId, testCaseRequestDto),
+                testCaseService.updateTestCase(
+                        taskId, testCaseId, testCaseRequestDto
+                ),
                 HttpStatus.OK
         );
     }
 
-    @DeleteMapping("/test-case/{testCaseId}")
-    public ResponseEntity<?> deleteTestCase(@PathVariable Long testCaseId)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @DeleteMapping("/{taskId}/test-case/{testCaseId}")
+    public void deleteTestCase(@PathVariable Long taskId, @PathVariable Long testCaseId)
     {
-        testCaseService.deleteTestCase(testCaseId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        testCaseService.deleteTestCase(taskId, testCaseId);
     }
 }

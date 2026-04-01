@@ -21,4 +21,13 @@ public class KafkaConfig
                 .replicas(1)
                 .build();
     }
+
+    @Bean
+    public NewTopic testCaseEventsTopic()
+    {
+        return TopicBuilder.name(environment.getProperty("kafka.topic-names.test-case-events"))
+                .partitions(1)
+                .replicas(1)
+                .build();
+    }
 }

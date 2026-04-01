@@ -1,6 +1,7 @@
 package com.javalab.taskservice.service.kafka;
 
 import com.javalab.core.events.TaskCreatedEvent;
+import com.javalab.core.events.TestCaseEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -18,6 +19,14 @@ public class KafkaSender
     {
         kafkaTemplate.send(
                 environment.getProperty("kafka.topic-names.task-created"),
+                event
+        );
+    }
+
+    public void sendTestCaseEvent(TestCaseEvent event)
+    {
+        kafkaTemplate.send(
+                environment.getProperty("kafka.topic-names.test-case-events"),
                 event
         );
     }

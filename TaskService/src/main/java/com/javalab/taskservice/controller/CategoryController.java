@@ -59,10 +59,10 @@ public class CategoryController
         );
     }
 
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{title}")
-    public ResponseEntity<?> deleteCategory(@PathVariable String title)
+    public void deleteCategory(@PathVariable String title)
     {
         categoryService.deleteCategory(title);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

@@ -48,3 +48,4 @@ spring:
 kafka:
   topic-names:
     task-created: ${TASK_CREATED_TOPIC}
+    test-case-events: ${TEST_CASE_EVENTS_TOPIC}

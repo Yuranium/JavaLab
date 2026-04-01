@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.Optional;
 
+import static com.javalab.taskservice.Tables.TASK;
 import static com.javalab.taskservice.Tables.TEST_CASE;
 
 @Repository
@@ -62,13 +63,15 @@ public class TestCaseRepository
     }
 
     @Transactional
-    public Optional<TestCaseResponseDto> updateTestCase(Long testCaseId, TestCaseRequestDto testCaseDto)
+    public Optional<TestCaseResponseDto> updateTestCase(
+            Long taskId, Long testCaseId, TestCaseRequestDto testCaseDto
+    )
     {
         return dsl.update(TEST_CASE)
                 .set(TEST_CASE.INPUT, testCaseDto.input())
                 .set(TEST_CASE.EXPECTED_OUTPUT, testCaseDto.expectedOutput())
                 .set(TEST_CASE.IS_HIDDEN, testCaseDto.isHidden())
-                .where(TEST_CASE.ID_CASE.eq(testCaseId))
+                .where(TASK.ID_TASK.eq(taskId).and(TEST_CASE.ID_CASE.eq(testCaseId)))
                 .returningResult(
                         TEST_CASE.ID_CASE,
                         TEST_CASE.INPUT,
@@ -78,11 +81,15 @@ public class TestCaseRepository
     }
 
     @Transactional
-    public Optional<TestCaseRecord> deleteTestCase(Long testCaseId)
+    public Optional<TestCaseResponseDto> deleteTestCase(Long taskId, Long testCaseId)
     {
         return dsl.deleteFrom(TEST_CASE)
-                .where(TEST_CASE.ID_CASE.eq(testCaseId))
-                .returning()
-                .fetchOptional();
+                .where(TASK.ID_TASK.eq(taskId).and(TEST_CASE.ID_CASE.eq(testCaseId)))
+                .returningResult(
+                        TEST_CASE.ID_CASE,
+                        TEST_CASE.INPUT,
+                        TEST_CASE.EXPECTED_OUTPUT
+                )
+                .fetchOptionalInto(TestCaseResponseDto.class);
     }
 }
