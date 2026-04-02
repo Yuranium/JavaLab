@@ -83,9 +83,9 @@ public class TaskRepository
                                 .mapping(StarterCodeResponseDto::new),
                         multiset(
                                 select(
-                                        TEST_CASE.ID_CASE,
                                         TEST_CASE.INPUT,
-                                        TEST_CASE.EXPECTED_OUTPUT
+                                        TEST_CASE.EXPECTED_OUTPUT,
+                                        TEST_CASE.IS_HIDDEN
                                 )
                                         .from(TEST_CASE)
                                         .where(TEST_CASE.ID_TASK.eq(TASK.ID_TASK))
@@ -123,7 +123,7 @@ public class TaskRepository
     }
 
     @Transactional
-    public Optional<TaskUpdatedResponseDto> updateTask(Long id, TaskRequestDto taskDto)
+    public Optional<TaskRecord> updateTask(Long id, TaskRequestDto taskDto)
     {
         return dsl.update(TASK)
                 .set(TASK.TITLE, taskDto.title())
@@ -132,7 +132,7 @@ public class TaskRepository
                 .set(TASK.UPDATED_AT, Instant.now())
                 .where(TASK.ID_TASK.eq(id))
                 .returning()
-                .fetchOptionalInto(TaskUpdatedResponseDto.class);
+                .fetchOptional();
     }
 
     @Transactional

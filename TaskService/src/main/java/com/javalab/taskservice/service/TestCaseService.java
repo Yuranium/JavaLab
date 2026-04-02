@@ -63,9 +63,10 @@ public class TestCaseService
         kafkaSender.sendTestCaseEvent(new TestCaseEvent(
                 type,
                 taskId,
-                testCase.stream()
+                testCase == null
+                        ? null
+                        : testCase.stream()
                         .map(e -> new TestCasePayload(
-                                e.id(),
                                 e.input(),
                                 e.expectedOutput())
                         )

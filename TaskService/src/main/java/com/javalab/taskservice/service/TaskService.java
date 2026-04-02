@@ -64,27 +64,27 @@ public class TaskService
     @Transactional
     public void updateTask(Long id, TaskRequestDto taskDto)
     {
-        categoryService.updateCategoryForTask(id, taskDto.categories());
-        starterCodeService.updateStarterCode(id, taskDto.starterCode());
-        testCaseService.updateTestCases(id, taskDto.testCases());
-        taskRepository
-                .updateTask(id, taskDto)
+        taskRepository.updateTask(id, taskDto)
                 .orElseThrow(
                         () -> new ResourceNotFoundException(
                                 "The task with id=%d not found".formatted(id)
                         )
                 );
+
+        categoryService.updateCategoryForTask(id, taskDto.categories());
+        starterCodeService.updateStarterCode(id, taskDto.starterCode());
+        testCaseService.updateTestCases(id, taskDto.testCases());
     }
 
     @Transactional
     public void deleteTask(Long id)
     {
-        testCaseService.deleteTestCases(id);
         taskRepository.deleteTask(id)
                 .orElseThrow(
                         () -> new ResourceNotFoundException(
                                 "The task with id=%d not found".formatted(id)
                         )
                 );
+        testCaseService.deleteTestCases(id);
     }
 }

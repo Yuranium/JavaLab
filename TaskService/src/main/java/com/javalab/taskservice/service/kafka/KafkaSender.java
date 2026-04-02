@@ -27,6 +27,7 @@ public class KafkaSender
     {
         kafkaTemplate.send(
                 environment.getProperty("kafka.topic-names.test-case-events"),
+                event.taskId().toString(),
                 event
         );
     }

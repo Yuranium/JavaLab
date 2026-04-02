@@ -37,9 +37,9 @@ public class TestCaseRepository
         dsl.batchInsert(preparedTestCases).execute();
         return preparedTestCases.stream()
                 .map(ts -> new TestCaseResponseDto(
-                        ts.getIdCase(),
                         ts.getInput(),
-                        ts.getExpectedOutput()
+                        ts.getExpectedOutput(),
+                        ts.getIsHidden()
                 ))
                 .toList();
     }
