@@ -103,7 +103,7 @@ public class TaskRepository
     @Transactional(readOnly = true)
     public Boolean existsById(Long id)
     {
-        Integer count = dsl.select(count()).from(TASK)
+        Integer count = dsl.selectCount().from(TASK)
                 .where(TASK.ID_TASK.eq(id))
                 .fetchOne(count());
 

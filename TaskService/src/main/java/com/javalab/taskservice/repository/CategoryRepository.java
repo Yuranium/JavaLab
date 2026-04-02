@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 import static com.javalab.taskservice.Tables.CATEGORY;
+import static com.javalab.taskservice.Tables.TASK_CATEGORY;
 
 @Repository
 @RequiredArgsConstructor
@@ -49,7 +50,9 @@ public class CategoryRepository
     }
 
     @Transactional
-    public Collection<CategoryResponseDto> saveCategoryForTask(Long taskId, Collection<JavaCategory> categories)
+    public Collection<CategoryResponseDto> saveCategoryForTask(
+            Long taskId, Collection<JavaCategory> categories
+    )
     {
         var categoryRecords = dsl.selectFrom(CATEGORY)
                 .where(CATEGORY.TITLE.in(categories))
@@ -71,6 +74,18 @@ public class CategoryRepository
                         category.getDescription(),
                         category.getCreatedAt()
                 ));
+    }
+
+    @Transactional
+    public Collection<CategoryResponseDto> updateCategoryForTask(
+            Long taskId, Collection<JavaCategory> categories
+    )
+    {
+        dsl.deleteFrom(TASK_CATEGORY)
+                .where(TASK_CATEGORY.ID_TASK.eq(taskId))
+                .execute();
+
+        return saveCategoryForTask(taskId, categories);
     }
 
     @Transactional

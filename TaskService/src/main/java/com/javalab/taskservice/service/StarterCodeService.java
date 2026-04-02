@@ -16,14 +16,6 @@ public class StarterCodeService
 
     private final TaskRepository taskRepository;
 
-    public StarterCodeResponseDto getStarterCode(Long taskId)
-    {
-        if (taskRepository.existsById(taskId))
-            return starterCodeRepository.getStarterCode(taskId);
-
-        throw new ResourceNotFoundException("The task with id=%d not found".formatted(taskId));
-    }
-
     public StarterCodeResponseDto createStarterCodeForTask(
             Long taskId, StarterCodeRequestDto starterCodeRequestDto
     )

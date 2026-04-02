@@ -29,7 +29,9 @@ public class StarterCodeRepository
     }
 
     @Transactional
-    public StarterCodeResponseDto createStarterCodeForTask(Long taskId, StarterCodeRequestDto starterCode)
+    public StarterCodeResponseDto createStarterCodeForTask(
+            Long taskId, StarterCodeRequestDto starterCode
+    )
     {
         var insert = dsl.insertInto(STARTER_CODE)
                 .set(STARTER_CODE.ID_TASK, taskId);

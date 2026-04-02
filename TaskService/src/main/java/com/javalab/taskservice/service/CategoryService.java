@@ -41,6 +41,16 @@ public class CategoryService
         return categoryRepository.saveCategoryForTask(taskId, categories);
     }
 
+    public Collection<CategoryResponseDto> updateCategoryForTask(
+            Long taskId, Collection<JavaCategory> categories
+    )
+    {
+        if (taskId == null)
+            throw new NullPointerException("taskId is null");
+
+        return categoryRepository.updateCategoryForTask(taskId, categories);
+    }
+
     public CategoryResponseDto createCategory(CategoryRequestDto categoryDto)
     {
         if (!categoryDto.title().startsWith("JAVA_"))
@@ -50,13 +60,16 @@ public class CategoryService
 
         if (categoryRepository.getCategory(categoryDto.title()).isPresent())
             throw new ResourceAlreadyExistsException(
-                    "The category with title=%s already exists".formatted(categoryDto.title())
+                    "The category with title=%s already exists"
+                            .formatted(categoryDto.title())
             );
 
         return categoryRepository.createCategory(categoryDto);
     }
 
-    public CategoryResponseDto updateCategory(String title, CategoryRequestDto categoryDto)
+    public CategoryResponseDto updateCategory(
+            String title, CategoryRequestDto categoryDto
+    )
     {
         if (!categoryDto.title().startsWith("JAVA_"))
             throw new IllegalArgumentException(

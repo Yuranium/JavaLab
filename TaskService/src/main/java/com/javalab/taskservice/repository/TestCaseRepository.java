@@ -9,9 +9,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
-import java.util.Optional;
 
-import static com.javalab.taskservice.Tables.TASK;
 import static com.javalab.taskservice.Tables.TEST_CASE;
 
 @Repository
@@ -21,23 +19,7 @@ public class TestCaseRepository
     private final DSLContext dsl;
 
     @Transactional
-    public TestCaseResponseDto createTestCase(Long taskId, TestCaseRequestDto testCaseDto)
-    {
-        return dsl.insertInto(TEST_CASE)
-                .set(TEST_CASE.INPUT, testCaseDto.input())
-                .set(TEST_CASE.EXPECTED_OUTPUT, testCaseDto.expectedOutput())
-                .set(TEST_CASE.IS_HIDDEN, testCaseDto.isHidden())
-                .set(TEST_CASE.ID_TASK, taskId)
-                .returningResult(
-                        TEST_CASE.ID_CASE,
-                        TEST_CASE.INPUT,
-                        TEST_CASE.EXPECTED_OUTPUT
-                )
-                .fetchOneInto(TestCaseResponseDto.class);
-    }
-
-    @Transactional
-    public Collection<TestCaseResponseDto> createTestCasesForTask(
+    public Collection<TestCaseResponseDto> createTestCases(
             Long taskId, Collection<TestCaseRequestDto> testCases
     )
     {
@@ -63,45 +45,19 @@ public class TestCaseRepository
     }
 
     @Transactional
-    public Optional<TestCaseResponseDto> updateTestCase(
-            Long taskId, Long testCaseId, TestCaseRequestDto testCaseDto
+    public Collection<TestCaseResponseDto> updateTestCases(
+            Long taskId, Collection<TestCaseRequestDto> testCaseDto
     )
     {
-        return dsl.update(TEST_CASE)
-                .set(TEST_CASE.INPUT, testCaseDto.input())
-                .set(TEST_CASE.EXPECTED_OUTPUT, testCaseDto.expectedOutput())
-                .set(TEST_CASE.IS_HIDDEN, testCaseDto.isHidden())
-                .where(TASK.ID_TASK.eq(taskId).and(TEST_CASE.ID_CASE.eq(testCaseId)))
-                .returningResult(
-                        TEST_CASE.ID_CASE,
-                        TEST_CASE.INPUT,
-                        TEST_CASE.EXPECTED_OUTPUT
-                )
-                .fetchOptionalInto(TestCaseResponseDto.class);
+        deleteTestCases(taskId);
+        return createTestCases(taskId, testCaseDto);
     }
 
     @Transactional
-    public Optional<TestCaseResponseDto> deleteTestCase(Long taskId, Long testCaseId)
+    public void deleteTestCases(Long taskId)
     {
-        return dsl.deleteFrom(TEST_CASE)
-                .where(TASK.ID_TASK.eq(taskId).and(TEST_CASE.ID_CASE.eq(testCaseId)))
-                .returningResult(
-                        TEST_CASE.ID_CASE,
-                        TEST_CASE.INPUT,
-                        TEST_CASE.EXPECTED_OUTPUT
-                )
-                .fetchOptionalInto(TestCaseResponseDto.class);
-    }
-
-    public Collection<TestCaseResponseDto> getTestCases(Long taskId)
-    {
-        return dsl.select(
-                        TEST_CASE.ID_CASE,
-                        TEST_CASE.INPUT,
-                        TEST_CASE.EXPECTED_OUTPUT
-                )
-                .from(TEST_CASE)
-                .where(TASK.ID_TASK.eq(taskId))
-                .fetchInto(TestCaseResponseDto.class);
+        dsl.delete(TEST_CASE)
+                .where(TEST_CASE.ID_TASK.eq(taskId))
+                .execute();
     }
 }

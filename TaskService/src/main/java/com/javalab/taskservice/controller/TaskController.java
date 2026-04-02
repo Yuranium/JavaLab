@@ -4,7 +4,6 @@ import com.javalab.taskservice.dto.request.TaskRequestDto;
 import com.javalab.taskservice.dto.response.TaskAttributeResponseDto;
 import com.javalab.taskservice.dto.response.TaskDetailedResponseDto;
 import com.javalab.taskservice.dto.response.TaskResponseDto;
-import com.javalab.taskservice.dto.response.TaskUpdatedResponseDto;
 import com.javalab.taskservice.enums.DifficultyType;
 import com.javalab.taskservice.enums.JavaCategory;
 import com.javalab.taskservice.service.TaskService;
@@ -55,16 +54,13 @@ public class TaskController
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @ResponseStatus(HttpStatus.OK)
     @PatchMapping("/{id}")
-    public ResponseEntity<@NonNull TaskUpdatedResponseDto> updateTask(
-            @PathVariable Long id,
-            @RequestBody TaskRequestDto taskDto
+    public void updateTask(
+            @PathVariable Long id, @RequestBody TaskRequestDto taskDto
     )
     {
-        return new ResponseEntity<>(
-                taskService.updateTask(id, taskDto),
-                HttpStatus.OK
-        );
+        taskService.updateTask(id, taskDto);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
