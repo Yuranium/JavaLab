@@ -83,12 +83,13 @@ CREATE OR REPLACE FUNCTION check_starter_code()
     RETURNS TRIGGER AS
 $$
 DECLARE
-    starter_code TEXT :=
-        'public class Main {
-            public static void main(String[] args) {
-                System.out.println("Hello, World!");
-            }
-        }';
+    starter_code TEXT =
+$code$public class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+    }
+}
+$code$;
 BEGIN
     IF NEW.code = starter_code THEN
         NEW.is_default = true;
