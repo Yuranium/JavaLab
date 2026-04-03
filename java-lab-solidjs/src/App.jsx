@@ -14,6 +14,7 @@ import ProgressPage from './pages/ProgressPage';
 import UserProfilePage from './pages/UserProfilePage';
 import CallbackPage from './pages/CallbackPage';
 import TasksPage from './pages/TasksPage';
+import TaskProfilePage from './pages/TaskProfilePage';
 import { UsersProvider } from './context/UsersContext';
 import { RegisterProvider } from './context/RegisterContext';
 import { ProfileProvider } from './context/ProfileContext';
@@ -48,6 +49,7 @@ export default function App() {
             <Router root={Layout}>
               <Route path="/" component={Home} />
               <Route path="/tasks" component={TasksPage} />
+              <Route path="/tasks/:id" component={TaskProfilePage} />
               <Route path="/login" component={LoginPage} />
               <Route path="/register" component={RegisterPage} />
               <Route path="/register/verify" component={VerificationPage} />

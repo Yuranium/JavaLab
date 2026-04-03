@@ -8,13 +8,6 @@ const difficultyColors = {
   HARD: { border: 'var(--difficulty-hard)', bg: 'var(--difficulty-hard-light)', text: 'var(--difficulty-hard)' },
 };
 
-const categoryDescriptions = {
-  JAVA_CORE: 'Основы языка, ООП, синтаксис, примитивные типы, исключения',
-  JAVA_COLLECTIONS: 'Работа со структурами данных: List, Set, Map, их реализациями',
-  JAVA_LAMBDAS: 'Лямбда-выражения, функциональные интерфейсы, ссылки на методы и конструкторы',
-  JAVA_STREAM_API: 'Функциональная обработка коллекций: filter, map, reduce, лямбда-выражения',
-};
-
 function formatDateToLocal(timestamp) {
   if (!timestamp) return '';
   const date = new Date(timestamp);
@@ -59,7 +52,7 @@ export default function TaskCard(props) {
                 <div class="task-card-tooltip-arrow"></div>
                 <div class="task-card-tooltip-content">
                   <strong>{category.title}</strong>
-                  <p>{category.description || categoryDescriptions[category.title] || 'Описание категории'}</p>
+                  <p>{category.description || 'Описание категории'}</p>
                 </div>
               </div>
             </div>

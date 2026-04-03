@@ -61,12 +61,13 @@ $$
 BEGIN
     IF NEW.is_default OR NEW.is_default IS NULL THEN
         NEW.is_default = true;
-        NEW.code :=
-                'public class Main {
-                    public static void main(String[] args) {
-                        System.out.println("Hello, World!");
-                    }
-                }';
+        NEW.code =
+$code$public class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+    }
+}
+$code$;
     END IF;
     RETURN NEW;
 END;

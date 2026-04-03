@@ -16,8 +16,10 @@ const DIFFICULTIES = [
 ];
 
 const SORT_OPTIONS = [
-  { value: 'id_asc', label: 'По возрастанию номера' },
-  { value: 'id_desc', label: 'По убыванию номера' },
+  { value: 'created_asc', label: 'По дате создания (новые)' },
+  { value: 'created_desc', label: 'По дате создания (старые)' },
+  { value: 'updated_asc', label: 'По дате обновления (новые)' },
+  { value: 'updated_desc', label: 'По дате обновления (старые)' },
 ];
 
 export default function TaskFilters(props) {

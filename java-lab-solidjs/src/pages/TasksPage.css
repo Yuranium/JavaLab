@@ -256,6 +256,32 @@
   transform: none;
 }
 
+.tasks-error {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  background-color: rgba(244, 67, 54, 0.1);
+  border: 2px solid #f44336;
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+.tasks-error-icon {
+  width: 24px;
+  height: 24px;
+  color: #f44336;
+  flex-shrink: 0;
+}
+
+.tasks-error-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #f44336;
+  line-height: 1.5;
+}
+
 .tasks-loading {
   display: flex;
   justify-content: center;

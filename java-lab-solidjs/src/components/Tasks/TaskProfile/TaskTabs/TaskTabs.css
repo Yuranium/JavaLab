@@ -1,0 +1,37 @@
+.task-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 20px;
+}
+
+.task-tabs-list {
+  display: flex;
+  gap: 4px;
+}
+
+.task-tab-btn {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background-color: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.task-tab-btn:hover {
+  background-color: var(--hover-color);
+  color: var(--text-primary);
+}
+
+.task-tab-btn--active {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.task-tab-btn--active:hover {
+  background-color: var(--primary-dark);
+}

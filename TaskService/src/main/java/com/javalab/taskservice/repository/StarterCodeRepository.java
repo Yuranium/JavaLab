@@ -36,7 +36,7 @@ public class StarterCodeRepository
         var insert = dsl.insertInto(STARTER_CODE)
                 .set(STARTER_CODE.ID_TASK, taskId);
 
-        if (starterCode != null)
+        if (starterCode != null && starterCode.code() != null && !starterCode.code().isEmpty())
             insert.set(STARTER_CODE.CODE, starterCode.code())
                     .set(STARTER_CODE.IS_DEFAULT, starterCode.isDefault());
 

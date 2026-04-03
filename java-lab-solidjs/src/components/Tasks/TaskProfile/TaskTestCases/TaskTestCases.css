@@ -1,0 +1,98 @@
+.task-test-cases {
+  padding: 8px 0;
+}
+
+.task-test-cases-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.task-test-cases-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.task-test-case {
+  background-color: var(--background-color);
+  border: 2px solid var(--border-color);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.2s ease;
+}
+
+.task-test-case:hover {
+  border-color: var(--primary-light);
+}
+
+.task-test-case-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background-color: var(--background-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.task-test-case-number {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.task-test-case-badge-hidden {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background-color: var(--border-color);
+  padding: 3px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.task-test-case-content {
+  padding: 14px;
+}
+
+.task-test-case-section {
+  margin-bottom: 12px;
+}
+
+.task-test-case-section:last-child {
+  margin-bottom: 0;
+}
+
+.task-test-case-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.task-test-case-input,
+.task-test-case-output {
+  background-color: var(--code-background);
+  color: #abb2bf;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-x: auto;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.task-test-case-empty {
+  text-align: center;
+  padding: 30px 20px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
