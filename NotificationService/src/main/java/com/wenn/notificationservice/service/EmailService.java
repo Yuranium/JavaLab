@@ -10,6 +10,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
 import java.util.Collection;
 
 @RequiredArgsConstructor
@@ -61,6 +62,44 @@ public class EmailService {
         } catch (Exception ex) {
             throw new EmailSendException(
                     "Failed to send task email to " + toEmail,
+                    ex
+            );
+        }
+    }
+
+    @Async("emailExecutor")
+    public void sendUserLockEmail(String toEmail,
+                                  String username,
+                                  OffsetDateTime startLock,
+                                  OffsetDateTime endLock,
+                                  boolean isLock,
+                                  String message) {
+
+        try {
+
+            String html = htmlGenerator.generateUserLockedHtml(
+                    username,
+                    startLock,
+                    endLock,
+                    isLock,
+                    message
+            );
+
+            MimeMessage msg = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(msg, "utf-8");
+
+            helper.setText(html, true);
+            helper.setTo(toEmail);
+            helper.setSubject(isLock
+                    ? "Ваш аккаунт заблокирован"
+                    : "Ваш аккаунт разблокирован");
+            helper.setFrom(fromEmail);
+
+            mailSender.send(msg);
+
+        } catch (Exception ex) {
+            throw new EmailSendException(
+                    "Failed to send lock email to " + toEmail,
                     ex
             );
         }

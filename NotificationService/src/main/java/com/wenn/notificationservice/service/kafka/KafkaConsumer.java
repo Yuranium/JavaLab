@@ -1,5 +1,6 @@
 package com.wenn.notificationservice.service.kafka;
 
+import com.javalab.core.events.UserLockedEvent;
 import com.wenn.notificationservice.service.EmailService;
 import com.wenn.notificationservice.service.NotificationDispatcher;
 import com.wenn.notificationservice.util.exception.NotificationException;
@@ -17,7 +18,8 @@ import org.springframework.stereotype.Service;
 @KafkaListener(
         topics = {
                 "${kafka.topic-names.user-registered}",
-                "${kafka.topic-names.task-created}"
+                "${kafka.topic-names.task-created}",
+                "${kafka.topic-names.user-locked}"
         },
         containerFactory = "kafkaListenerContainerFactory"
 )
@@ -70,6 +72,39 @@ public class KafkaConsumer {
             log.error("Failed to process TaskCreatedEvent: {}", ex.getMessage(), ex);
 
             throw new NotificationException("Failed to process TaskCreatedEvent: " + ex.getMessage(), ex);
+        }
+    }
+
+    @KafkaHandler
+    public void consume(UserLockedEvent event) {
+
+        try {
+            log.info("Received UserLockedEvent: {}", event);
+
+            if (event == null
+                    || event.email() == null || event.email().isBlank()
+                    || event.username() == null || event.username().isBlank()) {
+                throw new NotificationException("Invalid UserLockedEvent payload: " + event);
+            }
+
+            emailService.sendUserLockEmail(
+                    event.email(),
+                    event.username(),
+                    event.startLock(),
+                    event.endLock(),
+                    event.isLock(),
+                    event.message()
+            );
+
+            log.info("UserLocked notification processed for {}", event.email());
+
+        } catch (Exception ex) {
+            log.error("Failed to process UserLockedEvent: {}", ex.getMessage(), ex);
+
+            throw new NotificationException(
+                    "Failed to process UserLockedEvent: " + ex.getMessage(),
+                    ex
+            );
         }
     }
 }

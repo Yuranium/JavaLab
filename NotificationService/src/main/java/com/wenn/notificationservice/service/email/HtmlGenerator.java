@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
+import java.time.OffsetDateTime;
 import java.time.Year;
 import java.util.Collection;
 
@@ -36,5 +37,22 @@ public class HtmlGenerator {
         context.setVariable("year", Year.now().getValue());
 
         return templateEngine.process("email/task-created", context);
+    }
+
+    public String generateUserLockedHtml(String username,
+                                         OffsetDateTime startLock,
+                                         OffsetDateTime endLock,
+                                         boolean isLock,
+                                         String message) {
+
+        Context context = new Context();
+        context.setVariable("username", username);
+        context.setVariable("startLock", startLock);
+        context.setVariable("endLock", endLock);
+        context.setVariable("isLock", isLock);
+        context.setVariable("message", message);
+        context.setVariable("year", Year.now().getValue());
+
+        return templateEngine.process("email/user-locked", context);
     }
 }
