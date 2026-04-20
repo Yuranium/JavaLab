@@ -4,6 +4,24 @@ databaseChangeLog:
       author: Yuranium
       changes:
         - sqlFile:
-            path: db/changelog/01-init.sql
+            path: db/01-init.sql
+            splitStatements: true
+            stripComments: true
+
+  - changeSet:
+      id: 02-remove-column.sql
+      author: Yuranium
+      changes:
+        - sqlFile:
+            path: db/02-remove-column.sql
+            splitStatements: true
+            stripComments: true
+
+  - changeSet:
+      id: 03-create-state-table.sql
+      author: Yuranium
+      changes:
+        - sqlFile:
+            path: db/03-create-state-table.sql
             splitStatements: true
             stripComments: true
