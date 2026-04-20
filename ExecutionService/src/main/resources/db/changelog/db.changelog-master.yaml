@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: 01-init.sql
+      author: Yuranium
+      changes:
+        - sqlFile:
+            path: db/changelog/01-init.sql
+            splitStatements: true
+            stripComments: true

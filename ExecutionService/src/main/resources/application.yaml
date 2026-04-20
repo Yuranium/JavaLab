@@ -1,6 +1,18 @@
+server:
+  port: 8086
+
 spring:
   application:
     name: ExecutionService
+
+  datasource:
+    url: ${PG_URL}
+    username: ${PG_USERNAME}
+    password: ${PG_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jooq:
+    sql-dialect: postgres
 
   kafka:
     producer:
@@ -23,5 +35,8 @@ spring:
     topic-names:
       test-case-events: ${TEST_CASE_EVENTS_TOPIC}
 
-  jooq:
-    sql-dialect: postgres
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${OAUTH2_ISSUER_URI}
