@@ -40,3 +40,33 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: ${OAUTH2_ISSUER_URI}
+
+code-execution:
+  validation:
+    enabled: true
+    allowed-packages:
+      - java.lang
+      - java.util
+      - java.math
+      - java.time
+      - java.util.stream
+      - java.util.function
+      - java.text
+    forbidden-packages:
+      - java.net
+      - java.nio.file
+      - java.lang.Runtime
+      - java.lang.System
+      - javax.script
+      - sun.misc
+      - java.security
+    forbidden-methods:
+      - java.lang.System.exit
+      - java.lang.Thread.halt
+      - java.lang.Thread.suspend
+      - java.lang.Thread.resume
+      - java.lang.Runtime.exec
+  docker:
+    network: "none"
+    memory: "256m"
+    timeout: 5m

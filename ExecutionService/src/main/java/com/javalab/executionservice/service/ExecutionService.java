@@ -2,10 +2,12 @@ package com.javalab.executionservice.service;
 
 import com.javalab.executionservice.models.dao.ExecutionDao;
 import com.javalab.executionservice.models.dto.ExecutionRequestDto;
-import com.javalab.executionservice.models.dto.ExecutionResponseDto;
-import com.javalab.executionservice.models.dto.ExecutionStatusDto;
+import com.javalab.executionservice.util.ExecutionValidator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -13,13 +15,12 @@ public class ExecutionService
 {
     private final ExecutionDao executionDao;
 
-    public ExecutionResponseDto createExecution(ExecutionRequestDto executionRequestDto)
-    {
-        return new ExecutionResponseDto();
-    }
+    private final DockerContainerService dockerService;
 
-    public ExecutionStatusDto getStatus(Long taskId, String username)
+    private final ExecutionValidator validator;
+
+    @Async
+    public CompletableFuture<?> executeCode(ExecutionRequestDto executionRequestDto)
     {
-        return null;
     }
 }
