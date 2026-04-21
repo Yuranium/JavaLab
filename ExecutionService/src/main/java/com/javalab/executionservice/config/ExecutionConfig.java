@@ -40,5 +40,7 @@ public class ExecutionConfig
         private String memory;
 
         private Duration timeout;
+
+        private int poolSize;
     }
 }

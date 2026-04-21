@@ -1,5 +1,7 @@
 server:
   port: 8086
+  tomcat:
+    connection-timeout: 30s
 
 spring:
   application:
@@ -70,3 +72,4 @@ code-execution:
     network: "none"
     memory: "256m"
     timeout: 5m
+    pool-size: 5

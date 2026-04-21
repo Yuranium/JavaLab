@@ -1,5 +1,7 @@
 package com.javalab.executionservice.service;
 
+import com.javalab.executionservice.models.dto.ExecutionRequestDto;
+import com.javalab.executionservice.util.ExecutionValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
@@ -16,6 +18,8 @@ public class ExecutionWebSocketHandler extends TextWebSocketHandler
 
     private final ExecutionStateService stateService;
 
+    private final ExecutionValidator validator;
+
     private final ObjectMapper objectMapper;
 
     @Override
@@ -29,6 +33,14 @@ public class ExecutionWebSocketHandler extends TextWebSocketHandler
             WebSocketSession session, TextMessage message
     ) throws Exception
     {
+        String payload = message.getPayload();
+        var validateResult = validator.validate(payload);
+        if (validateResult.hasErrors())
+            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(validateResult)));
+
+        executionService.executeCode(
+                objectMapper.readValue(payload, ExecutionRequestDto.class)
+        );
         super.handleTextMessage(session, message);
     }
 }
