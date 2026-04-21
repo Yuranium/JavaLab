@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -17,6 +18,8 @@ public class ExecutionConfig
     private ValidationConfig validation;
 
     private DockerContainerConfig docker;
+
+    private CompilerConfig compiler;
 
     @Getter
     @Setter
@@ -39,8 +42,26 @@ public class ExecutionConfig
 
         private String memory;
 
-        private Duration timeout;
+        private Duration connectionTimeout;
 
-        private int poolSize;
+        private Duration responseTimeout;
+
+        private int maxConnections;
+
+        private boolean tlsVerify;
+
+        private String dockerHost;
+
+    }
+
+    @Getter
+    @Setter
+    public static class CompilerConfig
+    {
+        private List<String> parameters = List.of(
+                "-proc:none", "-encoding", "UTF-8",
+                "-source", "17", "-target", "17",
+                "-Xlint:-options", "-Xmaxerrs", "10"
+        );
     }
 }

@@ -68,8 +68,19 @@ code-execution:
       - java.lang.Thread.suspend
       - java.lang.Thread.resume
       - java.lang.Runtime.exec
+  compiler:
+    parameters:
+      - -proc:none
+      - -encoding UTF-8
+      - -source 17
+      - -target 17
+      - -Xlint:-options
+      - -Xmaxerrs 10
   docker:
     network: "none"
     memory: "256m"
-    timeout: 5m
-    pool-size: 5
+    connection-timeout: 1m
+    response-timeout: 1m
+    max-connections: 100
+    tls-verify: false
+    docker-host: ${DOCKER_HOST}

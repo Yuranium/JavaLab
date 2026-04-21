@@ -14,7 +14,7 @@ public class ExecutionService
 {
     private final ExecutionDao executionDao;
 
-    private final DockerContainerService dockerService;
+    private final DockerService dockerService;
 
     @Async
     public CompletableFuture<?> executeCode(ExecutionRequestDto requestDto)
