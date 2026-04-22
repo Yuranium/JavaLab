@@ -44,6 +44,14 @@ spring:
           issuer-uri: ${OAUTH2_ISSUER_URI}
 
 code-execution:
+  async:
+    pool-size: 50
+    core-pool-size: 10
+    queue-capacity: 200
+    thread-name-prefix: execution-
+  timeout:
+    compilation: 30s
+    execution: 30s
   validation:
     enabled: true
     allowed-packages:
@@ -70,12 +78,15 @@ code-execution:
       - java.lang.Runtime.exec
   compiler:
     parameters:
-      - -proc:none
-      - -encoding UTF-8
-      - -source 17
-      - -target 17
-      - -Xlint:-options
-      - -Xmaxerrs 10
+      - "-proc:none"
+      - "-encoding"
+      - "UTF-8"
+      - "--release"
+      - "23"
+      - "-Xlint:-options"
+      - "-Xmaxerrs"
+      - "10"
+    default-user-class-name: Main
   docker:
     network: "none"
     memory: "256m"

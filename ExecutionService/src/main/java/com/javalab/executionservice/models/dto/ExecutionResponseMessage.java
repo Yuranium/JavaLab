@@ -4,7 +4,11 @@ import com.javalab.executionservice.models.enums.ExecutionStatus;
 
 import java.io.Serializable;
 
-public record ExecutionStatusDto(
-        ExecutionStatus status
+public record ExecutionResponseMessage(
+        ExecutionStatus status,
+
+        String message,
+
+        Object data
 
 ) implements Serializable {}

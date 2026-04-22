@@ -21,6 +21,8 @@ public class ExecutionConfig
 
     private CompilerConfig compiler;
 
+    private TimeoutConfig timeout;
+
     @Getter
     @Setter
     public static class ValidationConfig
@@ -38,6 +40,10 @@ public class ExecutionConfig
     @Setter
     public static class DockerContainerConfig
     {
+        private String compilerImage = "eclipse-temurin:23-jdk";
+
+        private String runtimeImage = "eclipse-temurin:23-jre";
+
         private String network;
 
         private String memory;
@@ -63,5 +69,15 @@ public class ExecutionConfig
                 "-source", "17", "-target", "17",
                 "-Xlint:-options", "-Xmaxerrs", "10"
         );
+
+        private String defaultUserClassName;
+    }
+
+    @Getter
+    @Setter
+    public static class TimeoutConfig
+    {
+        private Duration compilation = Duration.ofSeconds(30);
+        private Duration execution = Duration.ofSeconds(30);
     }
 }

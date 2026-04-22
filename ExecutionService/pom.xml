@@ -27,9 +27,10 @@
         <url/>
     </scm>
     <properties>
-        <java.version>17</java.version>
+        <java.version>23</java.version>
         <jooq.version>3.19.31</jooq.version>
         <docker-java.version>3.6.0</docker-java.version>
+        <javaparser.version>3.28.0</javaparser.version>
     </properties>
     <dependencies>
         <dependency>
@@ -75,8 +76,13 @@
         <dependency>
             <groupId>com.github.javaparser</groupId>
             <artifactId>javaparser-core</artifactId>
-            <version>3.28.0</version>
+            <version>${javaparser.version}</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.javaparser</groupId>
+            <artifactId>javaparser-symbol-solver-core</artifactId>
+            <version>${javaparser.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.docker-java</groupId>
@@ -175,6 +181,10 @@
                         </configuration>
                     </execution>
                 </executions>
+                <configuration>
+                    <source>23</source>
+                    <target>23</target>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.jooq</groupId>

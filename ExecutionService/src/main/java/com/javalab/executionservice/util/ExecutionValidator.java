@@ -1,10 +1,13 @@
 package com.javalab.executionservice.util;
 
 import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
+import com.github.javaparser.symbolsolver.JavaSymbolSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 import com.javalab.executionservice.config.ExecutionConfig;
 import com.javalab.executionservice.models.dto.ValidationResult;
 import lombok.RequiredArgsConstructor;
@@ -20,12 +23,24 @@ public class ExecutionValidator
 {
     private final ExecutionConfig config;
 
+    private static final JavaParser PARSER;
+
+    static
+    {
+        ReflectionTypeSolver typeSolver = new ReflectionTypeSolver();
+        JavaSymbolSolver symbolSolver = new JavaSymbolSolver(typeSolver);
+
+        ParserConfiguration parserConfig = new ParserConfiguration()
+                .setSymbolResolver(symbolSolver);
+
+        PARSER = new JavaParser(parserConfig);
+    }
+
     public ValidationResult validate(String code)
     {
         try
         {
-            JavaParser javaParser = new JavaParser();
-            CompilationUnit unit = javaParser.parse(code)
+            CompilationUnit unit = PARSER.parse(code)
                     .getResult()
                     .orElseThrow(RuntimeException::new);
             List<String> errors = new ArrayList<>();
@@ -43,15 +58,19 @@ public class ExecutionValidator
 
             unit.findAll(MethodCallExpr.class)
                     .forEach(methodCall -> {
-                        ResolvedMethodDeclaration declaration = methodCall.resolve();
-                        String fullMethodName = declaration.getQualifiedName();
-                        if (isForbiddenMethod(fullMethodName))
-                            errors.add("Forbidden method at line %d: %s"
-                                    .formatted(methodCall.getRange()
-                                                    .map(r -> r.begin.line)
-                                                    .orElse(-1),
-                                            fullMethodName
-                                    ));
+                        try
+                        {
+                            ResolvedMethodDeclaration declaration = methodCall.resolve();
+                            String fullMethodName = declaration.getQualifiedName();
+
+                            if (isForbiddenMethod(fullMethodName))
+                                errors.add("Forbidden method at line %d: %s"
+                                        .formatted(
+                                                methodCall.getRange().map(r -> r.begin.line).orElse(-1),
+                                                fullMethodName
+                                        )
+                                );
+                        } catch (RuntimeException e) {}
                     });
 
             return new ValidationResult(!errors.isEmpty(), errors);
