@@ -30,9 +30,7 @@ public class ExecutionService
     @Async("codeExecutionExecutor")
     public void execute(ExecutionRequestDto request)
     {
-        publisher.publishMessage(request.userId(),
-                ExecutionStatus.PROCESSING,
-                "Compilation...");
+        publisher.sendInfo(request.userId(), "Compilation...");
 
         Class<?> clazz;
         try
@@ -41,22 +39,18 @@ public class ExecutionService
                     executionConfig.getCompiler().getDefaultUserClassName(),
                     request.code()
             );
-        } catch (Exception e)
+            Method solveMethod = findInputMethod(clazz);
+            testCaseService.runTests(request, clazz, solveMethod);
+        } catch (RuntimeException e)
         {
-            publisher.publishMessage(request.userId(),
-                    ExecutionStatus.FAILED,
-                    "Compilation error: " + e.getMessage());
+            publisher.sendInfo(request.userId(), e.getMessage());
+            return;
+        } catch (Exception e) // todo разграничить исключения (kafka и кастомные)
+        {
+            publisher.sendInfo(request.userId(), "Compilation error: " + e.getMessage());
             return;
         }
-
-        Method solveMethod = findInputMethod(clazz);
-        publisher.publishMessage(
-                request.userId(),
-                ExecutionStatus.PROCESSING,
-                "Start tests..."
-        );
-
-        testCaseService.runTests(request, clazz, solveMethod);
+        publisher.sendInfo(request.userId(), "Start tests...");
     }
 
     private Method findInputMethod(Class<?> clazz)

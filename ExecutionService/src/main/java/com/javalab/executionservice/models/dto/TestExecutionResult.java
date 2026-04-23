@@ -4,19 +4,23 @@ import com.javalab.executionservice.models.enums.TestCaseStatus;
 
 import java.io.Serializable;
 
-public record TestCaseResult(
+public record TestExecutionResult(
         int testNumber,
 
-        boolean passed,
-
-        TestCaseStatus testCaseStatus,
+        TestCaseStatus status,
 
         String output,
 
-        String expectedOutput,
+        String exceptedOutput,
 
         String error,
 
         long executionDuration
 
-) implements Serializable {}
+) implements Serializable
+{
+    public boolean isPassed()
+    {
+        return status == TestCaseStatus.PASSED;
+    }
+}

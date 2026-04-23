@@ -3,9 +3,7 @@ package com.javalab.executionservice.service;
 import com.javalab.core.events.ExecutionAttemptEvent;
 import com.javalab.executionservice.config.ExecutionConfig;
 import com.javalab.executionservice.models.dao.TestCaseDao;
-import com.javalab.executionservice.models.dto.ExecutionRequestDto;
-import com.javalab.executionservice.models.dto.TestCaseDto;
-import com.javalab.executionservice.models.dto.TestCaseResult;
+import com.javalab.executionservice.models.dto.*;
 import com.javalab.executionservice.models.enums.ExecutionStatus;
 import com.javalab.executionservice.models.enums.TestCaseStatus;
 import com.javalab.executionservice.service.kafka.KafkaProducer;
@@ -17,6 +15,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -35,100 +34,36 @@ public class TestCaseService
     public void runTests(
             ExecutionRequestDto request,
             Class<?> clazz,
-            Method solveMethod
-    ) {
+            Method method
+    )
+    {
         List<TestCaseDto> testCases = testCaseDao.getTestCases(request.taskId());
 
         if (testCases.isEmpty())
         {
-            publisher.publishMessage(request.userId(),
-                    ExecutionStatus.FAILED,
-                    "Test-cases was not found"
-            );
+            publisher.sendInfo(request.userId(), "Test-cases was not found");
             return;
         }
-        List<TestCaseResult> results = new ArrayList<>();
+        List<TestExecutionResult> results = new ArrayList<>();
         boolean allPassed = true;
 
         for (int i = 0; i < testCases.size(); i++)
         {
-            TestCaseDto tc = testCases.get(i);
-            try
-            {
-                TestCaseResult result = runTest(clazz, solveMethod, tc, i);
-                results.add(result);
+            TestExecutionResult result = executeInternal(clazz, method, testCases.get(i), i + 1);
 
-                allPassed &= result.passed();
-
-            } catch (TimeoutException e)
-            {
-                handleTimeout(request, results, i);
-                return;
-            } catch (Exception e)
-            {
-                allPassed = false;
-                results.add(handleRuntimeError(i, tc, e));
-            }
-            publishProgress(request, results, i, testCases.size());
+            results.add(result);
+            allPassed &= result.isPassed();
+            publisher.sendTestResult(request.userId(), result);
         }
-        finalizeExecution(request, results, allPassed);
-    }
 
-    private TestCaseResult runTest(Class<?> clazz, Method method, TestCaseDto dto, int index) throws Exception
-    {
-        try (ExecutorService executor = Executors.newSingleThreadExecutor())
-        {
-            long startTime = System.currentTimeMillis(), endTime;
-            Future<Object> future = executor.submit(() -> {
-
-                Object instance = Modifier.isStatic(method.getModifiers())
-                        ? null
-                        : clazz.getDeclaredConstructor().newInstance();
-
-                Object[] args = convert(dto.input(), method.getParameterTypes());
-                return method.invoke(instance, args);
-            });
-
-            Object output = future.get(
-                    executionConfig.getTimeout().getExecution().toMillis(),
-                    TimeUnit.MILLISECONDS
-            );
-            endTime = System.currentTimeMillis();
-            String actual = output == null ? "" : output.toString();
-            String expected = dto.expectedOutput();
-            boolean passed = actual.equals(expected);
-            return new TestCaseResult(
-                    index,
-                    passed,
-                    passed ? TestCaseStatus.PASSED : TestCaseStatus.FAILED,
-                    actual,
-                    expected,
-                    "", // todo
-                    endTime - startTime
-            );
-        } catch (Exception e)
-        {
-            Throwable cause = e.getCause();
-            if (cause instanceof Exception ex)
-                throw ex;
-
-            throw new RuntimeException(cause);
-        }
-    }
-
-    private void finalizeExecution(
-            ExecutionRequestDto request,
-            List<TestCaseResult> results,
-            boolean allPassed
-    ) {
-
-        publisher.publish(
-                request.taskId(),
+        ExecutionResponseMessage finalResponse = new ExecutionResponseMessage(
                 allPassed ? ExecutionStatus.COMPLETED : ExecutionStatus.FAILED,
-                allPassed ? "OK" : "There are errors in tests",
+                allPassed ? null : "Some tests failed",
+                totalDuration(results),
                 results
         );
 
+        publisher.sendExecutionResult(request.userId(), finalResponse);
         kafkaProducer.sendExecutionAttemptEvent(
                 new ExecutionAttemptEvent(
                         allPassed,
@@ -138,6 +73,91 @@ public class TestCaseService
                         Instant.now()
                 )
         );
+    }
+
+    private Object invokeWithTimeout(Class<?> clazz, Method method, String input) throws Exception
+    {
+        try (ExecutorService executor = Executors.newSingleThreadExecutor())
+        {
+            Future<Object> future = executor.submit(() -> {
+                Object instance = Modifier.isStatic(method.getModifiers())
+                        ? null
+                        : clazz.getDeclaredConstructor().newInstance();
+
+                Object[] args = convert(input, method.getParameterTypes());
+                return method.invoke(instance, args);
+            });
+
+            return future.get(
+                    executionConfig.getTimeout().getExecution().toMillis(),
+                    TimeUnit.MILLISECONDS
+            );
+        } catch (ExecutionException e)
+        {
+            Throwable cause = e.getCause();
+            if (cause instanceof Exception ex)
+                throw ex;
+
+            throw new RuntimeException(cause);
+        }
+    }
+
+    private TestExecutionResult executeInternal(
+            Class<?> clazz,
+            Method method,
+            TestCaseDto tc,
+            int index
+    )
+    {
+        long start = System.currentTimeMillis();
+        try
+        {
+            Object output = invokeWithTimeout(clazz, method, tc.input());
+            String actual = output.toString();
+            String expected = tc.expectedOutput();
+            boolean passed = actual.equals(expected);
+
+            return new TestExecutionResult(
+                    index,
+                    passed ? TestCaseStatus.PASSED : TestCaseStatus.FAILED,
+                    actual,
+                    expected,
+                    null,
+                    elapsed(start)
+            );
+        } catch (TimeoutException e)
+        {
+            return new TestExecutionResult(
+                    index,
+                    TestCaseStatus.TIMEOUT,
+                    null,
+                    tc.expectedOutput(),
+                    "Time limit exceeded",
+                    elapsed(start)
+            );
+        } catch (Exception e)
+        {
+            return new TestExecutionResult(
+                    index,
+                    TestCaseStatus.RUNTIME_ERROR,
+                    null,
+                    tc.expectedOutput(),
+                    e.getMessage(),
+                    elapsed(start)
+            );
+        }
+    }
+
+    private long elapsed(long start)
+    {
+        return System.currentTimeMillis() - start;
+    }
+
+    private long totalDuration(Collection<TestExecutionResult> results)
+    {
+        return results.stream()
+                .mapToLong(TestExecutionResult::executionDuration)
+                .sum();
     }
 
     private Object[] convert(String input, Class<?>[] types)

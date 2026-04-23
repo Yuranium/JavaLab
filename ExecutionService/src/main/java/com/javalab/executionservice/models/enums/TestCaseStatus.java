@@ -4,4 +4,6 @@ public enum TestCaseStatus
 {
     PASSED,
     FAILED,
+    TIMEOUT,
+    RUNTIME_ERROR
 }

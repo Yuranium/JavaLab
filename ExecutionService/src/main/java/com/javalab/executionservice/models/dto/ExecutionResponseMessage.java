@@ -13,8 +13,6 @@ public record ExecutionResponseMessage(
 
         long executionTDuration,
 
-        Instant timestamp,
-
-        Collection<TestCaseResult> testCases
+        Collection<TestExecutionResult> testCases
 
 ) implements Serializable {}
