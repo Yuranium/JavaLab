@@ -16,7 +16,7 @@ public class KafkaProducer
     public void sendExecutionAttemptEvent(Object message)
     {
         kafkaTemplate.send(
-                environment.getProperty("spring.kafka.topic-names.successful-attempt-topic"),
+                environment.getProperty("spring.kafka.topic-names.execution-attempt-topic"),
                 message
         );
     }

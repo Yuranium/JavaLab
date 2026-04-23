@@ -5,5 +5,6 @@ public enum TestCaseStatus
     PASSED,
     FAILED,
     TIMEOUT,
+    VALIDATION_ERROR,
     RUNTIME_ERROR
 }

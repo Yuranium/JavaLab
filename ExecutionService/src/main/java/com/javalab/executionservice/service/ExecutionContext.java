@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class ExecutionContext
 {
-    private final Map<String, WebSocketSession> taskSessions = new ConcurrentHashMap<>();
+    private final Map<String, WebSocketSession> taskSessions = new ConcurrentHashMap<>(); // todo добавить удаление
 
     public void registerTask(UUID userId, WebSocketSession session)
     {

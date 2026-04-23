@@ -2,7 +2,7 @@ package com.javalab.executionservice.service;
 
 import com.javalab.executionservice.config.ExecutionConfig;
 import com.javalab.executionservice.models.dto.ExecutionRequestDto;
-import com.javalab.executionservice.models.enums.ExecutionStatus;
+import com.javalab.executionservice.util.exception.CompilationException;
 import com.javalab.executionservice.util.ExecutionStatusPublisher;
 import com.javalab.executionservice.util.InMemoryCompiler;
 import lombok.RequiredArgsConstructor;
@@ -39,26 +39,23 @@ public class ExecutionService
                     executionConfig.getCompiler().getDefaultUserClassName(),
                     request.code()
             );
-            Method solveMethod = findInputMethod(clazz);
+            Method solveMethod = findMainMethod(clazz);
             testCaseService.runTests(request, clazz, solveMethod);
-        } catch (RuntimeException e)
-        {
-            publisher.sendInfo(request.userId(), e.getMessage());
-            return;
-        } catch (Exception e) // todo разграничить исключения (kafka и кастомные)
+        } catch (CompilationException e)
         {
             publisher.sendInfo(request.userId(), "Compilation error: " + e.getMessage());
-            return;
+        } catch (Exception e)
+        {
+            publisher.sendInfo(request.userId(), e.getMessage());
         }
-        publisher.sendInfo(request.userId(), "Start tests...");
     }
 
-    private Method findInputMethod(Class<?> clazz)
+    private Method findMainMethod(Class<?> clazz)
     {
         return Arrays.stream(clazz.getDeclaredMethods())
                 .filter(m -> Modifier.isPublic(m.getModifiers()))
-                .filter(m -> m.getName().equals("solve"))
+                .filter(m -> m.getName().equals(executionConfig.getCompiler().getDefaultMainMethodName()))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Default method solve not found"));
+                .orElseThrow(() -> new RuntimeException("Default main method not found"));
     }
 }

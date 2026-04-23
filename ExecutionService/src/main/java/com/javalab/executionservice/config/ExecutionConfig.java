@@ -71,6 +71,8 @@ public class ExecutionConfig
         );
 
         private String defaultUserClassName;
+
+        private String defaultMainMethodName;
     }
 
     @Getter

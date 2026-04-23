@@ -36,7 +36,7 @@ spring:
 
     topic-names:
       test-case-events: ${TEST_CASE_EVENTS_TOPIC}
-      successful-attempt-topic: ${SUCCESSFUL_ATTEMPT_TOPIC}
+      execution-attempt-topic: ${EXECUTION_ATTEMPT_TOPIC}
 
   security:
     oauth2:
@@ -88,6 +88,7 @@ code-execution:
       - "-Xmaxerrs"
       - "10"
     default-user-class-name: Main
+    default-main-method-name: solve
   docker:
     network: "none"
     memory: "256m"

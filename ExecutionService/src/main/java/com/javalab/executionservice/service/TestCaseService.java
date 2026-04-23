@@ -46,10 +46,11 @@ public class TestCaseService
         }
         List<TestExecutionResult> results = new ArrayList<>();
         boolean allPassed = true;
+        publisher.sendInfo(request.userId(), "Start tests...");
 
         for (int i = 0; i < testCases.size(); i++)
         {
-            TestExecutionResult result = executeInternal(clazz, method, testCases.get(i), i + 1);
+            TestExecutionResult result = executeTest(clazz, method, testCases.get(i), i + 1);
 
             results.add(result);
             allPassed &= result.isPassed();
@@ -102,7 +103,7 @@ public class TestCaseService
         }
     }
 
-    private TestExecutionResult executeInternal(
+    private TestExecutionResult executeTest(
             Class<?> clazz,
             Method method,
             TestCaseDto tc,
@@ -135,7 +136,18 @@ public class TestCaseService
                     "Time limit exceeded",
                     elapsed(start)
             );
-        } catch (Exception e)
+        } catch (IllegalArgumentException e)
+        {
+            return new TestExecutionResult(
+                    index,
+                    TestCaseStatus.VALIDATION_ERROR,
+                    null,
+                    tc.expectedOutput(),
+                    e.getMessage(),
+                    elapsed(start)
+            );
+        }
+        catch (Exception e)
         {
             return new TestExecutionResult(
                     index,

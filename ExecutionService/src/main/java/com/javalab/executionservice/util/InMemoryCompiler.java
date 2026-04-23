@@ -3,6 +3,7 @@ package com.javalab.executionservice.util;
 import com.javalab.executionservice.config.ExecutionConfig;
 import com.javalab.executionservice.models.InMemoryJavaFileObject;
 import com.javalab.executionservice.models.MemoryFileManager;
+import com.javalab.executionservice.util.exception.CompilationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -35,7 +36,7 @@ public class InMemoryCompiler
         boolean success = task.call();
 
         if (!success)
-            throw new RuntimeException(diagnostics.getDiagnostics().toString());
+            throw new CompilationException(diagnostics.getDiagnostics().toString());
 
         byte[] bytes = fileManager.getClassBytes();
         MemoryClassLoader loader = new MemoryClassLoader();
