@@ -53,7 +53,7 @@ public class TaskRepository
     }
 
     @Transactional(readOnly = true)
-    public Optional<TaskDetailedResponseDto> getDetailedTask(Long id)
+    public Optional<TaskDetailedResponseDto> getDetailedTask(Long id, boolean loadHiddenTestCases)
     {
         return dsl.select(
                         TASK.ID_TASK,
@@ -88,7 +88,8 @@ public class TaskRepository
                                         TEST_CASE.IS_HIDDEN
                                 )
                                         .from(TEST_CASE)
-                                        .where(TEST_CASE.ID_TASK.eq(TASK.ID_TASK))
+                                        .where(TEST_CASE.ID_TASK.eq(TASK.ID_TASK)
+                                                .and(TEST_CASE.IS_HIDDEN.eq(loadHiddenTestCases)))
                         )
                                 .as("test_cases")
                                 .convertFrom(res -> res.into(TestCaseResponseDto.class))

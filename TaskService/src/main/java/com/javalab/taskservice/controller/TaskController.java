@@ -45,6 +45,15 @@ public class TaskController
         );
     }
 
+    @GetMapping("/{id}/admin")
+    public ResponseEntity<@NonNull TaskDetailedResponseDto> getTaskEdit(@PathVariable Long id)
+    {
+        return new ResponseEntity<>(
+                taskService.getTaskEdit(id),
+                HttpStatus.OK
+        );
+    }
+
     @PostMapping
     public ResponseEntity<?> createTask(
             @RequestBody TaskRequestDto taskDto

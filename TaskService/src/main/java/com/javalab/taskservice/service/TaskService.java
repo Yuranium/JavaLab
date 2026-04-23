@@ -36,7 +36,16 @@ public class TaskService
 
     public TaskDetailedResponseDto getTask(Long id)
     {
-        return taskRepository.getDetailedTask(id)
+        return taskRepository.getDetailedTask(id, false)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "The task with id=%d not found"
+                                .formatted(id)
+                ));
+    }
+
+    public TaskDetailedResponseDto getTaskEdit(Long id)
+    {
+        return taskRepository.getDetailedTask(id, true)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "The task with id=%d not found"
                                 .formatted(id)

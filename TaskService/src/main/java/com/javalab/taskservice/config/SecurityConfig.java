@@ -29,6 +29,7 @@ public class SecurityConfig
                         .requestMatchers(HttpMethod.POST, "/api/v1/task").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/task/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/task/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/task/*/admin").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/v1/task/category").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/task/category").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/task/category").hasRole("ADMIN")
