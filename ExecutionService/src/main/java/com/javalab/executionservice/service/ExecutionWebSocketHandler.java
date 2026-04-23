@@ -18,7 +18,7 @@ public class ExecutionWebSocketHandler extends TextWebSocketHandler
 {
     private final ExecutionService executionService;
 
-    private final ExecutionStateService stateService;
+    private final ExecutionContext stateService;
 
     private final ExecutionValidator validator;
 
@@ -44,7 +44,7 @@ public class ExecutionWebSocketHandler extends TextWebSocketHandler
             session.sendMessage(new TextMessage(objectMapper.writeValueAsString(validateResult)));
             return;
         }
-        stateService.registerTask(request.taskId(), session);
+        stateService.registerTask(request.userId(), session);
         executionService.execute(request);
         super.handleTextMessage(session, message);
     }

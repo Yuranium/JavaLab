@@ -36,6 +36,7 @@ spring:
 
     topic-names:
       test-case-events: ${TEST_CASE_EVENTS_TOPIC}
+      successful-attempt-topic: ${SUCCESSFUL_ATTEMPT_TOPIC}
 
   security:
     oauth2:

@@ -1,9 +1,7 @@
 package com.javalab.executionservice.service;
 
 import com.javalab.executionservice.config.ExecutionConfig;
-import com.javalab.executionservice.models.dao.TestCaseDao;
 import com.javalab.executionservice.models.dto.ExecutionRequestDto;
-import com.javalab.executionservice.models.dto.TestCaseDto;
 import com.javalab.executionservice.models.enums.ExecutionStatus;
 import com.javalab.executionservice.util.ExecutionStatusPublisher;
 import com.javalab.executionservice.util.InMemoryCompiler;
@@ -15,15 +13,12 @@ import org.springframework.stereotype.Service;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
-import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ExecutionService
 {
-    private final TestCaseDao testCaseDao;
-
     private final ExecutionStatusPublisher publisher;
 
     private final InMemoryCompiler compiler;
@@ -35,21 +30,9 @@ public class ExecutionService
     @Async("codeExecutionExecutor")
     public void execute(ExecutionRequestDto request)
     {
-        List<TestCaseDto> testCases = testCaseDao.getTestCases(request.taskId());
-
-        if (testCases.isEmpty())
-        {
-            publisher.publish(request.taskId(),
-                    ExecutionStatus.FAILED,
-                    "Test-cases was not found",
-                    null);
-            return;
-        }
-
-        publisher.publish(request.taskId(),
+        publisher.publishMessage(request.userId(),
                 ExecutionStatus.PROCESSING,
-                "Compilation...",
-                null);
+                "Compilation...");
 
         Class<?> clazz;
         try
@@ -60,22 +43,20 @@ public class ExecutionService
             );
         } catch (Exception e)
         {
-            publisher.publish(request.taskId(),
+            publisher.publishMessage(request.userId(),
                     ExecutionStatus.FAILED,
-                    "Compilation error: " + e.getMessage(),
-                    null);
+                    "Compilation error: " + e.getMessage());
             return;
         }
 
         Method solveMethod = findInputMethod(clazz);
-        publisher.publish(
-                request.taskId(),
+        publisher.publishMessage(
+                request.userId(),
                 ExecutionStatus.PROCESSING,
-                "Start tests...",
-                null
+                "Start tests..."
         );
 
-        testCaseService.runTests(request, testCases, clazz, solveMethod);
+        testCaseService.runTests(request, clazz, solveMethod);
     }
 
     private Method findInputMethod(Class<?> clazz)
