@@ -45,16 +45,17 @@ public class ExecutionValidator
                     .orElseThrow(RuntimeException::new);
             List<String> errors = new ArrayList<>();
 
-            for (ImportDeclaration importDeclaration : unit.getImports())
-            {
-                if (!isAllowedImport(importDeclaration.getNameAsString()))
-                    errors.add("Forbidden import at line %d: %s"
-                            .formatted(
-                                    importDeclaration.getBegin().get().line,
-                                    importDeclaration.getNameAsString()
-                            )
+            unit.getImports().stream()
+                    .filter(e -> !isAllowedImport(e.getNameAsString()))
+                    .forEach(importDeclaration ->
+                            importDeclaration.getBegin()
+                                    .ifPresent(position ->
+                                            errors.add("Forbidden import at line %d: %s"
+                                            .formatted(
+                                                    position.line,
+                                                    importDeclaration.getNameAsString()
+                                            )))
                     );
-            }
 
             unit.findAll(MethodCallExpr.class)
                     .forEach(methodCall -> {

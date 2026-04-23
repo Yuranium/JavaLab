@@ -36,16 +36,23 @@ public class ExecutionWebSocketHandler extends TextWebSocketHandler
             WebSocketSession session, TextMessage message
     ) throws Exception
     {
-        log.info("WS received '{}' in session {}", message.getPayload(), session.getId());
-        var request = objectMapper.readValue(message.getPayload(), ExecutionRequestDto.class);
-        var validateResult = validator.validate(request.code());
-        if (validateResult.hasErrors())
+        try
         {
-            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(validateResult)));
-            return;
+            log.info("WS received '{}' in session {}", message.getPayload(), session.getId());
+            var request = objectMapper.readValue(message.getPayload(), ExecutionRequestDto.class);
+            var validateResult = validator.validate(request.code());
+            if (validateResult.hasErrors())
+            {
+                session.sendMessage(new TextMessage(objectMapper.writeValueAsString(validateResult)));
+                return;
+            }
+            executionContext.registerTask(request.userId(), session);
+            executionService.execute(request);
+        } catch (Exception ex)
+        {
+            log.warn(ex.getMessage(), ex);
+            session.sendMessage(new TextMessage(ex.getMessage()));
         }
-        executionContext.registerTask(request.userId(), session);
-        executionService.execute(request);
         super.handleTextMessage(session, message);
     }
 }

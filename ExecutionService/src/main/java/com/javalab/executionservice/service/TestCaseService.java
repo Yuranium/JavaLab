@@ -2,7 +2,7 @@ package com.javalab.executionservice.service;
 
 import com.javalab.core.events.ExecutionAttemptEvent;
 import com.javalab.executionservice.config.ExecutionConfig;
-import com.javalab.executionservice.models.dao.TestCaseDao;
+import com.javalab.executionservice.dao.TestCaseDao;
 import com.javalab.executionservice.models.dto.*;
 import com.javalab.executionservice.models.enums.ExecutionStatus;
 import com.javalab.executionservice.models.enums.TestCaseStatus;
@@ -107,7 +107,7 @@ public class TestCaseService
             Class<?> clazz,
             Method method,
             TestCaseDto tc,
-            int index
+            int testNumber
     )
     {
         long start = System.currentTimeMillis();
@@ -119,7 +119,7 @@ public class TestCaseService
             boolean passed = actual.equals(expected);
 
             return new TestExecutionResult(
-                    index,
+                    testNumber,
                     passed ? TestCaseStatus.PASSED : TestCaseStatus.FAILED,
                     actual,
                     expected,
@@ -129,7 +129,7 @@ public class TestCaseService
         } catch (TimeoutException e)
         {
             return new TestExecutionResult(
-                    index,
+                    testNumber,
                     TestCaseStatus.TIMEOUT,
                     null,
                     tc.expectedOutput(),
@@ -139,7 +139,7 @@ public class TestCaseService
         } catch (IllegalArgumentException e)
         {
             return new TestExecutionResult(
-                    index,
+                    testNumber,
                     TestCaseStatus.VALIDATION_ERROR,
                     null,
                     tc.expectedOutput(),
@@ -150,7 +150,7 @@ public class TestCaseService
         catch (Exception e)
         {
             return new TestExecutionResult(
-                    index,
+                    testNumber,
                     TestCaseStatus.RUNTIME_ERROR,
                     null,
                     tc.expectedOutput(),

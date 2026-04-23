@@ -1,7 +1,7 @@
 package com.javalab.executionservice.service.kafka;
 
 import com.javalab.core.events.TestCaseEvent;
-import com.javalab.executionservice.models.dao.TestCaseDao;
+import com.javalab.executionservice.dao.TestCaseDao;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;

@@ -1,4 +1,4 @@
-package com.javalab.executionservice.models.dao;
+package com.javalab.executionservice.dao;
 
 import com.javalab.core.events.TestCasePayload;
 import com.javalab.executionservice.models.dto.TestCaseDto;
