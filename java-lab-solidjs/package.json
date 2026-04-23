@@ -24,5 +24,7 @@
     "@solidjs/router": "^0.14.3",
     "axios": "^1.13.6",
     "solid-js": "^1.9.5"
+    ,
+    "monaco-editor": "^0.43.0"
   }
 }
