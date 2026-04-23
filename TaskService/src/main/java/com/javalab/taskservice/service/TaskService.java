@@ -5,8 +5,7 @@ import com.javalab.taskservice.dto.request.TaskRequestDto;
 import com.javalab.taskservice.dto.response.CategoryResponseDto;
 import com.javalab.taskservice.dto.response.TaskDetailedResponseDto;
 import com.javalab.taskservice.dto.response.TaskResponseDto;
-import com.javalab.taskservice.dto.response.TaskUpdatedResponseDto;
-import com.javalab.taskservice.repository.TaskRepository;
+import com.javalab.taskservice.dao.TaskDao;
 import com.javalab.taskservice.service.kafka.KafkaSender;
 import com.javalab.taskservice.tables.records.TaskRecord;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,7 @@ import java.util.Collection;
 @RequiredArgsConstructor
 public class TaskService
 {
-    private final TaskRepository taskRepository;
+    private final TaskDao taskDao;
 
     private final CategoryService categoryService;
 
@@ -32,12 +31,21 @@ public class TaskService
 
     public Collection<TaskResponseDto> getAllTasks(Integer page, Integer size)
     {
-        return taskRepository.getAllTasks(page, size);
+        return taskDao.getAllTasks(page, size);
     }
 
     public TaskDetailedResponseDto getTask(Long id)
     {
-        return taskRepository.getDetailedTask(id)
+        return taskDao.getDetailedTask(id, false)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "The task with id=%d not found"
+                                .formatted(id)
+                ));
+    }
+
+    public TaskDetailedResponseDto getTaskEdit(Long id)
+    {
+        return taskDao.getDetailedTask(id, true)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "The task with id=%d not found"
                                 .formatted(id)
@@ -47,10 +55,10 @@ public class TaskService
     @Transactional
     public void createTask(TaskRequestDto taskDto)
     {
-        TaskRecord savedTask = taskRepository.saveTask(taskDto);
+        TaskRecord savedTask = taskDao.saveTask(taskDto);
         var categories = categoryService.saveCategoryForTask(savedTask.getIdTask(), taskDto.categories());
         starterCodeService.createStarterCodeForTask(savedTask.getIdTask(), taskDto.starterCode());
-        testCaseService.createTestCasesForTask(savedTask.getIdTask(), taskDto.testCases());
+        testCaseService.createTestCases(savedTask.getIdTask(), taskDto.testCases());
         kafkaSender.sendTaskCreatedEvent(
                 new TaskCreatedEvent(
                         savedTask.getTitle(),
@@ -63,24 +71,29 @@ public class TaskService
     }
 
     @Transactional
-    public TaskUpdatedResponseDto updateTask(Long id, TaskRequestDto taskDto)
+    public void updateTask(Long id, TaskRequestDto taskDto)
     {
-        return taskRepository
-                .updateTask(id, taskDto)
+        taskDao.updateTask(id, taskDto)
                 .orElseThrow(
                         () -> new ResourceNotFoundException(
                                 "The task with id=%d not found".formatted(id)
                         )
                 );
+
+        categoryService.updateCategoryForTask(id, taskDto.categories());
+        starterCodeService.updateStarterCode(id, taskDto.starterCode());
+        testCaseService.updateTestCases(id, taskDto.testCases());
     }
 
+    @Transactional
     public void deleteTask(Long id)
     {
-        taskRepository.deleteTask(id)
+        taskDao.deleteTask(id)
                 .orElseThrow(
                         () -> new ResourceNotFoundException(
                                 "The task with id=%d not found".formatted(id)
                         )
                 );
+        testCaseService.deleteTestCases(id);
     }
 }

@@ -1,4 +1,4 @@
-package com.javalab.taskservice.repository;
+package com.javalab.taskservice.dao;
 
 import com.javalab.taskservice.dto.request.StarterCodeRequestDto;
 import com.javalab.taskservice.dto.response.StarterCodeResponseDto;
@@ -11,30 +11,19 @@ import static com.javalab.taskservice.Tables.STARTER_CODE;
 
 @Repository
 @RequiredArgsConstructor
-public class StarterCodeRepository
+public class StarterCodeDao
 {
     private final DSLContext dsl;
 
-    @Transactional(readOnly = true)
-    public StarterCodeResponseDto getStarterCode(Long taskId)
-    {
-        return dsl.select(
-                        STARTER_CODE.ID_CODE,
-                        STARTER_CODE.CODE,
-                        STARTER_CODE.IS_DEFAULT
-                )
-                .from(STARTER_CODE)
-                .where(STARTER_CODE.ID_TASK.eq(taskId))
-                .fetchOneInto(StarterCodeResponseDto.class);
-    }
-
     @Transactional
-    public StarterCodeResponseDto createStarterCodeForTask(Long taskId, StarterCodeRequestDto starterCode)
+    public StarterCodeResponseDto createStarterCodeForTask(
+            Long taskId, StarterCodeRequestDto starterCode
+    )
     {
         var insert = dsl.insertInto(STARTER_CODE)
                 .set(STARTER_CODE.ID_TASK, taskId);
 
-        if (starterCode != null)
+        if (starterCode != null && starterCode.code() != null && !starterCode.code().isEmpty())
             insert.set(STARTER_CODE.CODE, starterCode.code())
                     .set(STARTER_CODE.IS_DEFAULT, starterCode.isDefault());
 

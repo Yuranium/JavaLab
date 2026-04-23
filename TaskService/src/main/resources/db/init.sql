@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS task
     difficulty  VARCHAR(50)  NOT NULL,
     created_at  TIMESTAMPTZ  NOT NULL DEFAULT now(),
     updated_at  TIMESTAMPTZ  NOT NULL DEFAULT now(),
-    id_author   BIGINT       NOT NULL
+    id_author   UUID         NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS category
@@ -50,6 +50,7 @@ CREATE INDEX IF NOT EXISTS author_id_idx ON task (id_author);
 
 INSERT INTO category(title, description)
 VALUES ('JAVA_CORE', 'Основы языка, ООП, синтаксис, примитивные типы, исключения'),
+       ('JAVA_GENERICS', 'Обобщённые типы, вайлд-карды, стирание типов, ограничения типовй'),
        ('JAVA_COLLECTIONS', 'Работа со структурами данных: List, Set, Map, их реализациями'),
        ('JAVA_LAMBDAS', 'Лямбда-выражения, функциональные интерфейсы, ссылки на методы и конструкторы'),
        ('JAVA_STREAM_API', 'Функциональная обработка коллекций: filter, map, reduce, лямбда-выражения');
@@ -60,12 +61,13 @@ $$
 BEGIN
     IF NEW.is_default OR NEW.is_default IS NULL THEN
         NEW.is_default = true;
-        NEW.code :=
-                'public class Main {
-                    public static void main(String[] args) {
-                        System.out.println("Hello, World!");
-                    }
-                }';
+        NEW.code =
+$code$public class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+    }
+}
+$code$;
     END IF;
     RETURN NEW;
 END;
@@ -82,12 +84,13 @@ CREATE OR REPLACE FUNCTION check_starter_code()
     RETURNS TRIGGER AS
 $$
 DECLARE
-    starter_code TEXT :=
-        'public class Main {
-            public static void main(String[] args) {
-                System.out.println("Hello, World!");
-            }
-        }';
+    starter_code TEXT =
+$code$public class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+    }
+}
+$code$;
 BEGIN
     IF NEW.code = starter_code THEN
         NEW.is_default = true;

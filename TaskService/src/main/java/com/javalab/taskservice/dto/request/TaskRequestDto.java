@@ -6,6 +6,7 @@ import com.javalab.taskservice.enums.JavaCategory;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.UUID;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record TaskRequestDto(
@@ -15,7 +16,7 @@ public record TaskRequestDto(
 
         DifficultyType difficulty,
 
-        Long idAuthor,
+        UUID idAuthor,
 
         StarterCodeRequestDto starterCode,
 

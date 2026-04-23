@@ -1,0 +1,43 @@
+.resizable-panel {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.resizable-panel-content {
+  height: 100%;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.resizable-panel-handle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 8px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.resizable-panel-handle:hover {
+  background-color: var(--primary-color);
+  opacity: 0.3;
+}
+
+.resizable-panel-handle-line {
+  width: 2px;
+  height: 40px;
+  background-color: var(--border-color);
+  border-radius: 1px;
+  transition: background-color 0.2s ease;
+}
+
+.resizable-panel-handle:hover .resizable-panel-handle-line {
+  background-color: var(--primary-color);
+}

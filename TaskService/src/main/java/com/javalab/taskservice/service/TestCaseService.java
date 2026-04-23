@@ -1,12 +1,15 @@
 package com.javalab.taskservice.service;
 
+import com.javalab.core.events.TestCaseEvent;
+import com.javalab.core.events.TestCaseEventType;
+import com.javalab.core.events.TestCasePayload;
 import com.javalab.taskservice.dto.request.TestCaseRequestDto;
 import com.javalab.taskservice.dto.response.TestCaseResponseDto;
-import com.javalab.taskservice.repository.TaskRepository;
-import com.javalab.taskservice.repository.TestCaseRepository;
+import com.javalab.taskservice.dao.TestCaseDao;
+import com.javalab.taskservice.service.kafka.KafkaSender;
 import lombok.RequiredArgsConstructor;
-import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 
@@ -14,49 +17,60 @@ import java.util.Collection;
 @RequiredArgsConstructor
 public class TestCaseService
 {
-    private final TestCaseRepository testCaseRepository;
+    private final TestCaseDao testCaseDao;
 
-    private final TaskRepository taskRepository;
+    private final KafkaSender kafkaSender;
 
-    public TestCaseResponseDto createTestCaseForTask(
-            Long taskId, TestCaseRequestDto testCaseDto
-    )
-    {
-        if (taskRepository.existsById(taskId))
-            return testCaseRepository.createTestCase(taskId, testCaseDto);
-
-        throw new ResourceNotFoundException(
-                "The task with id=%d not found".formatted(taskId)
-        );
-    }
-
-    public Collection<TestCaseResponseDto> createTestCasesForTask(
+    @Transactional
+    public Collection<TestCaseResponseDto> createTestCases(
             Long taskId, Collection<TestCaseRequestDto> testCases
     )
     {
         if (taskId == null)
             throw new NullPointerException("taskId is null");
 
-        return testCaseRepository.createTestCasesForTask(taskId, testCases);
+        Collection<TestCaseResponseDto> savedCases = testCaseDao
+                .createTestCases(taskId, testCases);
+
+        sendEvent(taskId, savedCases, TestCaseEventType.TEST_CASE_CREATED);
+        return savedCases;
     }
 
-    public TestCaseResponseDto updateTestCase(
-            Long testCaseId, TestCaseRequestDto testCaseDto
+    @Transactional
+    public Collection<TestCaseResponseDto> updateTestCases(
+            Long taskId, Collection<TestCaseRequestDto> testCases
     )
     {
-        return testCaseRepository.updateTestCase(testCaseId, testCaseDto)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                                "The test-case with id=%d not found".formatted(testCaseId)
-                        )
-                );
+        var responseDto = testCaseDao.updateTestCases(taskId, testCases);
+
+        sendEvent(taskId, responseDto, TestCaseEventType.TEST_CASE_UPDATED);
+        return responseDto;
     }
 
-    public void deleteTestCase(Long testCaseId)
+    @Transactional
+    public void deleteTestCases(Long taskId)
     {
-        testCaseRepository.deleteTestCase(testCaseId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                                "The test-case with id=%d not found".formatted(testCaseId)
+        testCaseDao.deleteTestCases(taskId);
+        sendEvent(taskId, null, TestCaseEventType.TEST_CASE_DELETED);
+    }
+
+    private void sendEvent(
+            Long taskId,
+            Collection<TestCaseResponseDto> testCase,
+            TestCaseEventType type
+    )
+    {
+        kafkaSender.sendTestCaseEvent(new TestCaseEvent(
+                type,
+                taskId,
+                testCase == null
+                        ? null
+                        : testCase.stream()
+                        .map(e -> new TestCasePayload(
+                                e.input(),
+                                e.expectedOutput())
                         )
-                );
+                        .toList())
+        );
     }
 }

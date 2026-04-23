@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.UUID;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record TaskResponseDto(
@@ -12,15 +13,13 @@ public record TaskResponseDto(
 
         String title,
 
-        String description,
-
         String difficulty,
 
         Instant createdAt,
 
         Instant updatedAt,
 
-        Long idAuthor,
+        UUID idAuthor,
 
         Collection<CategoryResponseDto> categories
 

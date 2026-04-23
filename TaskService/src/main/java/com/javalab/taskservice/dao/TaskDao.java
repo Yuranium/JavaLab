@@ -1,4 +1,4 @@
-package com.javalab.taskservice.repository;
+package com.javalab.taskservice.dao;
 
 import com.javalab.taskservice.dto.request.TaskRequestDto;
 import com.javalab.taskservice.dto.response.*;
@@ -17,7 +17,7 @@ import static org.jooq.impl.DSL.*;
 
 @Repository
 @RequiredArgsConstructor
-public class TaskRepository
+public class TaskDao
 {
     private final DSLContext dsl;
 
@@ -27,7 +27,6 @@ public class TaskRepository
         return dsl.select(
                         TASK.ID_TASK,
                         TASK.TITLE,
-                        TASK.DESCRIPTION,
                         TASK.DIFFICULTY,
                         TASK.CREATED_AT,
                         TASK.UPDATED_AT,
@@ -54,7 +53,7 @@ public class TaskRepository
     }
 
     @Transactional(readOnly = true)
-    public Optional<TaskDetailedResponseDto> getDetailedTask(Long id)
+    public Optional<TaskDetailedResponseDto> getDetailedTask(Long id, boolean loadHiddenTestCases)
     {
         return dsl.select(
                         TASK.ID_TASK,
@@ -84,12 +83,13 @@ public class TaskRepository
                                 .mapping(StarterCodeResponseDto::new),
                         multiset(
                                 select(
-                                        TEST_CASE.ID_CASE,
                                         TEST_CASE.INPUT,
-                                        TEST_CASE.EXPECTED_OUTPUT
+                                        TEST_CASE.EXPECTED_OUTPUT,
+                                        TEST_CASE.IS_HIDDEN
                                 )
                                         .from(TEST_CASE)
-                                        .where(TEST_CASE.ID_TASK.eq(TASK.ID_TASK))
+                                        .where(TEST_CASE.ID_TASK.eq(TASK.ID_TASK)
+                                                .and(TEST_CASE.IS_HIDDEN.eq(loadHiddenTestCases)))
                         )
                                 .as("test_cases")
                                 .convertFrom(res -> res.into(TestCaseResponseDto.class))
@@ -104,7 +104,7 @@ public class TaskRepository
     @Transactional(readOnly = true)
     public Boolean existsById(Long id)
     {
-        Integer count = dsl.select(count()).from(TASK)
+        Integer count = dsl.selectCount().from(TASK)
                 .where(TASK.ID_TASK.eq(id))
                 .fetchOne(count());
 
@@ -124,7 +124,7 @@ public class TaskRepository
     }
 
     @Transactional
-    public Optional<TaskUpdatedResponseDto> updateTask(Long id, TaskRequestDto taskDto)
+    public Optional<TaskRecord> updateTask(Long id, TaskRequestDto taskDto)
     {
         return dsl.update(TASK)
                 .set(TASK.TITLE, taskDto.title())
@@ -133,7 +133,7 @@ public class TaskRepository
                 .set(TASK.UPDATED_AT, Instant.now())
                 .where(TASK.ID_TASK.eq(id))
                 .returning()
-                .fetchOptionalInto(TaskUpdatedResponseDto.class);
+                .fetchOptional();
     }
 
     @Transactional
