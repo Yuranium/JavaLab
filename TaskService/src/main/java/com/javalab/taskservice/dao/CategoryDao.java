@@ -1,4 +1,4 @@
-package com.javalab.taskservice.repository;
+package com.javalab.taskservice.dao;
 
 import com.javalab.taskservice.dto.request.CategoryRequestDto;
 import com.javalab.taskservice.dto.response.CategoryResponseDto;
@@ -18,7 +18,7 @@ import static com.javalab.taskservice.Tables.TASK_CATEGORY;
 
 @Repository
 @RequiredArgsConstructor
-public class CategoryRepository
+public class CategoryDao
 {
     private final DSLContext dsl;
 

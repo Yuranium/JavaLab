@@ -1,4 +1,4 @@
-package com.javalab.taskservice.repository;
+package com.javalab.taskservice.dao;
 
 import com.javalab.taskservice.dto.request.TaskRequestDto;
 import com.javalab.taskservice.dto.response.*;
@@ -17,7 +17,7 @@ import static org.jooq.impl.DSL.*;
 
 @Repository
 @RequiredArgsConstructor
-public class TaskRepository
+public class TaskDao
 {
     private final DSLContext dsl;
 

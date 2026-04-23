@@ -5,7 +5,7 @@ import com.javalab.taskservice.dto.request.TaskRequestDto;
 import com.javalab.taskservice.dto.response.CategoryResponseDto;
 import com.javalab.taskservice.dto.response.TaskDetailedResponseDto;
 import com.javalab.taskservice.dto.response.TaskResponseDto;
-import com.javalab.taskservice.repository.TaskRepository;
+import com.javalab.taskservice.dao.TaskDao;
 import com.javalab.taskservice.service.kafka.KafkaSender;
 import com.javalab.taskservice.tables.records.TaskRecord;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ import java.util.Collection;
 @RequiredArgsConstructor
 public class TaskService
 {
-    private final TaskRepository taskRepository;
+    private final TaskDao taskDao;
 
     private final CategoryService categoryService;
 
@@ -31,12 +31,12 @@ public class TaskService
 
     public Collection<TaskResponseDto> getAllTasks(Integer page, Integer size)
     {
-        return taskRepository.getAllTasks(page, size);
+        return taskDao.getAllTasks(page, size);
     }
 
     public TaskDetailedResponseDto getTask(Long id)
     {
-        return taskRepository.getDetailedTask(id, false)
+        return taskDao.getDetailedTask(id, false)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "The task with id=%d not found"
                                 .formatted(id)
@@ -45,7 +45,7 @@ public class TaskService
 
     public TaskDetailedResponseDto getTaskEdit(Long id)
     {
-        return taskRepository.getDetailedTask(id, true)
+        return taskDao.getDetailedTask(id, true)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "The task with id=%d not found"
                                 .formatted(id)
@@ -55,7 +55,7 @@ public class TaskService
     @Transactional
     public void createTask(TaskRequestDto taskDto)
     {
-        TaskRecord savedTask = taskRepository.saveTask(taskDto);
+        TaskRecord savedTask = taskDao.saveTask(taskDto);
         var categories = categoryService.saveCategoryForTask(savedTask.getIdTask(), taskDto.categories());
         starterCodeService.createStarterCodeForTask(savedTask.getIdTask(), taskDto.starterCode());
         testCaseService.createTestCases(savedTask.getIdTask(), taskDto.testCases());
@@ -73,7 +73,7 @@ public class TaskService
     @Transactional
     public void updateTask(Long id, TaskRequestDto taskDto)
     {
-        taskRepository.updateTask(id, taskDto)
+        taskDao.updateTask(id, taskDto)
                 .orElseThrow(
                         () -> new ResourceNotFoundException(
                                 "The task with id=%d not found".formatted(id)
@@ -88,7 +88,7 @@ public class TaskService
     @Transactional
     public void deleteTask(Long id)
     {
-        taskRepository.deleteTask(id)
+        taskDao.deleteTask(id)
                 .orElseThrow(
                         () -> new ResourceNotFoundException(
                                 "The task with id=%d not found".formatted(id)

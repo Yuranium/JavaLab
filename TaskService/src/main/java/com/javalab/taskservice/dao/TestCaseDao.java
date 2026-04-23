@@ -1,4 +1,4 @@
-package com.javalab.taskservice.repository;
+package com.javalab.taskservice.dao;
 
 import com.javalab.taskservice.dto.request.TestCaseRequestDto;
 import com.javalab.taskservice.dto.response.TestCaseResponseDto;
@@ -14,7 +14,7 @@ import static com.javalab.taskservice.Tables.TEST_CASE;
 
 @Repository
 @RequiredArgsConstructor
-public class TestCaseRepository
+public class TestCaseDao
 {
     private final DSLContext dsl;
 

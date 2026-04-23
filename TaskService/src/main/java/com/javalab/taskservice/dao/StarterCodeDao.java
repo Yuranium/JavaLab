@@ -1,4 +1,4 @@
-package com.javalab.taskservice.repository;
+package com.javalab.taskservice.dao;
 
 import com.javalab.taskservice.dto.request.StarterCodeRequestDto;
 import com.javalab.taskservice.dto.response.StarterCodeResponseDto;
@@ -11,7 +11,7 @@ import static com.javalab.taskservice.Tables.STARTER_CODE;
 
 @Repository
 @RequiredArgsConstructor
-public class StarterCodeRepository
+public class StarterCodeDao
 {
     private final DSLContext dsl;
 
