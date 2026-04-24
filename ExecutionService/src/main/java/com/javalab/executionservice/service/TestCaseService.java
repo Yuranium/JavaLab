@@ -121,6 +121,7 @@ public class TestCaseService
             return new TestExecutionResult(
                     testNumber,
                     passed ? TestCaseStatus.PASSED : TestCaseStatus.FAILED,
+                    tc.input(),
                     actual,
                     expected,
                     null,
@@ -131,6 +132,7 @@ public class TestCaseService
             return new TestExecutionResult(
                     testNumber,
                     TestCaseStatus.TIMEOUT,
+                    tc.input(),
                     null,
                     tc.expectedOutput(),
                     "Time limit exceeded",
@@ -141,6 +143,7 @@ public class TestCaseService
             return new TestExecutionResult(
                     testNumber,
                     TestCaseStatus.VALIDATION_ERROR,
+                    tc.input(),
                     null,
                     tc.expectedOutput(),
                     e.getMessage(),
@@ -152,6 +155,7 @@ public class TestCaseService
             return new TestExecutionResult(
                     testNumber,
                     TestCaseStatus.RUNTIME_ERROR,
+                    tc.input(),
                     null,
                     tc.expectedOutput(),
                     e.getMessage(),

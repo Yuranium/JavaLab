@@ -9,6 +9,8 @@ public record TestExecutionResult(
 
         TestCaseStatus status,
 
+        String input,
+
         String output,
 
         String exceptedOutput,

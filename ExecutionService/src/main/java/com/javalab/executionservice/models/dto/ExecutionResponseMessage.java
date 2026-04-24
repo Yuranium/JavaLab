@@ -3,7 +3,6 @@ package com.javalab.executionservice.models.dto;
 import com.javalab.executionservice.models.enums.ExecutionStatus;
 
 import java.io.Serializable;
-import java.time.Instant;
 import java.util.Collection;
 
 public record ExecutionResponseMessage(
@@ -11,7 +10,7 @@ public record ExecutionResponseMessage(
 
         String error,
 
-        long executionTDuration,
+        long executionDuration,
 
         Collection<TestExecutionResult> testCases
 

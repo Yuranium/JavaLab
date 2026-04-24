@@ -29,6 +29,7 @@
   overflow: hidden;
   min-height: 300px;
   background-color: var(--code-background);
+  border-radius: 8px;
 }
 
 .monaco-container {
@@ -37,6 +38,7 @@
   left: 0;
   right: 0;
   bottom: 0;
+  border-radius: inherit;
 }
 
 .task-code-editor-actions {
@@ -51,16 +53,28 @@
   padding: 12px 24px;
   font-size: 14px;
   font-weight: 600;
-  background-color: rgba(76, 175, 80, 0.15);
-  color: #4caf50;
-  border: 2px solid #4caf50;
-  border-radius: 10px;
+  background-color: var(--primary-surface, rgba(76, 175, 80, 0.12));
+  color: var(--primary, #4caf50);
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .task-code-editor-submit-btn:hover {
-  background-color: #4caf50;
+  background-color: var(--primary, #4caf50);
   color: white;
   box-shadow: var(--shadow-md);
+}
+
+.execution-status {
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: var(--surface-muted, rgba(0,0,0,0.04));
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.execution-status-text {
+  color: var(--text-secondary);
 }

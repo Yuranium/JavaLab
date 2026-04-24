@@ -18,6 +18,7 @@ export default function TaskProfilePage() {
   const [isLoading, setIsLoading] = createSignal(true);
   const [error, setError] = createSignal('');
   const [activeTab, setActiveTab] = createSignal('description');
+  const [liveTestCases, setLiveTestCases] = createSignal([]);
 
   const isAdmin = () => auth.hasRole(auth.ROLES.ADMIN);
 
@@ -37,10 +38,49 @@ export default function TaskProfilePage() {
 
       const data = await response.json();
       setTask(data);
+      setLiveTestCases(data.testCases || []);
     } catch (err) {
       setError(err.message || 'Неизвестная ошибка');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleExecutionMessage = (msg) => {
+    if (!msg || !msg.type) return;
+    if (msg.type === 'TEST_RESULT') {
+      const payload = msg.payload || {};
+      const number = payload.testNumber;
+      if (!number) return;
+      const prev = liveTestCases() || [];
+      const copy = prev.map(tc => ({ ...tc }));
+      const idx = number - 1;
+      if (idx >= 0 && idx < copy.length) {
+        copy[idx] = {
+          ...copy[idx],
+          status: payload.status,
+          output: payload.output,
+          expectedOutput: payload.exceptedOutput ?? payload.expectedOutput ?? copy[idx].expectedOutput,
+          error: payload.error,
+          executionDuration: payload.executionDuration
+        };
+        setLiveTestCases(copy);
+      }
+    } else if (msg.type === 'FINAL_RESULT') {
+      const payload = msg.payload || {};
+      if (payload.testCases && Array.isArray(payload.testCases)) {
+        const existing = liveTestCases() || [];
+        const mapped = payload.testCases.map((tc, idx) => ({
+          input: tc.input ?? tc.inputData ?? (existing[idx] && (existing[idx].input ?? existing[idx].inputData)) ?? '',
+          expectedOutput: tc.exceptedOutput ?? tc.expectedOutput ?? (existing[idx] && existing[idx].expectedOutput) ?? '',
+          status: tc.status,
+          output: tc.output,
+          error: tc.error,
+          executionDuration: tc.executionDuration,
+          isHidden: tc.isHidden || false
+        }));
+        setLiveTestCases(mapped);
+      }
     }
   };
 
@@ -136,13 +176,14 @@ export default function TaskProfilePage() {
                   <div class="task-profile-code-section">
                     <TaskCodeEditor
                       starterCode={task()?.starterCode}
+                      onExecutionMessage={handleExecutionMessage}
                     />
                   </div>
 
                   <Show when={activeTab() === 'description'}>
                     <div class="task-profile-testcases-section">
                       <TaskTestCases
-                        testCases={task()?.testCases || []}
+                        testCases={liveTestCases() || []}
                         isAdmin={isAdmin()}
                       />
                     </div>

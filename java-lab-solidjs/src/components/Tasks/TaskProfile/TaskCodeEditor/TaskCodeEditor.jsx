@@ -1,4 +1,5 @@
 import { createSignal, createEffect, createMemo, Show, onMount, onCleanup } from 'solid-js';
+import { useParams } from '@solidjs/router';
 import { useAuth } from '../../../../context/AuthContext';
 import { useTheme } from '../../../../context/ThemeContext';
 import './TaskCodeEditor.css';
@@ -28,6 +29,7 @@ export default function TaskCodeEditor(props) {
 
 
   const isAuthenticated = () => auth.isAuthenticated();
+  const params = useParams();
   const isGuest = () => {
     const u = auth.user && auth.user();
     if (!u) return true;
@@ -35,11 +37,90 @@ export default function TaskCodeEditor(props) {
     return roles.includes(auth.ROLES.GUEST);
   };
 
-  const handleSubmit = () => {
-    if (props.onSubmit) {
-      const val = editor ? editor.getValue() : code();
-      props.onSubmit(val);
+  const [execStatus, setExecStatus] = createSignal(null);
+  let ws = null;
+
+  const connectWebSocket = (codeVal) => {
+    try {
+      try { if (ws) ws.close(); } catch (e) {}
+
+      const tokenRaw = localStorage.getItem('access_token') || localStorage.getItem('accessToken') || '';
+      const token = (tokenRaw || '').toString().replace(/^Bearer\s+/i, '');
+      const parseJwtSub = (t) => {
+        try {
+          if (!t) return null;
+          const parts = t.split('.');
+          if (parts.length < 2) return null;
+          let payload = parts[1];
+          payload = payload.replace(/-/g, '+').replace(/_/g, '/');
+          while (payload.length % 4) payload += '=';
+          const json = atob(payload);
+          const obj = JSON.parse(json);
+          return obj.sub || null;
+        } catch (e) {
+          return null;
+        }
+      };
+      const userId = parseJwtSub(token);
+      const url = `ws://localhost:8086/ws/v1/execution${token ? `?access_token=${encodeURIComponent(token)}` : ''}`;
+      ws = token ? new WebSocket(url, [token]) : new WebSocket(url);
+
+      setExecStatus({ type: 'INFO', message: 'Подключение...' });
+
+      ws.onopen = () => {
+        setExecStatus({ type: 'INFO', message: 'Соединение установлено' });
+        try {
+          const taskIdNum = params && params.id ? Number(params.id) : null;
+          const payload = {
+            userId: userId,
+            taskId: taskIdNum,
+            code: codeVal
+          };
+          ws.send(JSON.stringify(payload));
+        } catch (e) {}
+      };
+
+      ws.onmessage = (ev) => {
+        try {
+          const msg = JSON.parse(ev.data);
+          if (props.onExecutionMessage) props.onExecutionMessage(msg);
+
+          let display = '';
+          if (msg.type === 'INFO') display = msg.payload?.message || '';
+          else if (msg.type === 'TEST_RESULT') display = `Тест #${msg.payload?.testNumber}: ${msg.payload?.status}`;
+          else if (msg.type === 'FINAL_RESULT') display = `Итог: ${msg.payload?.status || ''}`;
+          setExecStatus({ type: msg.type, message: display });
+
+          if (msg.type === 'FINAL_RESULT') {
+            try { ws.close(); } catch (e) {}
+            ws = null;
+          }
+        } catch (e) {
+          console.error('ws message parse error', e);
+        }
+      };
+
+      ws.onclose = () => {
+        setExecStatus({ type: 'INFO', message: 'Соединение закрыто' });
+      };
+      ws.onerror = (e) => {
+        setExecStatus({ type: 'INFO', message: 'Ошибка соединения' });
+      };
+
+      onCleanup(() => {
+        try { if (ws) ws.close(); } catch (e) {}
+        ws = null;
+      });
+    } catch (e) {
+      console.error('ws connect failed', e);
+      setExecStatus({ type: 'INFO', message: 'Не удалось установить соединение' });
     }
+  };
+
+  const handleSubmit = () => {
+    const val = editor ? editor.getValue() : code();
+    connectWebSocket(val);
+    if (props.onSubmit) props.onSubmit(val);
   };
 
   onMount(async () => {
@@ -151,17 +232,23 @@ export default function TaskCodeEditor(props) {
         <div ref={containerRef} class="monaco-container" />
       </div>
 
-      <div class="task-code-editor-actions">
-        <Show when={!isGuest()} fallback={
-          <button class="task-code-editor-submit-btn task-code-editor-login-btn" onClick={() => { window.location.href = '/login'; }}>
-            Войти
-          </button>
-        }>
-          <button class="task-code-editor-submit-btn" onClick={handleSubmit}>
-            Отправить решение
-          </button>
-        </Show>
-      </div>
+        <div class="task-code-editor-actions">
+          <Show when={!isGuest()} fallback={
+            <button class="task-code-editor-submit-btn task-code-editor-login-btn" onClick={() => { window.location.href = '/login'; }}>
+              Войти
+            </button>
+          }>
+            <div style={{ display: 'flex', 'align-items': 'center', gap: '12px' }}>
+              <button class="task-code-editor-submit-btn" onClick={handleSubmit}>
+                Отправить решение
+              </button>
+
+              <div class="execution-status" role="status" aria-live="polite">
+                <span class="execution-status-text">{execStatus()?.message}</span>
+              </div>
+            </div>
+          </Show>
+        </div>
     </div>
   );
 }
