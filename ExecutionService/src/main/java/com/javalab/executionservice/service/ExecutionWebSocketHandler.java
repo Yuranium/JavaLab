@@ -2,6 +2,7 @@ package com.javalab.executionservice.service;
 
 import com.javalab.executionservice.models.dto.ExecutionRequestDto;
 import com.javalab.executionservice.util.ExecutionValidator;
+import com.javalab.executionservice.util.ws.ExecutionStatusPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -10,6 +11,9 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import tools.jackson.databind.ObjectMapper;
+
+import java.util.Collection;
+import java.util.Objects;
 
 @Slf4j
 @Component
@@ -24,10 +28,13 @@ public class ExecutionWebSocketHandler extends TextWebSocketHandler
 
     private final ObjectMapper objectMapper;
 
+    private final ExecutionStatusPublisher publisher;
+
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception
     {
         log.info("WS connection closed");
+        executionContext.clearContext(session);
         super.afterConnectionClosed(session, status);
     }
 
@@ -41,18 +48,29 @@ public class ExecutionWebSocketHandler extends TextWebSocketHandler
             log.info("WS received '{}' in session {}", message.getPayload(), session.getId());
             var request = objectMapper.readValue(message.getPayload(), ExecutionRequestDto.class);
             var validateResult = validator.validate(request.code());
+            String userId = Objects.requireNonNull(session.getPrincipal()).getName();
+            executionContext.registerSession(
+                    userId,
+                    session
+            );
+
             if (validateResult.hasErrors())
             {
-                session.sendMessage(new TextMessage(objectMapper.writeValueAsString(validateResult)));
+                publisher.sendInfo(userId, totalErrors(validateResult.errorMessages()));
+                executionContext.clearContext(session);
                 return;
             }
-            executionContext.registerTask(request.userId(), session);
-            executionService.execute(request);
+            executionService.execute(request, userId);
         } catch (Exception ex)
         {
             log.warn(ex.getMessage(), ex);
             session.sendMessage(new TextMessage(ex.getMessage()));
         }
         super.handleTextMessage(session, message);
+    }
+
+    private String totalErrors(Collection<String> errors)
+    {
+        return String.join(",", errors);
     }
 }

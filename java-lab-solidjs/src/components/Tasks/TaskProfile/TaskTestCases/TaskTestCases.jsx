@@ -14,7 +14,14 @@ export default function TaskTestCases(props) {
 
   return (
     <div class="task-test-cases">
-      <h3 class="task-test-cases-title">Тест-кейсы</h3>
+      <div class="task-test-cases-header">
+        <h3 class="task-test-cases-title">Тест-кейсы</h3>
+        <Show when={props.taskStatus}>
+          <span class={`task-overall-status ${props.taskStatus === 'COMPLETED' ? 'passed' : props.taskStatus === 'FAILED' ? 'failed' : ''}`}>
+            {props.taskStatus === 'COMPLETED' ? 'Задача решена' : props.taskStatus === 'FAILED' ? 'Задача не решена' : ''}
+          </span>
+        </Show>
+      </div>
 
       <Show
         when={visibleTestCases().length > 0}

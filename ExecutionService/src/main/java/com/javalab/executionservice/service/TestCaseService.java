@@ -7,7 +7,7 @@ import com.javalab.executionservice.models.dto.*;
 import com.javalab.executionservice.models.enums.ExecutionStatus;
 import com.javalab.executionservice.models.enums.TestCaseStatus;
 import com.javalab.executionservice.service.kafka.KafkaProducer;
-import com.javalab.executionservice.util.ExecutionStatusPublisher;
+import com.javalab.executionservice.util.ws.ExecutionStatusPublisher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +17,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.*;
 
 @Service
@@ -34,19 +35,20 @@ public class TestCaseService
     public void runTests(
             ExecutionRequestDto request,
             Class<?> clazz,
-            Method method
+            Method method,
+            String userId
     )
     {
         List<TestCaseDto> testCases = testCaseDao.getTestCases(request.taskId());
 
         if (testCases.isEmpty())
         {
-            publisher.sendInfo(request.userId(), "Test-cases was not found");
+            publisher.sendInfo(userId, "Test-cases was not found");
             return;
         }
         List<TestExecutionResult> results = new ArrayList<>();
         boolean allPassed = true;
-        publisher.sendInfo(request.userId(), "Start tests...");
+        publisher.sendInfo(userId, "Start tests...");
 
         for (int i = 0; i < testCases.size(); i++)
         {
@@ -54,7 +56,7 @@ public class TestCaseService
 
             results.add(result);
             allPassed &= result.isPassed();
-            publisher.sendTestResult(request.userId(), result);
+            publisher.sendTestResult(userId, result);
         }
 
         ExecutionResponseMessage finalResponse = new ExecutionResponseMessage(
@@ -64,43 +66,16 @@ public class TestCaseService
                 results
         );
 
-        publisher.sendExecutionResult(request.userId(), finalResponse);
+        publisher.sendExecutionResult(userId, finalResponse);
         kafkaProducer.sendExecutionAttemptEvent(
                 new ExecutionAttemptEvent(
                         allPassed,
                         request.code(),
-                        request.userId(),
+                        UUID.fromString(userId),
                         request.taskId(),
                         Instant.now()
                 )
         );
-    }
-
-    private Object invokeWithTimeout(Class<?> clazz, Method method, String input) throws Exception
-    {
-        try (ExecutorService executor = Executors.newSingleThreadExecutor())
-        {
-            Future<Object> future = executor.submit(() -> {
-                Object instance = Modifier.isStatic(method.getModifiers())
-                        ? null
-                        : clazz.getDeclaredConstructor().newInstance();
-
-                Object[] args = convert(input, method.getParameterTypes());
-                return method.invoke(instance, args);
-            });
-
-            return future.get(
-                    executionConfig.getTimeout().getExecution().toMillis(),
-                    TimeUnit.MILLISECONDS
-            );
-        } catch (ExecutionException e)
-        {
-            Throwable cause = e.getCause();
-            if (cause instanceof Exception ex)
-                throw ex;
-
-            throw new RuntimeException(cause);
-        }
     }
 
     private TestExecutionResult executeTest(
@@ -161,6 +136,33 @@ public class TestCaseService
                     e.getMessage(),
                     elapsed(start)
             );
+        }
+    }
+
+    private Object invokeWithTimeout(Class<?> clazz, Method method, String input) throws Exception
+    {
+        try (ExecutorService executor = Executors.newSingleThreadExecutor())
+        {
+            Future<Object> future = executor.submit(() -> {
+                Object instance = Modifier.isStatic(method.getModifiers())
+                        ? null
+                        : clazz.getDeclaredConstructor().newInstance();
+
+                Object[] args = convert(input, method.getParameterTypes());
+                return method.invoke(instance, args);
+            });
+
+            return future.get(
+                    executionConfig.getTimeout().getExecution().toMillis(),
+                    TimeUnit.MILLISECONDS
+            );
+        } catch (ExecutionException e)
+        {
+            Throwable cause = e.getCause();
+            if (cause instanceof Exception ex)
+                throw ex;
+
+            throw new RuntimeException(cause);
         }
     }
 

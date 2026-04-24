@@ -19,6 +19,7 @@ export default function TaskProfilePage() {
   const [error, setError] = createSignal('');
   const [activeTab, setActiveTab] = createSignal('description');
   const [liveTestCases, setLiveTestCases] = createSignal([]);
+  const [taskResultStatus, setTaskResultStatus] = createSignal(null);
 
   const isAdmin = () => auth.hasRole(auth.ROLES.ADMIN);
 
@@ -68,6 +69,9 @@ export default function TaskProfilePage() {
       }
     } else if (msg.type === 'FINAL_RESULT') {
       const payload = msg.payload || {};
+      if (payload.status) {
+        setTaskResultStatus(payload.status);
+      }
       if (payload.testCases && Array.isArray(payload.testCases)) {
         const existing = liveTestCases() || [];
         const mapped = payload.testCases.map((tc, idx) => ({
@@ -185,6 +189,7 @@ export default function TaskProfilePage() {
                       <TaskTestCases
                         testCases={liveTestCases() || []}
                         isAdmin={isAdmin()}
+                        taskStatus={taskResultStatus()}
                       />
                     </div>
                   </Show>

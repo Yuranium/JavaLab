@@ -1,4 +1,4 @@
-package com.javalab.executionservice.util;
+package com.javalab.executionservice.util.ws;
 
 import com.javalab.executionservice.models.dto.ExecutionResponseMessage;
 import com.javalab.executionservice.models.dto.InfoMessage;
@@ -15,7 +15,6 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -26,7 +25,7 @@ public class ExecutionStatusPublisher
 
     private final ObjectMapper objectMapper;
 
-    public void sendInfo(UUID userId, String message)
+    public void sendInfo(String userId, String message)
     {
         var session = executionContext.getContext(userId);
         if (session.isOpen())
@@ -45,7 +44,7 @@ public class ExecutionStatusPublisher
         }
     }
 
-    public void sendTestResult(UUID userId, TestExecutionResult result)
+    public void sendTestResult(String userId, TestExecutionResult result)
     {
         var session = executionContext.getContext(userId);
         if (session.isOpen())
@@ -63,7 +62,7 @@ public class ExecutionStatusPublisher
         }
     }
 
-    public void sendExecutionResult(UUID userId, ExecutionResponseMessage result)
+    public void sendExecutionResult(String userId, ExecutionResponseMessage result)
     {
         var session = executionContext.getContext(userId);
         if (session.isOpen())

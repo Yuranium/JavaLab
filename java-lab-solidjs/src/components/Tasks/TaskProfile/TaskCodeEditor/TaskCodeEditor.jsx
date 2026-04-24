@@ -44,26 +44,9 @@ export default function TaskCodeEditor(props) {
     try {
       try { if (ws) ws.close(); } catch (e) {}
 
-      const tokenRaw = localStorage.getItem('access_token') || localStorage.getItem('accessToken') || '';
-      const token = (tokenRaw || '').toString().replace(/^Bearer\s+/i, '');
-      const parseJwtSub = (t) => {
-        try {
-          if (!t) return null;
-          const parts = t.split('.');
-          if (parts.length < 2) return null;
-          let payload = parts[1];
-          payload = payload.replace(/-/g, '+').replace(/_/g, '/');
-          while (payload.length % 4) payload += '=';
-          const json = atob(payload);
-          const obj = JSON.parse(json);
-          return obj.sub || null;
-        } catch (e) {
-          return null;
-        }
-      };
-      const userId = parseJwtSub(token);
-      const url = `ws://localhost:8086/ws/v1/execution${token ? `?access_token=${encodeURIComponent(token)}` : ''}`;
-      ws = token ? new WebSocket(url, [token]) : new WebSocket(url);
+      const token = localStorage.getItem('access_token');
+      const url = `ws://localhost:8086/ws/v1/execution?token=${encodeURIComponent(token)}`;
+      ws = new WebSocket(url);
 
       setExecStatus({ type: 'INFO', message: 'Подключение...' });
 
@@ -72,7 +55,6 @@ export default function TaskCodeEditor(props) {
         try {
           const taskIdNum = params && params.id ? Number(params.id) : null;
           const payload = {
-            userId: userId,
             taskId: taskIdNum,
             code: codeVal
           };

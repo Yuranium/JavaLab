@@ -9,6 +9,33 @@
   margin-bottom: 16px;
 }
 
+.task-test-cases-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.task-overall-status {
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 12px;
+  color: #fff;
+  border: 2px solid var(--border-color);
+  background: rgba(158,158,158,0.06);
+}
+.task-overall-status.passed {
+  border-color: #4caf50;
+  background: rgba(76,175,80,0.06);
+  color: #2e7d32;
+}
+.task-overall-status.failed {
+  border-color: #f44336;
+  background: rgba(244,67,54,0.06);
+  color: #b71c1c;
+}
+
 .task-test-cases-list {
   display: flex;
   flex-direction: column;
@@ -29,11 +56,9 @@
 
 .task-test-case.passed {
   border-color: #4caf50;
-  background: rgba(76,175,80,0.04);
 }
 .task-test-case.failed {
   border-color: #f44336;
-  background: rgba(244,67,54,0.04);
 }
 
 .task-test-case-header {

@@ -3,7 +3,7 @@ package com.javalab.executionservice.service;
 import com.javalab.executionservice.config.ExecutionConfig;
 import com.javalab.executionservice.models.dto.ExecutionRequestDto;
 import com.javalab.executionservice.util.exception.CompilationException;
-import com.javalab.executionservice.util.ExecutionStatusPublisher;
+import com.javalab.executionservice.util.ws.ExecutionStatusPublisher;
 import com.javalab.executionservice.util.InMemoryCompiler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,25 +28,24 @@ public class ExecutionService
     private final TestCaseService testCaseService;
 
     @Async("codeExecutionExecutor")
-    public void execute(ExecutionRequestDto request)
+    public void execute(ExecutionRequestDto request, String userId)
     {
-        publisher.sendInfo(request.userId(), "Compilation...");
+        publisher.sendInfo(userId, "Compilation...");
 
-        Class<?> clazz;
         try
         {
-            clazz = compiler.compile(
+            Class<?> clazz = compiler.compile(
                     executionConfig.getCompiler().getDefaultUserClassName(),
                     request.code()
             );
             Method solveMethod = findMainMethod(clazz);
-            testCaseService.runTests(request, clazz, solveMethod);
+            testCaseService.runTests(request, clazz, solveMethod, userId);
         } catch (CompilationException e)
         {
-            publisher.sendInfo(request.userId(), "Compilation error: " + e.getMessage());
+            publisher.sendInfo(userId, "Compilation error: " + e.getMessage());
         } catch (Exception e)
         {
-            publisher.sendInfo(request.userId(), e.getMessage());
+            publisher.sendInfo(userId, e.getMessage());
         }
     }
 
