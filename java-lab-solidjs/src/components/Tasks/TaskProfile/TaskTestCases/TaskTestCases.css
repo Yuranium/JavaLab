@@ -152,7 +152,7 @@
 .task-test-case-input,
 .task-test-case-output {
   background-color: var(--code-background);
-  color: #abb2bf;
+  color: var(--text-secondary);
   padding: 10px 12px;
   border-radius: 8px;
   font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
