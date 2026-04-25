@@ -4,6 +4,7 @@ import { useAuth } from '../../../../context/AuthContext';
 import { useTheme } from '../../../../context/ThemeContext';
 import './TaskCodeEditor.css';
 import 'monaco-editor/min/vs/editor/editor.main.css';
+import {config} from "../../../../config";
 
 
 export default function TaskCodeEditor(props) {
@@ -45,7 +46,7 @@ export default function TaskCodeEditor(props) {
       try { if (ws) ws.close(); } catch (e) {}
 
       const token = localStorage.getItem('access_token');
-      const url = `ws://localhost:8086/ws/v1/execution?token=${encodeURIComponent(token)}`;
+      const url = `${config.backendUrlWs}/ws/v1/execution?token=${encodeURIComponent(token)}`;
       ws = new WebSocket(url);
 
       setExecStatus({ type: 'INFO', message: 'Подключение...' });

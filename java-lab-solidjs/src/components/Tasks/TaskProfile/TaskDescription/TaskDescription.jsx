@@ -79,25 +79,30 @@ function formatInlineText(text) {
   let key = 0;
 
   while (remaining.length > 0) {
-    const boldMatch = remaining.match(/\*\*(.+?)\*\*/);
     const codeMatch = remaining.match(/`(.+?)`/);
+    const boldMatch = remaining.match(/\*\*(.+?)\*\*/);
+    const italicMatch = remaining.match(/(?:(?:\*(?!\*)(.+?)\*)|(?:_(.+?)_))/);
 
     let firstMatch = null;
     let matchType = '';
 
-    if (boldMatch && (!codeMatch || boldMatch.index <= codeMatch.index)) {
-      firstMatch = boldMatch;
-      matchType = 'bold';
-    } else if (codeMatch) {
-      firstMatch = codeMatch;
-      matchType = 'code';
+    const candidates = [];
+    if (codeMatch) candidates.push({ m: codeMatch, type: 'code', idx: codeMatch.index });
+    if (boldMatch) candidates.push({ m: boldMatch, type: 'bold', idx: boldMatch.index });
+    if (italicMatch) candidates.push({ m: italicMatch, type: 'italic', idx: italicMatch.index });
+    if (candidates.length > 0) {
+      candidates.sort((a, b) => a.idx - b.idx);
+      firstMatch = candidates[0].m;
+      matchType = candidates[0].type;
     }
 
     if (firstMatch) {
       if (firstMatch.index > 0) {
         parts.push({ type: 'text', content: remaining.slice(0, firstMatch.index), key: key++ });
       }
-      parts.push({ type: matchType, content: firstMatch[1], key: key++ });
+      let content = firstMatch[1];
+      if (matchType === 'italic' && firstMatch[1] === undefined) content = firstMatch[2];
+      parts.push({ type: matchType, content: content, key: key++ });
       remaining = remaining.slice(firstMatch.index + firstMatch[0].length);
     } else {
       parts.push({ type: 'text', content: remaining, key: key++ });
@@ -115,6 +120,8 @@ function InlineContent(props) {
       {parts.map((part) => {
         if (part.type === 'bold') {
           return <strong>{part.content}</strong>;
+        } else if (part.type === 'italic') {
+          return <em>{part.content}</em>;
         } else if (part.type === 'code') {
           return <code class="task-description-inline-code">{part.content}</code>;
         }

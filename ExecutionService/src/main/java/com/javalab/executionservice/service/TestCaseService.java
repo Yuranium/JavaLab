@@ -54,9 +54,15 @@ public class TestCaseService
         {
             TestExecutionResult result = executeTest(clazz, method, testCases.get(i), i + 1);
 
-            results.add(result);
             allPassed &= result.isPassed();
-            publisher.sendTestResult(userId, result);
+            if (!result.isPassed() || !testCases.get(i).isHidden())
+            {
+                results.add(result);
+                publisher.sendTestResult(userId, result);
+
+                if (!result.isPassed())
+                    break;
+            }
         }
 
         ExecutionResponseMessage finalResponse = new ExecutionResponseMessage(
@@ -81,22 +87,22 @@ public class TestCaseService
     private TestExecutionResult executeTest(
             Class<?> clazz,
             Method method,
-            TestCaseDto tc,
+            TestCaseDto dto,
             int testNumber
     )
     {
         long start = System.currentTimeMillis();
         try
         {
-            Object output = invokeWithTimeout(clazz, method, tc.input());
+            Object output = invokeWithTimeout(clazz, method, dto.input());
             String actual = output.toString();
-            String expected = tc.expectedOutput();
+            String expected = dto.expectedOutput();
             boolean passed = actual.equals(expected);
 
             return new TestExecutionResult(
                     testNumber,
                     passed ? TestCaseStatus.PASSED : TestCaseStatus.FAILED,
-                    tc.input(),
+                    dto.input(),
                     actual,
                     expected,
                     null,
@@ -107,9 +113,9 @@ public class TestCaseService
             return new TestExecutionResult(
                     testNumber,
                     TestCaseStatus.TIMEOUT,
-                    tc.input(),
+                    dto.input(),
                     null,
-                    tc.expectedOutput(),
+                    dto.expectedOutput(),
                     "Time limit exceeded",
                     elapsed(start)
             );
@@ -118,9 +124,9 @@ public class TestCaseService
             return new TestExecutionResult(
                     testNumber,
                     TestCaseStatus.VALIDATION_ERROR,
-                    tc.input(),
+                    dto.input(),
                     null,
-                    tc.expectedOutput(),
+                    dto.expectedOutput(),
                     e.getMessage(),
                     elapsed(start)
             );
@@ -130,9 +136,9 @@ public class TestCaseService
             return new TestExecutionResult(
                     testNumber,
                     TestCaseStatus.RUNTIME_ERROR,
-                    tc.input(),
+                    dto.input(),
                     null,
-                    tc.expectedOutput(),
+                    dto.expectedOutput(),
                     e.getMessage(),
                     elapsed(start)
             );

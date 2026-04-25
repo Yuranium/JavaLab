@@ -5,6 +5,8 @@ import java.io.Serializable;
 public record TestCasePayload(
         String input,
 
-        String expectedOutput
+        String expectedOutput,
+
+        boolean isHidden
 
 ) implements Serializable {}

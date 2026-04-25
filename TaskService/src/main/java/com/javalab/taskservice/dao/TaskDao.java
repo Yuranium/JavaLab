@@ -90,6 +90,7 @@ public class TaskDao
                                         .from(TEST_CASE)
                                         .where(TEST_CASE.ID_TASK.eq(TASK.ID_TASK)
                                                 .and(TEST_CASE.IS_HIDDEN.eq(loadHiddenTestCases)))
+                                        .orderBy(TEST_CASE.ID_TASK.asc())
                         )
                                 .as("test_cases")
                                 .convertFrom(res -> res.into(TestCaseResponseDto.class))

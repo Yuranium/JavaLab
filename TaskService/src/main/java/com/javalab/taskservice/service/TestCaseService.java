@@ -68,7 +68,8 @@ public class TestCaseService
                         : testCase.stream()
                         .map(e -> new TestCasePayload(
                                 e.input(),
-                                e.expectedOutput())
+                                e.expectedOutput(),
+                                e.isHidden())
                         )
                         .toList())
         );

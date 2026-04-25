@@ -1,6 +1,8 @@
 package com.javalab.executionservice.service;
 
 import com.javalab.executionservice.models.dto.ExecutionRequestDto;
+import com.javalab.executionservice.models.dto.ExecutionResponseMessage;
+import com.javalab.executionservice.models.enums.ExecutionStatus;
 import com.javalab.executionservice.util.ExecutionValidator;
 import com.javalab.executionservice.util.ws.ExecutionStatusPublisher;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +15,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
 
 @Slf4j
@@ -56,7 +59,11 @@ public class ExecutionWebSocketHandler extends TextWebSocketHandler
 
             if (validateResult.hasErrors())
             {
-                publisher.sendInfo(userId, totalErrors(validateResult.errorMessages()));
+                publisher.sendExecutionResult(userId, new ExecutionResponseMessage(
+                        ExecutionStatus.FAILED,
+                        totalErrors(validateResult.errorMessages()),
+                        0L, Collections.emptyList()
+                ));
                 executionContext.clearContext(session);
                 return;
             }

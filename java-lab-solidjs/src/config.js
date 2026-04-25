@@ -1,5 +1,6 @@
 export const config = {
     backendUrl: import.meta.env.VITE_BACKEND_URL,
+    backendUrlWs: import.meta.env.VITE_BACKEND_URL_WS,
     authUrl: import.meta.env.VITE_AUTH_URL,
     realm: import.meta.env.VITE_REALM,
     grantType: import.meta.env.VITE_GRANT_TYPE,

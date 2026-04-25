@@ -4,7 +4,7 @@ import devtools from 'solid-devtools/vite';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
-  
+
   return {
     plugins: [devtools(), solidPlugin()],
     server: {
@@ -15,6 +15,7 @@ export default defineConfig(({ mode }) => {
     },
     define: {
       'import.meta.env.BACKEND_URL': JSON.stringify(env.VITE_BACKEND_URL),
+      'import.meta.env.BACKEND_URL_WS': JSON.stringify(env.VITE_BACKEND_URL_WS),
       'import.meta.env.AUTH_URL': JSON.stringify(env.VITE_AUTH_URL),
       'import.meta.env.REALM': JSON.stringify(env.VITE_REALM),
       'import.meta.env.GRANT_TYPE': JSON.stringify(env.VITE_GRANT_TYPE),

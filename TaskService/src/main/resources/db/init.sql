@@ -63,7 +63,7 @@ BEGIN
         NEW.is_default = true;
         NEW.code =
 $code$public class Main {
-    public static void main(String[] args) {
+    public static void solve() {
         System.out.println("Hello, World!");
     }
 }
@@ -86,7 +86,7 @@ $$
 DECLARE
     starter_code TEXT =
 $code$public class Main {
-    public static void main(String[] args) {
+    public static void solve() {
         System.out.println("Hello, World!");
     }
 }

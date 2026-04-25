@@ -18,6 +18,31 @@ http:
         addVaryHeader: true
         accessControlAllowCredentials: true
 
+    websocket-middleware:
+      headers:
+        accessControlAllowOriginList:
+          - '{{ env "ALLOW_ORIGIN_1" }}'
+        accessControlAllowCredentials: true
+        accessControlAllowMethods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - OPTIONS
+        accessControlAllowHeaders:
+          - "Content-Type"
+          - "Authorization"
+          - "Connection"
+          - "Upgrade"
+          - "Sec-WebSocket-Key"
+          - "Sec-WebSocket-Version"
+          - "Sec-WebSocket-Extensions"
+        accessControlExposeHeaders:
+          - "Upgrade"
+          - "Connection"
+        addVaryHeader: true
+        customFrameOptionsValue: "DENY"
+
   routers:
     user-router:
       rule: "PathPrefix(`/api/v1/user`)"
@@ -66,6 +91,14 @@ http:
         - web
       middlewares:
         - cors-middleware
+
+    execution-ws-router:
+      rule: "PathPrefix(`/api/v1/execution/ws`)"
+      service: execution-service
+      entryPoints:
+        - web
+      middlewares:
+        - websocket-middleware
 
     task-router:
       rule: "PathPrefix(`/api/v1/task`)"
