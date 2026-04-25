@@ -5,26 +5,24 @@ export default function TaskTestCases(props) {
   const testCases = () => props.testCases || [];
   const isAdmin = () => props.isAdmin || false;
 
-  const visibleTestCases = () => {
-    if (isAdmin()) {
-      return testCases();
-    }
-    return testCases().filter(tc => !tc.isHidden);
-  };
-
   return (
     <div class="task-test-cases">
       <div class="task-test-cases-header">
         <h3 class="task-test-cases-title">Тест-кейсы</h3>
         <Show when={props.taskStatus}>
-          <span class={`task-overall-status ${props.taskStatus === 'COMPLETED' ? 'passed' : props.taskStatus === 'FAILED' ? 'failed' : ''}`}>
-            {props.taskStatus === 'COMPLETED' ? 'Задача решена' : props.taskStatus === 'FAILED' ? 'Задача не решена' : ''}
-          </span>
+          <div style={{display: 'flex', gap: '8px', 'align-items': 'center'}}>
+            <Show when={props.taskStatus === 'FAILED' && props.error}>
+              <span class="task-overall-error">{props.error}</span>
+            </Show>
+            <span class={`task-overall-status ${props.taskStatus === 'COMPLETED' ? 'passed' : props.taskStatus === 'FAILED' ? 'failed' : ''}`}>
+              {props.taskStatus === 'COMPLETED' ? 'Задача решена' : props.taskStatus === 'FAILED' ? 'Задача не решена' : ''}
+            </span>
+          </div>
         </Show>
       </div>
 
       <Show
-        when={visibleTestCases().length > 0}
+        when={testCases().length > 0}
         fallback={
           <div class="task-test-cases-empty">
             <p>Тест-кейсы отсутствуют</p>
@@ -32,7 +30,7 @@ export default function TaskTestCases(props) {
         }
       >
         <div class="task-test-cases-list">
-          <For each={visibleTestCases()}>
+          <For each={testCases()}>
               {(testCase, index) => (
                   <div class={`task-test-case ${testCase.status === 'PASSED' ? 'passed' : testCase.status === 'FAILED' ? 'failed' : ''}`}>
                     <div class="task-test-case-header">

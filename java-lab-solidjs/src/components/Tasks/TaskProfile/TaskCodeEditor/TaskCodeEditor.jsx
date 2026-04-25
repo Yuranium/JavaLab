@@ -46,7 +46,7 @@ export default function TaskCodeEditor(props) {
       try { if (ws) ws.close(); } catch (e) {}
 
       const token = localStorage.getItem('access_token');
-      const url = `${config.backendUrlWs}/ws/v1/execution?token=${encodeURIComponent(token)}`;
+      const url = `${config.backendUrlWs}/api/v1/execution/ws?token=${encodeURIComponent(token)}`;
       ws = new WebSocket(url);
 
       setExecStatus({ type: 'INFO', message: 'Подключение...' });
