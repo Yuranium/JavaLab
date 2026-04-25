@@ -1,0 +1,128 @@
+.task-attempts {
+  margin: 12px 0;
+  width: 100%;
+  box-sizing: border-box;
+  align-self: stretch;
+}
+
+.task-attempts-panel {
+  margin-top: 8px;
+  background-color: var(--surface-color);
+  color: var(--text-primary);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  padding: 12px;
+  max-height: 60vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--border-color);
+  color-scheme: light dark;
+}
+
+.task-attempts-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.task-attempts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.attempt-card {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 6px;
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.attempt-status {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.status-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.status-ok { color: #2e7d32; }
+.status-fail { color: #c62828; }
+
+.attempt-body {
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+
+.attempt-meta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.attempt-expand-btn {
+  margin-left: auto;
+  margin-right: 5px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+
+.attempt-code {
+  padding: 8px;
+  border-radius: 4px;
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 13px;
+  color: var(--text-primary);
+  background-color: var(--code-background);
+  text-align: left;
+  box-sizing: border-box;
+  transition: max-height 0.18s ease;
+}
+
+.attempt-code.expanded {
+  white-space: pre-wrap;
+  overflow: auto;
+  overflow-x: hidden;
+  word-break: break-word;
+  max-height: 400px;
+}
+.attempt-code.collapsed {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  max-width: 100%;
+}
+
+.arrow {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-left: 2px solid currentColor;
+  border-top: 2px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 0.18s ease;
+  color: var(--text-primary);
+}
+.arrow.open { transform: rotate(-135deg); /* up */ }
+
+.task-attempts-loading {
+  padding: 12px;
+  text-align: center;
+  color: GrayText;
+}

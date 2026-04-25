@@ -7,6 +7,7 @@ import TaskTabs from '../components/Tasks/TaskProfile/TaskTabs/TaskTabs';
 import TaskDescription from '../components/Tasks/TaskProfile/TaskDescription/TaskDescription';
 import TaskTestCases from '../components/Tasks/TaskProfile/TaskTestCases/TaskTestCases';
 import TaskCodeEditor from '../components/Tasks/TaskProfile/TaskCodeEditor/TaskCodeEditor';
+import TaskAttempts from '../components/Tasks/TaskProfile/TaskAttempts/TaskAttempts';
 import './TaskProfilePage.css';
 
 export default function TaskProfilePage() {
@@ -165,15 +166,7 @@ export default function TaskProfilePage() {
 
                 <Show when={activeTab() === 'solutions' && auth.isAuthenticated()}>
                   <div class="task-profile-placeholder">
-                    <svg class="task-profile-placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                      <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
-                      <rect x="9" y="3" width="6" height="4" rx="1" />
-                      <path d="M9 14l2 2 4-4" />
-                    </svg>
-                    <p>Мои решения</p>
-                    <p class="task-profile-placeholder-subtext">
-                      Здесь будут отображаться ваши решения задачи
-                    </p>
+                    <TaskAttempts taskId={params.id} />
                   </div>
                 </Show>
               </ResizablePanel>
@@ -186,8 +179,6 @@ export default function TaskProfilePage() {
                       onExecutionMessage={handleExecutionMessage}
                     />
                   </div>
-
-                  <Show when={activeTab() === 'description'}>
                     <div class="task-profile-testcases-section">
                       <TaskTestCases
                         testCases={liveTestCases() || []}
@@ -196,13 +187,6 @@ export default function TaskProfilePage() {
                         error={taskError()}
                       />
                     </div>
-                  </Show>
-
-                  <Show when={activeTab() !== 'description'}>
-                    <div class="task-profile-placeholder task-profile-placeholder--compact">
-                      <p>Переключитесь на вкладку "Описание" для просмотра тест-кейсов</p>
-                    </div>
-                  </Show>
                 </div>
               </ResizablePanel>
             </div>
