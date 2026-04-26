@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS task
 (
     id_task     BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     title       VARCHAR(255) NOT NULL,
-    description TEXT,
+    description TEXT         NOT NULL,
     difficulty  VARCHAR(50)  NOT NULL,
     created_at  TIMESTAMPTZ  NOT NULL DEFAULT now(),
     updated_at  TIMESTAMPTZ  NOT NULL DEFAULT now(),

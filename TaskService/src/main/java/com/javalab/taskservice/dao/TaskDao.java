@@ -46,7 +46,7 @@ public class TaskDao
                                 .convertFrom(r -> r.into(CategoryResponseDto.class))
                 )
                 .from(TASK)
-                .orderBy(TASK.ID_TASK)
+                .orderBy(TASK.ID_TASK.asc())
                 .offset(page * size)
                 .limit(size)
                 .fetchInto(TaskResponseDto.class);

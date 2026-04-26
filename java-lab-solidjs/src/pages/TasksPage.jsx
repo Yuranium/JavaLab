@@ -1,12 +1,17 @@
 import { createSignal, createMemo, createEffect, For, Show } from 'solid-js';
 import { config } from '../config';
+import { useAuth } from '../context/AuthContext';
 import TaskCard from '../components/Tasks/TaskCard/TaskCard';
 import TaskFilters from '../components/Tasks/TaskFilters/TaskFilters';
+import CreateTaskModal from '../components/Tasks/CreateTask/CreateTaskModal';
 import './TasksPage.css';
 
 const DEFAULT_PAGE_SIZE = 30;
 
 export default function TasksPage() {
+  const auth = useAuth();
+  const [isCreateModalOpen, setIsCreateModalOpen] = createSignal(false);
+
   const [filters, setFilters] = createSignal({
     search: '',
     category: '',
@@ -135,8 +140,22 @@ export default function TasksPage() {
   return (
     <div class="tasks-page">
       <div class="tasks-header">
-        <h1 class="tasks-title">Задачи</h1>
-        <p class="tasks-subtitle">Выбирайте задачи по категориям и сложности, отслеживайте свой прогресс</p>
+        <div class="tasks-header-text">
+          <h1 class="tasks-title">Задачи</h1>
+          <p class="tasks-subtitle">Выбирайте задачи по категориям и сложности, отслеживайте свой прогресс</p>
+        </div>
+        <Show when={auth.hasRole(auth.ROLES.ADMIN)}>
+          <button
+            class="tasks-create-btn"
+            onClick={() => setIsCreateModalOpen(true)}
+          >
+            <svg class="tasks-create-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Создать задачу
+          </button>
+        </Show>
       </div>
 
       <div class="tasks-controls">
@@ -216,6 +235,14 @@ export default function TasksPage() {
             </Show>
           </button>
         </div>
+      </Show>
+
+      <Show when={auth.hasRole(auth.ROLES.ADMIN)}>
+        <CreateTaskModal
+          isOpen={isCreateModalOpen()}
+          onClose={() => setIsCreateModalOpen(false)}
+          onSuccess={() => loadTasks(0, false)}
+        />
       </Show>
     </div>
   );

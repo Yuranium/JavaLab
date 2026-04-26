@@ -6,7 +6,16 @@
 }
 
 .tasks-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
   margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.tasks-header-text {
+  flex: 1 1 auto;
 }
 
 .tasks-title {
@@ -19,6 +28,38 @@
 .tasks-subtitle {
   font-size: 16px;
   color: var(--text-secondary);
+}
+
+.tasks-create-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-md);
+}
+
+.tasks-create-btn:hover {
+  background-color: var(--primary-dark);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-1px);
+}
+
+.tasks-create-btn:active {
+  transform: translateY(0);
+}
+
+.tasks-create-btn-icon {
+  width: 16px;
+  height: 16px;
 }
 
 .tasks-controls {
@@ -307,6 +348,16 @@
 @media (max-width: 768px) {
   .tasks-page {
     padding: 16px;
+  }
+
+  .tasks-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .tasks-create-btn {
+    width: 100%;
+    justify-content: center;
   }
 
   .tasks-title {
