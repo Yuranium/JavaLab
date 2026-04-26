@@ -5,6 +5,7 @@ import com.javalab.taskservice.dto.response.*;
 import com.javalab.taskservice.tables.records.TaskRecord;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
+import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -89,7 +90,7 @@ public class TaskDao
                                 )
                                         .from(TEST_CASE)
                                         .where(TEST_CASE.ID_TASK.eq(TASK.ID_TASK)
-                                                .and(TEST_CASE.IS_HIDDEN.eq(loadHiddenTestCases)))
+                                                .and(loadHiddenTestCases ? DSL.noCondition() : TEST_CASE.IS_HIDDEN.eq(false)))
                                         .orderBy(TEST_CASE.ID_TASK.asc())
                         )
                                 .as("test_cases")

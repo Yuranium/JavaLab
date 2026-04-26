@@ -20,10 +20,10 @@ function formatDateToLocal(timestamp) {
 }
 
 function formatDescription(text) {
-  if (!text) return '';
+  if (!text) return [];
 
   const lines = text.split('\n');
-  const result = [];
+  const raw = [];
   let inCodeBlock = false;
   let codeContent = [];
   let codeLang = '';
@@ -33,7 +33,7 @@ function formatDescription(text) {
 
     if (line.startsWith('```')) {
       if (inCodeBlock) {
-        result.push({ type: 'code', content: codeContent.join('\n'), lang: codeLang });
+        raw.push({ type: 'code', content: codeContent.join('\n'), lang: codeLang });
         codeContent = [];
         codeLang = '';
         inCodeBlock = false;
@@ -50,25 +50,42 @@ function formatDescription(text) {
     }
 
     if (line.startsWith('### ')) {
-      result.push({ type: 'h3', content: line.slice(4) });
+      raw.push({ type: 'h3', content: line.slice(4) });
     } else if (line.startsWith('## ')) {
-      result.push({ type: 'h2', content: line.slice(3) });
+      raw.push({ type: 'h2', content: line.slice(3) });
     } else if (line.startsWith('# ')) {
-      result.push({ type: 'h1', content: line.slice(2) });
-    } else if (line.startsWith('- ')) {
-      result.push({ type: 'li', content: line.slice(2) });
+      raw.push({ type: 'h1', content: line.slice(2) });
+    } else if (line.startsWith('- ') || line.startsWith('* ')) {
+      raw.push({ type: 'li', content: line.slice(2) });
     } else if (line.trim() === '') {
-      result.push({ type: 'br' });
+      raw.push({ type: 'br' });
     } else {
-      result.push({ type: 'p', content: line });
+      raw.push({ type: 'p', content: line });
     }
   }
 
   if (inCodeBlock) {
-    result.push({ type: 'code', content: codeContent.join('\n'), lang: codeLang });
+    raw.push({ type: 'code', content: codeContent.join('\n'), lang: codeLang });
   }
 
-  return result;
+  // Group consecutive li items into ul blocks
+  const blocks = [];
+  let i = 0;
+  while (i < raw.length) {
+    if (raw[i].type === 'li') {
+      const items = [];
+      while (i < raw.length && raw[i].type === 'li') {
+        items.push(raw[i]);
+        i++;
+      }
+      blocks.push({ type: 'ul', items });
+    } else {
+      blocks.push(raw[i]);
+      i++;
+    }
+  }
+
+  return blocks;
 }
 
 function formatInlineText(text) {
@@ -256,8 +273,14 @@ export default function TaskDescription(props) {
               return <h3><InlineContent text={block.content} /></h3>;
             } else if (block.type === 'p') {
               return <p><InlineContent text={block.content} /></p>;
-            } else if (block.type === 'li') {
-              return <li><InlineContent text={block.content} /></li>;
+            } else if (block.type === 'ul') {
+              return (
+                <ul class="task-description-list">
+                  {block.items.map((item) => (
+                    <li><InlineContent text={item.content} /></li>
+                  ))}
+                </ul>
+              );
             } else if (block.type === 'code') {
               return (
                 <pre class="task-description-code">
@@ -265,7 +288,7 @@ export default function TaskDescription(props) {
                 </pre>
               );
             } else if (block.type === 'br') {
-              return <br />;
+              return <div class="task-description-br" />;
             }
             return null;
           })}

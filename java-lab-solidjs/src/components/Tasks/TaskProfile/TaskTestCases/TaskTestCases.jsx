@@ -36,8 +36,13 @@ export default function TaskTestCases(props) {
                     <div class="task-test-case-header">
                       <div style={{ display: 'flex', gap: '8px', 'align-items': 'center' }}>
                         <span class="task-test-case-number">Тест #{index() + 1}</span>
-                        <Show when={testCase.isHidden && isAdmin()}>
-                          <span class="task-test-case-badge-hidden">Скрытый</span>
+                        <Show when={isAdmin()}>
+                          <Show
+                            when={testCase.isHidden}
+                            fallback={<span class="task-test-case-badge-public">Публичный</span>}
+                          >
+                            <span class="task-test-case-badge-hidden">Скрытый</span>
+                          </Show>
                         </Show>
                       </div>
 

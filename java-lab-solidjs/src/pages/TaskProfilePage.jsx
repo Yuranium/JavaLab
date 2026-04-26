@@ -1,10 +1,12 @@
 import { createSignal, createEffect, Show } from 'solid-js';
 import { useParams, useNavigate } from '@solidjs/router';
+import axios from 'axios';
 import { config } from '../config';
 import { useAuth } from '../context/AuthContext';
 import ResizablePanel from '../components/Tasks/TaskProfile/ResizablePanel/ResizablePanel';
 import TaskTabs from '../components/Tasks/TaskProfile/TaskTabs/TaskTabs';
 import TaskDescription from '../components/Tasks/TaskProfile/TaskDescription/TaskDescription';
+import TaskEditForm from '../components/Tasks/TaskProfile/TaskEditForm/TaskEditForm';
 import TaskTestCases from '../components/Tasks/TaskProfile/TaskTestCases/TaskTestCases';
 import TaskCodeEditor from '../components/Tasks/TaskProfile/TaskCodeEditor/TaskCodeEditor';
 import TaskAttempts from '../components/Tasks/TaskProfile/TaskAttempts/TaskAttempts';
@@ -23,6 +25,9 @@ export default function TaskProfilePage() {
   const [taskResultStatus, setTaskResultStatus] = createSignal(null);
   const [taskError, setTaskError] = createSignal(null);
 
+  const [isEditMode, setIsEditMode] = createSignal(false);
+  const [editTask, setEditTask] = createSignal(null);
+
   const isAdmin = () => auth.hasRole(auth.ROLES.ADMIN);
 
   const loadTask = async () => {
@@ -30,20 +35,27 @@ export default function TaskProfilePage() {
     setError('');
 
     try {
-      const response = await fetch(`${config.backendUrl}/api/v1/task/${params.id}`);
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        throw new Error(
-          errorData?.message || `Ошибка загрузки: ${response.status} ${response.statusText}`
-        );
+      let data;
+      if (isAdmin()) {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.get(`${config.backendUrl}/api/v1/task/${params.id}/admin`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        data = response.data;
+      } else {
+        const response = await fetch(`${config.backendUrl}/api/v1/task/${params.id}`);
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => null);
+          throw new Error(
+            errorData?.message || `Ошибка загрузки: ${response.status} ${response.statusText}`
+          );
+        }
+        data = await response.json();
       }
-
-      const data = await response.json();
       setTask(data);
       setLiveTestCases(data.testCases || []);
     } catch (err) {
-      setError(err.message || 'Неизвестная ошибка');
+      setError(err.response?.data?.message || err.message || 'Неизвестная ошибка');
     } finally {
       setIsLoading(false);
     }
@@ -98,6 +110,22 @@ export default function TaskProfilePage() {
     }
   });
 
+  const handleToggleEditMode = (enabled) => {
+    if (!enabled) {
+      setIsEditMode(false);
+      setEditTask(null);
+      return;
+    }
+    setEditTask(task());
+    setIsEditMode(true);
+  };
+
+  const handleEditSuccess = () => {
+    setIsEditMode(false);
+    setEditTask(null);
+    loadTask();
+  };
+
   const handleBack = () => {
     navigate('/tasks');
   };
@@ -144,7 +172,42 @@ export default function TaskProfilePage() {
                 />
 
                 <Show when={activeTab() === 'description'}>
-                  <TaskDescription task={task()} />
+                  <Show when={isAdmin()}>
+                    <div class="task-profile-edit-bar">
+                      <label class="task-profile-toggle">
+                        <span class="task-profile-toggle-text">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                          </svg>
+                          Режим редактирования
+                        </span>
+                        <span class="task-profile-switch">
+                          <input
+                            type="checkbox"
+                            class="task-profile-switch-input"
+                            checked={isEditMode()}
+                            onChange={(e) => handleToggleEditMode(e.target.checked)}
+                            />
+                          <span class="task-profile-switch-track">
+                            <span class="task-profile-switch-thumb" />
+                          </span>
+                        </span>
+                      </label>
+                    </div>
+                  </Show>
+
+                  <Show when={isEditMode() && editTask()}>
+                    <TaskEditForm
+                      task={editTask()}
+                      taskId={params.id}
+                      onSuccess={handleEditSuccess}
+                    />
+                  </Show>
+
+                  <Show when={!isEditMode()}>
+                    <TaskDescription task={task()} />
+                  </Show>
                 </Show>
 
                 <Show when={activeTab() === 'ai' && auth.isAuthenticated()}>

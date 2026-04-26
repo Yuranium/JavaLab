@@ -150,6 +150,98 @@
   opacity: 0.8;
 }
 
+/* ── Edit mode toggle bar ── */
+.task-profile-edit-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  background-color: var(--background-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.task-profile-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+  flex: 1;
+}
+
+.task-profile-toggle-text {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.task-profile-toggle-text svg {
+  width: 15px;
+  height: 15px;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+/* Toggle switch */
+.task-profile-switch {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.task-profile-switch-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.task-profile-switch-track {
+  position: relative;
+  display: block;
+  width: 40px;
+  height: 22px;
+  background-color: var(--border-color);
+  border-radius: 11px;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+}
+
+.task-profile-switch-input:checked + .task-profile-switch-track {
+  background-color: var(--primary-color);
+}
+
+.task-profile-switch-input:disabled + .task-profile-switch-track {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.task-profile-switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  background-color: white;
+  border-radius: 50%;
+  transition: left 0.25s ease;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+.task-profile-switch-input:checked + .task-profile-switch-track .task-profile-switch-thumb {
+  left: 20px;
+}
+
+
 @media (max-width: 1024px) {
   .task-profile-panels {
     flex-direction: column;

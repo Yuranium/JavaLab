@@ -169,9 +169,20 @@
   color: var(--text-primary);
 }
 
-.task-description-content li {
-  margin: 8px 0 8px 20px;
+.task-description-list {
+  margin: 10px 0;
+  padding-left: 22px;
+  list-style-type: disc;
+}
+
+.task-description-list li {
+  margin: 5px 0;
   color: var(--text-primary);
+  line-height: 1.6;
+}
+
+.task-description-br {
+  height: 8px;
 }
 
 .task-description-code {
