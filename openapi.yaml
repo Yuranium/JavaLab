@@ -1,0 +1,1495 @@
+openapi: 3.0.3
+
+info:
+  title: JavaLab API
+  description: >
+    Сводная документация REST API микросервисов платформы JavaLab.
+    Платформа состоит из двух самостоятельных сервисов:
+
+    - **UserService** (порт 8080) — управление пользователями, аутентификация,
+      верификация учётных записей, блокировка.
+
+    - **TaskService** (порт 8085) — управление задачами (заданиями по Java),
+      категориями задач, тест-кейсами и стартовым кодом.
+
+
+    **Аутентификация.** Оба сервиса работают как OAuth2 Resource Server.
+    Токен доступа (JWT) выдаётся сервером авторизации Keycloak.
+    Токен передаётся в заголовке `Authorization: Bearer <token>`.
+    Роли пользователя извлекаются из claim `realm_access.roles` внутри JWT.
+
+
+    **Роли:**
+
+    - `USER` — доступ к базовым функциям системы. При регистрации назначается автоматически.
+
+    - `ADMIN` — полный доступ ко всем защищённым операциям.
+
+    - `SERVICE` — доступ к внутренним межсервисным эндпоинтам.
+
+    - Аутентифицированный пользователь без специальной роли — доступ
+      к собственному профилю и публичным данным.
+  version: 1.0.0
+  contact:
+    name: Yuranium
+
+servers:
+  - url: http://localhost:8080
+    description: UserService — сервис управления пользователями
+  - url: http://localhost:8085
+    description: TaskService — сервис управления задачами
+
+tags:
+  - name: Аутентификация
+    description: >
+      Верификация учётной записи и управление профилем текущего
+      аутентифицированного пользователя. Базовый путь: `/api/v1/auth`.
+  - name: Пользователи
+    description: >
+      Регистрация новых пользователей и просмотр профилей.
+      Базовый путь: `/api/v1/user`.
+  - name: Блокировка пользователей
+    description: >
+      Административные операции блокировки и разблокировки учётных записей.
+      Базовый путь: `/api/v1/user/access`.
+  - name: Задачи
+    description: >
+      Создание, редактирование и просмотр задач (программных заданий).
+      Базовый путь: `/api/v1/task`.
+  - name: Категории задач
+    description: >
+      Управление категориями задач.
+      Базовый путь: `/api/v1/task/category`.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ПУТИ
+# ─────────────────────────────────────────────────────────────────────────────
+paths:
+
+  # ══════════════════════════════════════════════════════════════════════════
+  # UserService — Аутентификация  (/api/v1/auth)
+  # ══════════════════════════════════════════════════════════════════════════
+
+  /api/v1/auth/send-confirmation-code:
+    post:
+      tags:
+        - Аутентификация
+      summary: Отправить код подтверждения учётной записи
+      description: >
+        Принимает данные зарегистрированного пользователя и инициирует
+        отправку одноразового кода подтверждения (OTP) на электронную почту.
+        Этот метод вызывается сервисом регистрации после создания учётной
+        записи в Keycloak и **не требует JWT-токена**.
+      operationId: sendConfirmationCode
+      servers:
+        - url: http://localhost:8080
+          description: UserService
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegisteredEvent'
+      responses:
+        '200':
+          description: Код подтверждения успешно сформирован и отправлен. Возвращает числовой код.
+          content:
+            application/json:
+              schema:
+                type: integer
+                example: 482913
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/v1/auth/{username}/verify-account:
+    post:
+      tags:
+        - Аутентификация
+      summary: Подтвердить учётную запись по коду
+      description: >
+        Проверяет одноразовый код, введённый пользователем при регистрации.
+        При успешной проверке учётная запись активируется.
+        Метод **не требует JWT-токена**.
+      operationId: validateConfirmationCode
+      servers:
+        - url: http://localhost:8080
+          description: UserService
+      security: []
+      parameters:
+        - name: username
+          in: path
+          required: true
+          description: Логин (username) пользователя, чья учётная запись подтверждается.
+          schema:
+            type: string
+            example: john_doe
+        - name: code
+          in: query
+          required: true
+          description: Одноразовый код подтверждения, отправленный на электронную почту.
+          schema:
+            type: integer
+            example: 482913
+      responses:
+        '200':
+          description: Учётная запись успешно подтверждена.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/v1/auth/:
+    get:
+      tags:
+        - Аутентификация
+      summary: Получить профиль текущего пользователя
+      description: >
+        Возвращает полный профиль пользователя, идентифицированного по JWT-токену
+        (claim `sub`). Требует действительного токена доступа.
+      operationId: getCurrentUser
+      servers:
+        - url: http://localhost:8080
+          description: UserService
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Профиль текущего пользователя.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponseDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      tags:
+        - Аутентификация
+      summary: Обновить профиль текущего пользователя
+      description: >
+        Частично обновляет данные профиля пользователя (имя, фамилию, аватар,
+        настройку уведомлений). Пользователь определяется по JWT-токену.
+        Аватар передаётся как файл через `multipart/form-data`.
+      operationId: updateCurrentUser
+      servers:
+        - url: http://localhost:8080
+          description: UserService
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserUpdateDto'
+      responses:
+        '200':
+          description: Профиль успешно обновлён. Возвращает актуальные данные.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponseDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    delete:
+      tags:
+        - Аутентификация
+      summary: Удалить учётную запись текущего пользователя
+      description: >
+        Удаляет учётную запись пользователя, идентифицированного по JWT-токену.
+        Операция необратима.
+      operationId: deleteCurrentUser
+      servers:
+        - url: http://localhost:8080
+          description: UserService
+      security:
+        - BearerAuth: []
+      responses:
+        '204':
+          description: Учётная запись успешно удалена.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ══════════════════════════════════════════════════════════════════════════
+  # UserService — Пользователи  (/api/v1/user)
+  # ══════════════════════════════════════════════════════════════════════════
+
+  /api/v1/user/:
+    get:
+      tags:
+        - Пользователи
+      summary: Получить список пользователей (с фильтрацией и пагинацией)
+      description: >
+        Возвращает постраничный список публичных профилей пользователей.
+        Поддерживает фильтрацию по активности и настройке уведомлений.
+        Доступно только ролям **ADMIN** и **SERVICE**.
+      operationId: getUsers
+      servers:
+        - url: http://localhost:8080
+          description: UserService
+      security:
+        - BearerAuth: [ADMIN, SERVICE]
+      parameters:
+        - name: page
+          in: query
+          description: Номер страницы (начиная с 0).
+          schema:
+            type: integer
+            default: 0
+            example: 0
+        - name: size
+          in: query
+          description: Количество элементов на странице.
+          schema:
+            type: integer
+            default: 20
+            example: 20
+        - name: sort
+          in: query
+          description: Поле и направление сортировки (например, `username,asc`).
+          schema:
+            type: string
+            example: username,asc
+        - name: activity
+          in: query
+          description: Фильтр по активности пользователя.
+          schema:
+            type: boolean
+        - name: notifyEnabled
+          in: query
+          description: Фильтр по статусу уведомлений.
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Постраничный список публичных профилей пользователей.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagePublicUserResponseDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    post:
+      tags:
+        - Пользователи
+      summary: Зарегистрировать нового пользователя
+      description: >
+        Создаёт новую учётную запись пользователя. Метод публичный —
+        JWT-токен **не требуется**. Аватар (необязательно) передаётся
+        как файл через `multipart/form-data`.
+      operationId: createUser
+      servers:
+        - url: http://localhost:8080
+          description: UserService
+      security: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserRequestDto'
+      responses:
+        '200':
+          description: Пользователь успешно создан. Возвращает данные профиля.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponseDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Пользователь с таким именем или email уже существует.
+
+  /api/v1/user/{username}:
+    get:
+      tags:
+        - Пользователи
+      summary: Получить публичный профиль пользователя по логину
+      description: >
+        Возвращает публичные данные профиля указанного пользователя.
+        Требует действительного JWT-токена. Доступно любому
+        аутентифицированному пользователю.
+      operationId: getUserByUsername
+      servers:
+        - url: http://localhost:8080
+          description: UserService
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: username
+          in: path
+          required: true
+          description: Логин пользователя.
+          schema:
+            type: string
+            example: john_doe
+      responses:
+        '200':
+          description: Публичный профиль пользователя.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicUserResponseDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/v1/user/internal/email-notification:
+    get:
+      tags:
+        - Пользователи
+      summary: "[Внутренний] Получить список email-адресов для рассылки"
+      description: >
+        Возвращает постраничный список email-адресов пользователей для
+        отправки уведомлений. Эндпоинт предназначен исключительно для
+        межсервисного взаимодействия. Доступно только роли **SERVICE**.
+      operationId: getUserEmails
+      servers:
+        - url: http://localhost:8080
+          description: UserService
+      security:
+        - BearerAuth: [SERVICE]
+      parameters:
+        - name: page
+          in: query
+          description: Номер страницы (начиная с 0).
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          description: Количество элементов на странице.
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Постраничный список email-адресов пользователей.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageString'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  # ══════════════════════════════════════════════════════════════════════════
+  # UserService — Блокировка пользователей  (/api/v1/user/access)
+  # ══════════════════════════════════════════════════════════════════════════
+
+  /api/v1/user/access/{username}/lock:
+    post:
+      tags:
+        - Блокировка пользователей
+      summary: Заблокировать пользователя
+      description: >
+        Блокирует учётную запись указанного пользователя на заданный период.
+        Пользователь не сможет войти в систему до окончания блокировки.
+        Доступно только роли **ADMIN**.
+      operationId: lockUser
+      servers:
+        - url: http://localhost:8080
+          description: UserService
+      security:
+        - BearerAuth: [ADMIN]
+      parameters:
+        - name: username
+          in: path
+          required: true
+          description: Логин пользователя, которого необходимо заблокировать.
+          schema:
+            type: string
+            example: bad_actor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLockRequest'
+      responses:
+        '202':
+          description: Запрос на блокировку принят.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/v1/user/access/{username}/unlock:
+    post:
+      tags:
+        - Блокировка пользователей
+      summary: Разблокировать пользователя
+      description: >
+        Снимает блокировку с учётной записи указанного пользователя досрочно.
+        Доступно только роли **ADMIN**.
+      operationId: unlockUser
+      servers:
+        - url: http://localhost:8080
+          description: UserService
+      security:
+        - BearerAuth: [ADMIN]
+      parameters:
+        - name: username
+          in: path
+          required: true
+          description: Логин пользователя, которого необходимо разблокировать.
+          schema:
+            type: string
+            example: bad_actor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUnlockRequest'
+      responses:
+        '202':
+          description: Запрос на разблокировку принят.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ══════════════════════════════════════════════════════════════════════════
+  # TaskService — Задачи  (/api/v1/task)
+  # ══════════════════════════════════════════════════════════════════════════
+
+  /api/v1/task:
+    get:
+      tags:
+        - Задачи
+      summary: Получить список задач (с пагинацией)
+      description: >
+        Возвращает постраничный список задач в кратком формате.
+        Метод публичный — JWT-токен **не требуется**.
+      operationId: getAllTasks
+      servers:
+        - url: http://localhost:8085
+          description: TaskService
+      security: []
+      parameters:
+        - name: page
+          in: query
+          description: Номер страницы (начиная с 0).
+          schema:
+            type: integer
+            default: 0
+            example: 0
+        - name: size
+          in: query
+          description: Количество задач на странице.
+          schema:
+            type: integer
+            default: 20
+            example: 20
+      responses:
+        '200':
+          description: Список задач в кратком формате.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskResponseDto'
+
+    post:
+      tags:
+        - Задачи
+      summary: Создать новую задачу
+      description: >
+        Создаёт новую задачу со стартовым кодом и тест-кейсами.
+        Доступно только роли **ADMIN**.
+      operationId: createTask
+      servers:
+        - url: http://localhost:8085
+          description: TaskService
+      security:
+        - BearerAuth: [ADMIN]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskRequestDto'
+      responses:
+        '201':
+          description: Задача успешно создана.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/v1/task/attributes:
+    get:
+      tags:
+        - Задачи
+      summary: Получить допустимые атрибуты задачи
+      description: >
+        Возвращает перечни допустимых значений для полей задачи:
+        уровни сложности и категории Java. Метод публичный.
+      operationId: getTaskAttributes
+      servers:
+        - url: http://localhost:8085
+          description: TaskService
+      security: []
+      responses:
+        '200':
+          description: Допустимые атрибуты задачи.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskAttributeResponseDto'
+
+  /api/v1/task/{id}:
+    get:
+      tags:
+        - Задачи
+      summary: Получить задачу по идентификатору (публичный вид)
+      description: >
+        Возвращает подробные данные задачи, включая стартовый код и
+        **только открытые** тест-кейсы (скрытые тест-кейсы не передаются).
+        Метод публичный — JWT-токен **не требуется**.
+      operationId: getTask
+      servers:
+        - url: http://localhost:8085
+          description: TaskService
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Идентификатор задачи.
+          schema:
+            type: integer
+            format: int64
+            example: 42
+      responses:
+        '200':
+          description: Подробные данные задачи (публичный вид).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskDetailedResponseDto'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      tags:
+        - Задачи
+      summary: Обновить задачу
+      description: >
+        Обновляет данные существующей задачи. Доступно только роли **ADMIN**.
+      operationId: updateTask
+      servers:
+        - url: http://localhost:8085
+          description: TaskService
+      security:
+        - BearerAuth: [ADMIN]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Идентификатор задачи.
+          schema:
+            type: integer
+            format: int64
+            example: 42
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskRequestDto'
+      responses:
+        '200':
+          description: Задача успешно обновлена.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags:
+        - Задачи
+      summary: Удалить задачу
+      description: >
+        Безвозвратно удаляет задачу и все связанные с ней данные
+        (тест-кейсы, стартовый код). Доступно только роли **ADMIN**.
+      operationId: deleteTask
+      servers:
+        - url: http://localhost:8085
+          description: TaskService
+      security:
+        - BearerAuth: [ADMIN]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Идентификатор задачи.
+          schema:
+            type: integer
+            format: int64
+            example: 42
+      responses:
+        '204':
+          description: Задача успешно удалена.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/v1/task/{id}/admin:
+    get:
+      tags:
+        - Задачи
+      summary: Получить задачу по идентификатору (административный вид)
+      description: >
+        Возвращает полные данные задачи, включая **все** тест-кейсы
+        (в том числе скрытые). Предназначен для редактирования задачи
+        администратором. Доступно только роли **ADMIN**.
+      operationId: getTaskAdmin
+      servers:
+        - url: http://localhost:8085
+          description: TaskService
+      security:
+        - BearerAuth: [ADMIN]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Идентификатор задачи.
+          schema:
+            type: integer
+            format: int64
+            example: 42
+      responses:
+        '200':
+          description: Полные данные задачи (административный вид).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskDetailedResponseDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ══════════════════════════════════════════════════════════════════════════
+  # TaskService — Категории задач  (/api/v1/task/category)
+  # ══════════════════════════════════════════════════════════════════════════
+
+  /api/v1/task/category:
+    get:
+      tags:
+        - Категории задач
+      summary: Получить список категорий (с пагинацией)
+      description: >
+        Возвращает постраничный список категорий задач.
+        Метод публичный — JWT-токен **не требуется**.
+      operationId: getCategories
+      servers:
+        - url: http://localhost:8085
+          description: TaskService
+      security: []
+      parameters:
+        - name: page
+          in: query
+          description: Номер страницы (начиная с 0).
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          description: Количество элементов на странице.
+          schema:
+            type: integer
+            default: 30
+      responses:
+        '200':
+          description: Постраничный список категорий.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageCategoryResponseDto'
+
+    post:
+      tags:
+        - Категории задач
+      summary: Создать категорию
+      description: >
+        Создаёт новую категорию задач. Доступно только роли **ADMIN**.
+      operationId: createCategory
+      servers:
+        - url: http://localhost:8085
+          description: TaskService
+      security:
+        - BearerAuth: [ADMIN]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryRequestDto'
+      responses:
+        '201':
+          description: Категория успешно создана.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/v1/task/category/{title}:
+    get:
+      tags:
+        - Категории задач
+      summary: Получить категорию по названию
+      description: >
+        Возвращает данные категории по её названию.
+        Метод публичный — JWT-токен **не требуется**.
+      operationId: getCategory
+      servers:
+        - url: http://localhost:8085
+          description: TaskService
+      security: []
+      parameters:
+        - name: title
+          in: path
+          required: true
+          description: Название категории.
+          schema:
+            type: string
+            example: Java Collections
+      responses:
+        '200':
+          description: Данные категории.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryResponseDto'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      tags:
+        - Категории задач
+      summary: Обновить категорию
+      description: >
+        Обновляет название и/или описание существующей категории.
+        Доступно только роли **ADMIN**.
+      operationId: updateCategory
+      servers:
+        - url: http://localhost:8085
+          description: TaskService
+      security:
+        - BearerAuth: [ADMIN]
+      parameters:
+        - name: title
+          in: path
+          required: true
+          description: Текущее название категории.
+          schema:
+            type: string
+            example: Java Collections
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryRequestDto'
+      responses:
+        '200':
+          description: Категория успешно обновлена.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags:
+        - Категории задач
+      summary: Удалить категорию
+      description: >
+        Безвозвратно удаляет категорию задач.
+        Доступно только роли **ADMIN**.
+      operationId: deleteCategory
+      servers:
+        - url: http://localhost:8085
+          description: TaskService
+      security:
+        - BearerAuth: [ADMIN]
+      parameters:
+        - name: title
+          in: path
+          required: true
+          description: Название категории.
+          schema:
+            type: string
+            example: Java Collections
+      responses:
+        '204':
+          description: Категория успешно удалена.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# КОМПОНЕНТЫ
+# ─────────────────────────────────────────────────────────────────────────────
+components:
+
+  # ══════════════════════════════════════════════════════════════════════════
+  # Схемы безопасности
+  # ══════════════════════════════════════════════════════════════════════════
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: >
+        JWT-токен доступа, выданный сервером авторизации Keycloak.
+        Роли пользователя хранятся в claim `realm_access.roles`.
+        Передаётся в заголовке: `Authorization: Bearer <token>`.
+
+  # ══════════════════════════════════════════════════════════════════════════
+  # Типовые ответы
+  # ══════════════════════════════════════════════════════════════════════════
+  responses:
+    BadRequest:
+      description: Некорректные данные запроса (ошибка валидации).
+    Unauthorized:
+      description: Отсутствует или недействителен JWT-токен.
+    Forbidden:
+      description: Недостаточно прав. Операция требует соответствующей роли.
+    NotFound:
+      description: Запрошенный ресурс не найден.
+
+  # ══════════════════════════════════════════════════════════════════════════
+  # Схемы данных
+  # ══════════════════════════════════════════════════════════════════════════
+  schemas:
+
+    # ─── UserService: события ────────────────────────────────────────────────
+
+    UserRegisteredEvent:
+      type: object
+      description: >
+        Событие, передаваемое при регистрации пользователя.
+        Содержит данные, необходимые для отправки кода подтверждения.
+      required:
+        - id
+        - keycloakId
+        - username
+        - email
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Внутренний идентификатор пользователя в БД.
+          example: 1
+        keycloakId:
+          type: string
+          format: uuid
+          description: Идентификатор пользователя в Keycloak.
+          example: 550e8400-e29b-41d4-a716-446655440000
+        username:
+          type: string
+          description: Логин пользователя.
+          example: john_doe
+        email:
+          type: string
+          format: email
+          description: Электронная почта, на которую будет отправлен код.
+          example: john@example.com
+        authCode:
+          type: integer
+          description: Одноразовый код подтверждения (если уже был сгенерирован).
+          example: 482913
+
+    # ─── UserService: запросы ────────────────────────────────────────────────
+
+    UserRequestDto:
+      type: object
+      description: Данные для регистрации нового пользователя.
+      required:
+        - username
+        - name
+        - lastName
+        - password
+        - email
+      properties:
+        username:
+          type: string
+          description: Уникальный логин пользователя.
+          example: john_doe
+        name:
+          type: string
+          description: Имя пользователя.
+          example: John
+        lastName:
+          type: string
+          description: Фамилия пользователя.
+          example: Doe
+        password:
+          type: string
+          format: password
+          description: Пароль учётной записи.
+          example: "S3cur3P@ss!"
+        email:
+          type: string
+          format: email
+          description: Адрес электронной почты.
+          example: john@example.com
+        avatar:
+          type: string
+          format: binary
+          description: Файл аватара пользователя (необязательно).
+        notifyEnabled:
+          type: boolean
+          description: Флаг подписки на email-уведомления.
+          example: true
+        timezone:
+          type: string
+          description: Часовой пояс пользователя в формате IANA (например, `Europe/Moscow`).
+          example: Europe/Moscow
+
+    UserUpdateDto:
+      type: object
+      description: Данные для частичного обновления профиля текущего пользователя.
+      properties:
+        username:
+          type: string
+          description: Новый логин пользователя.
+          example: john_doe_new
+        name:
+          type: string
+          description: Новое имя пользователя.
+          example: Johnny
+        lastName:
+          type: string
+          description: Новая фамилия пользователя.
+          example: Doer
+        avatar:
+          type: string
+          format: binary
+          description: Новый файл аватара.
+        notifyEnabled:
+          type: boolean
+          description: Новый статус подписки на уведомления.
+          example: false
+
+    UserLockRequest:
+      type: object
+      description: Параметры блокировки учётной записи пользователя.
+      required:
+        - startLock
+        - endLock
+        - message
+      properties:
+        startLock:
+          type: string
+          format: date-time
+          description: Момент начала блокировки (UTC, ISO-8601).
+          example: "2025-01-15T10:00:00Z"
+        endLock:
+          type: string
+          format: date-time
+          description: Момент окончания блокировки (UTC, ISO-8601).
+          example: "2025-01-22T10:00:00Z"
+        message:
+          type: string
+          description: Причина блокировки (отображается пользователю).
+          example: "Нарушение правил сообщества."
+
+    UserUnlockRequest:
+      type: object
+      description: Параметры досрочной разблокировки учётной записи.
+      required:
+        - unlockTime
+      properties:
+        unlockTime:
+          type: string
+          format: date-time
+          description: Фактическое время разблокировки (UTC, ISO-8601).
+          example: "2025-01-18T08:00:00Z"
+
+    # ─── UserService: ответы ─────────────────────────────────────────────────
+
+    UserResponseDto:
+      type: object
+      description: Полный профиль пользователя (видим только самому пользователю).
+      properties:
+        username:
+          type: string
+          description: Логин пользователя.
+          example: john_doe
+        name:
+          type: string
+          description: Имя.
+          example: John
+        lastName:
+          type: string
+          description: Фамилия.
+          example: Doe
+        email:
+          type: string
+          format: email
+          description: Электронная почта.
+          example: john@example.com
+        avatar:
+          type: string
+          description: URL аватара пользователя.
+          example: https://cdn.example.com/avatars/john_doe.png
+        dateRegistration:
+          type: string
+          format: date-time
+          description: Дата и время регистрации (UTC, ISO-8601).
+          example: "2024-03-01T12:00:00Z"
+        lastLogin:
+          type: string
+          format: date-time
+          description: Дата и время последнего входа (UTC, ISO-8601).
+          example: "2025-01-10T09:30:00Z"
+        activity:
+          type: boolean
+          description: Статус активности учётной записи.
+          example: true
+        notifyEnabled:
+          type: boolean
+          description: Включены ли email-уведомления.
+          example: true
+        timezone:
+          type: string
+          description: Часовой пояс пользователя.
+          example: Europe/Moscow
+
+    PublicUserResponseDto:
+      type: object
+      description: Публичный профиль пользователя (без приватных данных — email, timezone).
+      properties:
+        username:
+          type: string
+          description: Логин пользователя.
+          example: john_doe
+        name:
+          type: string
+          description: Имя.
+          example: John
+        lastName:
+          type: string
+          description: Фамилия.
+          example: Doe
+        avatar:
+          type: string
+          description: URL аватара пользователя.
+          example: https://cdn.example.com/avatars/john_doe.png
+        dateRegistration:
+          type: string
+          format: date-time
+          description: Дата и время регистрации (UTC, ISO-8601).
+          example: "2024-03-01T12:00:00Z"
+        lastLogin:
+          type: string
+          format: date-time
+          description: Дата и время последнего входа (UTC, ISO-8601).
+          example: "2025-01-10T09:30:00Z"
+        activity:
+          type: boolean
+          description: Статус активности учётной записи.
+          example: true
+        notifyEnabled:
+          type: boolean
+          description: Включены ли email-уведомления.
+          example: false
+
+    PagePublicUserResponseDto:
+      type: object
+      description: Постраничный результат с публичными профилями пользователей.
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/PublicUserResponseDto'
+        totalElements:
+          type: integer
+          format: int64
+          description: Общее количество пользователей.
+          example: 150
+        totalPages:
+          type: integer
+          description: Общее количество страниц.
+          example: 8
+        number:
+          type: integer
+          description: Текущий номер страницы.
+          example: 0
+        size:
+          type: integer
+          description: Размер страницы.
+          example: 20
+
+    PageString:
+      type: object
+      description: Постраничный результат со строками (например, email-адреса).
+      properties:
+        content:
+          type: array
+          items:
+            type: string
+          example: ["user1@example.com", "user2@example.com"]
+        totalElements:
+          type: integer
+          format: int64
+          example: 500
+        totalPages:
+          type: integer
+          example: 25
+        number:
+          type: integer
+          example: 0
+        size:
+          type: integer
+          example: 20
+
+    # ─── TaskService: перечисления ───────────────────────────────────────────
+
+    DifficultyType:
+      type: string
+      description: Уровень сложности задачи.
+      enum:
+        - EASY
+        - MEDIUM
+        - HARD
+      example: MEDIUM
+
+    JavaCategory:
+      type: string
+      description: Тематическая категория задачи (раздел Java).
+      enum:
+        - JAVA_CORE
+        - JAVA_GENERICS
+        - JAVA_COLLECTIONS
+        - JAVA_LAMBDAS
+        - JAVA_STREAM_API
+      example: JAVA_COLLECTIONS
+
+    # ─── TaskService: запросы ────────────────────────────────────────────────
+
+    TaskRequestDto:
+      type: object
+      description: Данные для создания или обновления задачи.
+      required:
+        - title
+        - description
+        - difficulty
+        - idAuthor
+        - starterCode
+        - categories
+        - testCases
+      properties:
+        title:
+          type: string
+          description: Заголовок задачи.
+          example: "Обратить список"
+        description:
+          type: string
+          description: Подробное условие задачи (поддерживает Markdown).
+          example: "Реализуйте метод, который обращает порядок элементов в списке без создания нового списка."
+        difficulty:
+          $ref: '#/components/schemas/DifficultyType'
+        idAuthor:
+          type: string
+          format: uuid
+          description: Идентификатор автора задачи (Keycloak UUID).
+          example: 550e8400-e29b-41d4-a716-446655440000
+        starterCode:
+          $ref: '#/components/schemas/StarterCodeRequestDto'
+        categories:
+          type: array
+          description: Список категорий (разделов Java), к которым относится задача.
+          items:
+            $ref: '#/components/schemas/JavaCategory'
+          example: ["JAVA_COLLECTIONS", "JAVA_CORE"]
+        testCases:
+          type: array
+          description: Список тест-кейсов для проверки решения.
+          items:
+            $ref: '#/components/schemas/TestCaseRequestDto'
+
+    StarterCodeRequestDto:
+      type: object
+      description: Стартовый шаблон кода, который видит пользователь при открытии задачи.
+      required:
+        - code
+        - isDefault
+      properties:
+        code:
+          type: string
+          description: Текст стартового кода.
+          example: "public List<Integer> reverse(List<Integer> list) {\n    // Ваш код здесь\n    return list;\n}"
+        isDefault:
+          type: boolean
+          description: Является ли данный вариант кода шаблоном по умолчанию.
+          example: true
+
+    TestCaseRequestDto:
+      type: object
+      description: Тест-кейс для проверки правильности решения задачи.
+      required:
+        - input
+        - expectedOutput
+        - isHidden
+      properties:
+        input:
+          type: string
+          description: Входные данные теста.
+          example: "[1, 2, 3, 4, 5]"
+        expectedOutput:
+          type: string
+          description: Ожидаемый результат выполнения.
+          example: "[5, 4, 3, 2, 1]"
+        isHidden:
+          type: boolean
+          description: >
+            Флаг скрытого тест-кейса. Скрытые тест-кейсы недоступны пользователю
+            при просмотре задачи, но участвуют в проверке решения.
+          example: false
+
+    CategoryRequestDto:
+      type: object
+      description: Данные для создания или обновления категории задач.
+      required:
+        - title
+        - description
+      properties:
+        title:
+          type: string
+          description: Уникальное название категории.
+          example: "Java Collections"
+        description:
+          type: string
+          description: Описание категории.
+          example: "Задачи на работу с коллекциями Java: List, Set, Map и Queue."
+
+    # ─── TaskService: ответы ─────────────────────────────────────────────────
+
+    TaskResponseDto:
+      type: object
+      description: Краткое представление задачи (для списков).
+      properties:
+        idTask:
+          type: integer
+          format: int64
+          description: Уникальный идентификатор задачи.
+          example: 42
+        title:
+          type: string
+          description: Заголовок задачи.
+          example: "Обратить список"
+        difficulty:
+          type: string
+          description: Уровень сложности.
+          example: MEDIUM
+        createdAt:
+          type: string
+          format: date-time
+          description: Дата и время создания (UTC, ISO-8601).
+          example: "2024-11-01T14:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Дата и время последнего обновления (UTC, ISO-8601).
+          example: "2025-01-05T10:30:00Z"
+        idAuthor:
+          type: string
+          format: uuid
+          description: Идентификатор автора задачи.
+          example: 550e8400-e29b-41d4-a716-446655440000
+        categories:
+          type: array
+          description: Категории задачи.
+          items:
+            $ref: '#/components/schemas/CategoryResponseDto'
+
+    TaskDetailedResponseDto:
+      type: object
+      description: Подробное представление задачи (включая условие, код и тест-кейсы).
+      properties:
+        idTask:
+          type: integer
+          format: int64
+          description: Уникальный идентификатор задачи.
+          example: 42
+        title:
+          type: string
+          description: Заголовок задачи.
+          example: "Обратить список"
+        description:
+          type: string
+          description: Условие задачи.
+          example: "Реализуйте метод, который обращает порядок элементов в списке..."
+        difficulty:
+          type: string
+          description: Уровень сложности.
+          example: MEDIUM
+        createdAt:
+          type: string
+          format: date-time
+          description: Дата и время создания (UTC, ISO-8601).
+          example: "2024-11-01T14:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Дата и время последнего обновления (UTC, ISO-8601).
+          example: "2025-01-05T10:30:00Z"
+        idAuthor:
+          type: string
+          format: uuid
+          description: Идентификатор автора задачи.
+          example: 550e8400-e29b-41d4-a716-446655440000
+        categories:
+          type: array
+          description: Категории задачи.
+          items:
+            $ref: '#/components/schemas/CategoryResponseDto'
+        starterCode:
+          $ref: '#/components/schemas/StarterCodeResponseDto'
+        testCases:
+          type: array
+          description: >
+            Список тест-кейсов. При запросе через `/api/v1/task/{id}` (публичный)
+            скрытые тест-кейсы не включаются. При запросе через
+            `/api/v1/task/{id}/admin` возвращаются все тест-кейсы.
+          items:
+            $ref: '#/components/schemas/TestCaseResponseDto'
+
+    TaskAttributeResponseDto:
+      type: object
+      description: Допустимые значения атрибутов для создания/фильтрации задач.
+      properties:
+        difficulties:
+          type: array
+          description: Доступные уровни сложности.
+          items:
+            $ref: '#/components/schemas/DifficultyType'
+          example: ["EASY", "MEDIUM", "HARD"]
+        categories:
+          type: array
+          description: Доступные категории Java.
+          items:
+            $ref: '#/components/schemas/JavaCategory'
+          example: ["JAVA_CORE", "JAVA_GENERICS", "JAVA_COLLECTIONS", "JAVA_LAMBDAS", "JAVA_STREAM_API"]
+
+    StarterCodeResponseDto:
+      type: object
+      description: Стартовый шаблон кода задачи.
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Идентификатор записи стартового кода.
+          example: 7
+        code:
+          type: string
+          description: Текст стартового кода.
+          example: "public List<Integer> reverse(List<Integer> list) {\n    return list;\n}"
+        isDefault:
+          type: boolean
+          description: Является ли данный вариант шаблоном по умолчанию.
+          example: true
+
+    TestCaseResponseDto:
+      type: object
+      description: Тест-кейс задачи.
+      properties:
+        input:
+          type: string
+          description: Входные данные.
+          example: "[1, 2, 3, 4, 5]"
+        expectedOutput:
+          type: string
+          description: Ожидаемый результат.
+          example: "[5, 4, 3, 2, 1]"
+        isHidden:
+          type: boolean
+          description: Является ли тест-кейс скрытым.
+          example: false
+
+    CategoryResponseDto:
+      type: object
+      description: Данные категории задачи.
+      properties:
+        title:
+          type: string
+          description: Название категории.
+          example: "Java Collections"
+        description:
+          type: string
+          description: Описание категории.
+          example: "Задачи на работу с коллекциями Java."
+        createdAt:
+          type: string
+          format: date-time
+          description: Дата и время создания категории (UTC, ISO-8601).
+          example: "2024-10-15T08:00:00Z"
+
+    PageCategoryResponseDto:
+      type: object
+      description: Постраничный результат с категориями задач.
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategoryResponseDto'
+        totalElements:
+          type: integer
+          format: int64
+          description: Общее количество категорий.
+          example: 5
+        totalPages:
+          type: integer
+          description: Общее количество страниц.
+          example: 1
+        number:
+          type: integer
+          description: Текущий номер страницы.
+          example: 0
+        size:
+          type: integer
+          description: Размер страницы.
+          example: 30
