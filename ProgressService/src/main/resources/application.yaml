@@ -29,6 +29,11 @@ spring:
             trusted:
               packages: com.javalab.core.events
 
+kafka:
+  topic-names:
+    user-registered: ${USER_REGISTERED_TOPIC:user-registered-topic}
+    user-logged-in: ${USER_LOGGED_IN_TOPIC:user-logged-in-topic}
+
   security:
     oauth2:
       client:
