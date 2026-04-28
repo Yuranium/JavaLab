@@ -2,6 +2,7 @@ package com.wenn.progressservice.repository;
 
 import com.wenn.progressservice.models.entity.UserAchievementEntity;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,7 +13,7 @@ import java.util.UUID;
 @Repository
 public interface UserAchievementRepository extends JpaRepository<UserAchievementEntity, Long> {
 
-    Page<UserAchievementEntity> findByUserProgressKeycloakId(UUID keycloakId);
+    Page<UserAchievementEntity> findByUserProgressKeycloakId(UUID keycloakId, Pageable pageable);
 
     Optional<UserAchievementEntity> findByUserProgressKeycloakIdAndAchievementCode(
             UUID keycloakId,

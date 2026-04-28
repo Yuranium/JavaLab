@@ -2,6 +2,7 @@ package com.wenn.progressservice.repository;
 
 import com.wenn.progressservice.models.entity.DailyActivityEntity;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -23,6 +24,7 @@ public interface DailyActivityRepository extends JpaRepository<DailyActivityEnti
     Page<DailyActivityEntity> findByUserProgressKeycloakIdAndActivityDateBetween(
             UUID keycloakId,
             LocalDate fromDate,
-            LocalDate toDate
+            LocalDate toDate,
+            Pageable pageable
     );
 }

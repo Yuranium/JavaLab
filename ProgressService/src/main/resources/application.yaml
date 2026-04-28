@@ -28,12 +28,6 @@ spring:
           json:
             trusted:
               packages: com.javalab.core.events
-
-kafka:
-  topic-names:
-    user-registered: ${USER_REGISTERED_TOPIC:user-registered-topic}
-    user-logged-in: ${USER_LOGGED_IN_TOPIC:user-logged-in-topic}
-
   security:
     oauth2:
       client:
@@ -50,15 +44,11 @@ kafka:
             client-authentication-method: client_secret_basic
             scope: openid
 
-s3:
-  minio:
-    endpoint: ${MINIO_ENDPOINT}
-    region: ${MINIO_REGION}
-    bucket-name: java-lab
-    access-key: ${MINIO_ACCESS_KEY}
-    application-key: ${MINIO_APP_KEY}
-    path-style: true
-  achievement-prefix: achievements
+kafka:
+  topic-names:
+    user-registered: ${USER_REGISTERED_TOPIC:user-registered-topic}
+    user-logged-in: ${USER_LOGGED_IN_TOPIC:user-logged-in-topic}
+    execution-attempt: ${EXECUTION_ATTEMPT_TOPIC:execution-attempt-topic}
 
 logging:
   level:
