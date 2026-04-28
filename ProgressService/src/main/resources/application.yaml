@@ -30,6 +30,9 @@ spring:
               packages: com.javalab.core.events
   security:
     oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI}
       client:
         provider:
           keycloak:
