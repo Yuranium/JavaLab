@@ -107,6 +107,83 @@ services:
     volumes:
       - minio_data:/data
 
+  user-service:
+    build:
+      context: .
+      dockerfile: UserService/Dockerfile
+    container_name: user-service
+    restart: on-failure
+    ports:
+      - "${USER_SERVICE_PORT:-8080}:8080"
+    environment:
+      OAUTH2_ISSUER_URI: ${OAUTH2_ISSUER_URI}
+      PG_URL: ${PG_URL}
+      PG_USERNAME: ${PG_USERNAME}
+      PG_PASSWORD: ${PG_PASSWORD}
+      KEYCLOAK_URL: ${KEYCLOAK_URL}
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM}
+      KEYCLOAK_CURRENT_REALM: ${KEYCLOAK_CURRENT_REALM}
+      KEYCLOAK_USERNAME: ${KEYCLOAK_USERNAME}
+      KEYCLOAK_PASSWORD: ${KEYCLOAK_PASSWORD}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+      MINIO_REGION: ${MINIO_REGION}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_APP_KEY: ${MINIO_APP_KEY}
+      USER_CREATED_TOPIC: ${USER_CREATED_TOPIC}
+      USER_LOGGED_IN_TOPIC: ${USER_LOGGED_IN_TOPIC}
+      OAUTH2_LOGIN_TOPIC: ${OAUTH2_LOGIN_TOPIC}
+      USER_LOCKED_TOPIC: ${USER_LOCKED_TOPIC}
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS:-broker:29092}
+    depends_on:
+      - postgres
+      - kafka
+      - keycloak
+      - redis
+
+  task-service:
+    build:
+      context: .
+      dockerfile: TaskService/Dockerfile
+    container_name: task-service
+    restart: on-failure
+    ports:
+      - "${TASK_SERVICE_PORT:-8085}:8085"
+    environment:
+      OAUTH2_ISSUER_URI: ${OAUTH2_ISSUER_URI}
+      PG_URL: ${PG_URL}
+      PG_USERNAME: ${PG_USERNAME}
+      PG_PASSWORD: ${PG_PASSWORD}
+      TASK_CLIENT_SECRET: ${TASK_CLIENT_SECRET}
+      TASK_CREATED_TOPIC: ${TASK_CREATED_TOPIC}
+      TEST_CASE_EVENTS_TOPIC: ${TEST_CASE_EVENTS_TOPIC}
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS:-broker:29092}
+    depends_on:
+      - postgres
+      - kafka
+
+  execution-service:
+    build:
+      context: .
+      dockerfile: ExecutionService/Dockerfile
+    container_name: execution-service
+    restart: on-failure
+    ports:
+      - "${EXECUTION_SERVICE_PORT:-8084}:8084"
+    environment:
+      OAUTH2_ISSUER_URI: ${OAUTH2_ISSUER_URI}
+      PG_URL: ${PG_URL}
+      PG_USERNAME: ${PG_USERNAME}
+      PG_PASSWORD: ${PG_PASSWORD}
+      TEST_CASE_EVENTS_TOPIC: ${TEST_CASE_EVENTS_TOPIC}
+      EXECUTION_ATTEMPT_TOPIC: ${EXECUTION_ATTEMPT_TOPIC}
+      DOCKER_HOST: ${DOCKER_HOST:-unix:///var/run/docker.sock}
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS:-broker:29092}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - postgres
+      - kafka
+
 volumes:
   postgres_data:
   keycloak_data:

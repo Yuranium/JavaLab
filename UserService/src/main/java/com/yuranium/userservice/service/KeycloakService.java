@@ -30,7 +30,7 @@ public class KeycloakService
     {
         UsersResource usersResource = keycloak.realm(keycloakConfig.getCurrentRealm()).users();
 
-        UserRepresentation userRep = getUserRepresentation(
+        UserRepresentation userRep = createUserRepresentation(
                 userDto.email(), userDto.username(), userDto.password()
         );
 
@@ -48,7 +48,7 @@ public class KeycloakService
         }
     }
 
-    private UserRepresentation getUserRepresentation(String email, String username, String password)
+    private UserRepresentation createUserRepresentation(String email, String username, String password)
     {
         UserRepresentation userRep = new UserRepresentation();
         userRep.setEmail(email);
