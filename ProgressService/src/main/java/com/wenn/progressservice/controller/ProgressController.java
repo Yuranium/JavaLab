@@ -11,7 +11,6 @@ import com.wenn.progressservice.service.SubmissionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -26,7 +25,7 @@ import java.util.UUID;
 
 /**
  * REST контроллер для управления прогрессом пользователя.
- * 
+ *
  * Все endpoints требуют аутентификации через JWT токен.
  * keycloakId извлекается из токена (@AuthenticationPrincipal Jwt).
  */
@@ -42,7 +41,7 @@ public class ProgressController {
 
     /**
      * Получить прогресс текущего пользователя.
-     * 
+     *
      * @param jwt JWT токен аутентификации
      * @return прогресс пользователя
      */
@@ -53,29 +52,30 @@ public class ProgressController {
         UUID keycloakId = UUID.fromString(jwt.getSubject());
         var progress = progressService.getProgress(keycloakId)
                 .orElseThrow(() -> new IllegalArgumentException("User progress not found: " + keycloakId));
-        
+
         return ResponseEntity.ok(mapper.toProgressResponseDto(progress));
     }
 
     /**
      * Получить достижения текущего пользователя.
-     * 
+     *
      * @param jwt JWT токен аутентификации
      * @return список достижений
      */
     @GetMapping("/achievements")
     public ResponseEntity<Page<AchievementResponseDto>> getAchievements(
-            @AuthenticationPrincipal Jwt jwt
+            @AuthenticationPrincipal Jwt jwt,
+            Pageable page
     ) {
         UUID keycloakId = UUID.fromString(jwt.getSubject());
-        var achievements = achievementService.getUserAchievements(keycloakId);
-        
+        var achievements = achievementService.getUserAchievements(keycloakId, page);
+
         return ResponseEntity.ok(achievements.map(mapper::toAchievementResponseDto));
     }
 
     /**
      * Получить ежедневную активность текущего пользователя за период.
-     * 
+     *
      * @param jwt JWT токен аутентификации
      * @param from дата начала периода (опционально, по умолчанию 30 дней назад)
      * @param to дата окончания периода (опционально, по умолчанию сегодня)
@@ -85,7 +85,8 @@ public class ProgressController {
     public ResponseEntity<Page<DailyActivityResponseDto>> getActivity(
             @AuthenticationPrincipal Jwt jwt,
             @RequestParam(required = false) LocalDate from,
-            @RequestParam(required = false) LocalDate to
+            @RequestParam(required = false) LocalDate to,
+            Pageable pageable
     ) {
         UUID keycloakId = UUID.fromString(jwt.getSubject());
 
@@ -98,14 +99,14 @@ public class ProgressController {
         }
 
         // Используем метод сервиса для получения активности за период
-        var activities = progressService.getActivityByPeriod(keycloakId, from, to);
+        var activities = progressService.getActivityByPeriod(keycloakId, from, to, pageable);
 
         return ResponseEntity.ok(activities.map(mapper::toDailyActivityResponseDto));
     }
 
     /**
      * Получить историю попыток решения задач текущего пользователя.
-     * 
+     *
      * @param jwt JWT токен аутентификации
      * @param taskId ID задачи (опционально, если не указано — все попытки)
      * @param page номер страницы (опционально, по умолчанию 0)
@@ -121,7 +122,7 @@ public class ProgressController {
     ) {
         UUID keycloakId = UUID.fromString(jwt.getSubject());
         Pageable pageable = Pageable.ofSize(size).withPage(page);
-        
+
         Page<SubmissionResponseDto> submissions;
         if (taskId != null) {
             submissions = submissionService.getSubmissionsForTask(keycloakId, taskId, pageable)
@@ -130,13 +131,13 @@ public class ProgressController {
             submissions = submissionService.getSubmissions(keycloakId, pageable)
                     .map(mapper::toSubmissionResponseDto);
         }
-        
+
         return ResponseEntity.ok(submissions);
     }
 
     /**
      * Получить разблокированные достижения текущего пользователя.
-     * 
+     *
      * @param jwt JWT токен аутентификации
      * @return список разблокированных достижений
      */
@@ -146,13 +147,13 @@ public class ProgressController {
     ) {
         UUID keycloakId = UUID.fromString(jwt.getSubject());
         var achievements = achievementService.getUnlockedAchievements(keycloakId);
-        
+
         return ResponseEntity.ok(mapper.toAchievementResponseDtoList(achievements));
     }
 
     /**
      * Получить заблокированные достижения текущего пользователя.
-     * 
+     *
      * @param jwt JWT токен аутентификации
      * @return список заблокированных достижений
      */
@@ -162,7 +163,7 @@ public class ProgressController {
     ) {
         UUID keycloakId = UUID.fromString(jwt.getSubject());
         var achievements = achievementService.getLockedAchievements(keycloakId);
-        
+
         return ResponseEntity.ok(mapper.toAchievementResponseDtoList(achievements));
     }
 }
