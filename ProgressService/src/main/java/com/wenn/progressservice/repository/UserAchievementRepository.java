@@ -4,6 +4,7 @@ import com.wenn.progressservice.models.entity.UserAchievementEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.UUID;
 @Repository
 public interface UserAchievementRepository extends JpaRepository<UserAchievementEntity, Long> {
 
+    @Query("FROM UserAchievementEntity ua JOIN FETCH ua.achievement")
     Page<UserAchievementEntity> findByUserProgressKeycloakId(UUID keycloakId, Pageable pageable);
 
     Optional<UserAchievementEntity> findByUserProgressKeycloakIdAndAchievementCode(
@@ -20,7 +22,17 @@ public interface UserAchievementRepository extends JpaRepository<UserAchievement
             String achievementCode
     );
 
+    @Query("""
+            FROM UserAchievementEntity ua JOIN FETCH ua.achievement
+            WHERE ua.unlocked = true
+            AND ua.userProgress.keycloakId = :keycloakId
+            """)
     List<UserAchievementEntity> findByUserProgressKeycloakIdAndUnlockedTrue(UUID keycloakId);
 
+    @Query("""
+            FROM UserAchievementEntity ua JOIN FETCH ua.achievement
+            WHERE ua.unlocked = false
+            AND ua.userProgress.keycloakId = :keycloakId
+            """)
     List<UserAchievementEntity> findByUserProgressKeycloakIdAndUnlockedFalse(UUID keycloakId);
 }

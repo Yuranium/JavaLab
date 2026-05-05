@@ -39,11 +39,11 @@ public interface ProgressMapper {
     List<AchievementResponseDto> toAchievementResponseDtoList(List<UserAchievementEntity> entities);
 
     // ==================== DailyActivity ====================
-
+    @Mapping(target = "date", source = "activityDate")
     DailyActivityResponseDto toDailyActivityResponseDto(DailyActivityEntity entity);
 
     // ==================== Submission ====================
-
+    @Mapping(target = "taskId", source = "idTask")
     SubmissionResponseDto toSubmissionResponseDto(UserSubmissionEntity entity);
 
     List<SubmissionResponseDto> toSubmissionResponseDtoList(List<UserSubmissionEntity> entities);
