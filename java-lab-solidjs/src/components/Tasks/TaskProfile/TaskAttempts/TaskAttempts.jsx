@@ -1,51 +1,58 @@
 import { createSignal, For, Show, onMount } from 'solid-js';
+import axios from 'axios';
+import { config } from '../../../../config';
 import './TaskAttempts.css';
+
+const PAGE_SIZE = 10;
 
 export default function TaskAttempts(props) {
   const [loading, setLoading] = createSignal(false);
+  const [loadingMore, setLoadingMore] = createSignal(false);
   const [attempts, setAttempts] = createSignal([]);
-  const taskId = props.taskId;
-  void taskId;
+  const [currentPage, setCurrentPage] = createSignal(0);
+  const [hasMore, setHasMore] = createSignal(false);
+  const [error, setError] = createSignal(null);
 
-  const stubData = [
-    {
-      isCorrect: true,
-      code: `public class Solution {\n    public static void main(String[] args) {\n        System.out.println("Hello, world!");\n    }\n}\n`,
-      createdAt: '2026-04-25T10:15:30.123Z'
-    },
-    {
-      isCorrect: false,
-      code: `public class Solution {\n    public static void main(String[] args) {\n        // wrong\n        for (int i = 0; i < 100; i++) { System.out.println(i); }\n    }\n}\n`,
-      createdAt: '2026-04-24T18:05:00.000Z'
-    }
-  ];
+  const fetchAttempts = async (page = 0) => {
+    if (page === 0) setLoading(true);
+    else setLoadingMore(true);
+    setError(null);
 
-  const fetchAttempts = async () => {
-    setLoading(true);
-    // simulate network delay
-    setTimeout(() => {
-      setAttempts(stubData);
+    try {
+      const token = localStorage.getItem('access_token');
+      console.log(`Токен: ${token}`)
+      const { data } = await axios.get(`${config.backendUrl}/api/v1/progress/submissions`, {
+        params: { taskId: props.taskId, page, size: PAGE_SIZE },
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+
+      if (page === 0) {
+        setAttempts(data.content);
+      } else {
+        setAttempts((prev) => [...prev, ...data.content]);
+      }
+      setCurrentPage(data.number);
+      setHasMore(!data.last);
+    } catch (err) {
+      console.error('Failed to load attempts', err);
+      setError('Не удалось загрузить попытки');
+    } finally {
       setLoading(false);
-    }, 300);
-
-    // const token = localStorage.getItem('access_token');
-    // const url = `${config.backendUrl}/api/v1/progress/attempts?taskId=${props.taskId}`;
-    // const resp = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
-    // const data = await resp.json();
-    // setAttempts(data);
+      setLoadingMore(false);
+    }
   };
 
   onMount(() => {
-    if (props && props.taskId) {
-      console.debug('TaskAttempts mounted for taskId', props.taskId);
+    if (props.taskId) {
+      void fetchAttempts(0);
     }
-    fetchAttempts();
   });
+
+  const loadMore = () => fetchAttempts(currentPage() + 1);
 
   const formatDate = (iso) => {
     try {
-      const d = new Date(iso);
-      return d.toLocaleDateString();
+      return new Date(iso).toLocaleDateString('ru-RU');
     } catch (e) {
       return iso;
     }
@@ -63,14 +70,14 @@ export default function TaskAttempts(props) {
 
         <div class="attempt-body">
           <div class="attempt-meta">
-            <span class="attempt-date">{formatDate(props.item.createdAt)}</span>
+            <span class="attempt-date">{formatDate(props.item.submittedAt)}</span>
             <span class="attempt-result">{props.item.isCorrect ? 'Успешно' : 'Неудачно'}</span>
             <button class="attempt-expand-btn" onClick={() => setExpanded(!expanded())} aria-label="Показать код">
               <span class={"arrow " + (expanded() ? 'open' : '')}></span>
             </button>
           </div>
 
-          <pre class={"attempt-code " + (expanded() ? 'expanded' : 'collapsed')}><code>{props.item.code}</code></pre>
+          <pre class={"attempt-code " + (expanded() ? 'expanded' : 'collapsed')}><code>{props.item.userCode}</code></pre>
         </div>
       </div>
     );
@@ -81,10 +88,28 @@ export default function TaskAttempts(props) {
       <div class="task-attempts-panel" role="region" aria-label="Мои решения">
 
         <Show when={loading()} fallback={
-          <div class="task-attempts-list">
-            <For each={attempts()}>
-              {(item) => <AttemptItem item={item} />}
-            </For>
+          <div>
+            <Show when={error()}>
+              <div class="task-attempts-error">{error()}</div>
+            </Show>
+
+            <div class="task-attempts-list">
+              <For each={attempts()}>
+                {(item) => <AttemptItem item={item} />}
+              </For>
+            </div>
+
+            <Show when={hasMore()}>
+              <div class="task-attempts-more">
+                <button
+                  class="attempt-load-more-btn"
+                  onClick={loadMore}
+                  disabled={loadingMore()}
+                >
+                  {loadingMore() ? 'Загрузка...' : 'Загрузить ещё'}
+                </button>
+              </div>
+            </Show>
           </div>
         }>
           <div class="task-attempts-loading">Загрузка...</div>
