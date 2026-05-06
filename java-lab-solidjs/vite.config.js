@@ -8,6 +8,7 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [devtools(), solidPlugin()],
     server: {
+      host: "0.0.0.0",
       port: 3000,
     },
     build: {
