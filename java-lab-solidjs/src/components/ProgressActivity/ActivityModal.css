@@ -148,12 +148,11 @@
 }
 
 .activity-months-header {
-  width: 100% !important;
   display: flex;
-  gap: 3px;
-  margin-bottom: 4px;
+  gap: 0;
+  margin-bottom: 6px;
+  padding-left: 32px; /* align with day-label offset */
   overflow: hidden;
-  justify-content: space-around;
 }
 
 .activity-month-label {
@@ -189,36 +188,35 @@
 .activity-heatmap {
   display: flex;
   flex-direction: column;
-  /* gap: 3px; */
+  gap: 3px;
 }
 
 .activity-heatmap-row {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
 
 .activity-day-label {
   font-size: 11px;
   color: var(--text-secondary);
-  width: 28px;
+  width: 26px;
   flex-shrink: 0;
   text-align: right;
 }
 
 .activity-cells {
   display: flex;
-  row-gap: 3px;
-  column-gap: 5px;
+  gap: 3px;
 }
 
 .activity-cell {
-  width: 10px;
-  height: 10px;
-  border-radius: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
   background-color: var(--activity-level-0);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
-  cursor: pointer;
+  cursor: default;
   flex-shrink: 0;
 }
 
@@ -263,6 +261,57 @@
   display: flex;
   gap: 4px;
 }
+
+/* ── Error ───────────────────────────────────────────────────────────────────── */
+
+.activity-error {
+  margin-bottom: 16px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--error-color, #ef4444);
+  font-size: 13px;
+  text-align: center;
+}
+
+/* ── Stat loading skeleton ────────────────────────────────────────────────────── */
+
+.activity-stat-skeleton {
+  display: inline-block;
+  width: 48px;
+  height: 32px;
+  border-radius: 6px;
+  background: var(--border-color);
+  animation: activity-pulse 1.5s ease-in-out infinite;
+  vertical-align: middle;
+}
+
+/* ── Heatmap loading skeleton ────────────────────────────────────────────────── */
+
+.activity-heatmap-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-left: 32px;
+  margin-bottom: 8px;
+}
+
+.activity-heatmap-skeleton-row {
+  height: 12px;
+  border-radius: 3px;
+  background: var(--border-color);
+  animation: activity-pulse 1.5s ease-in-out infinite;
+}
+
+.activity-heatmap-skeleton-row:nth-child(odd) { animation-delay: 0.15s; }
+.activity-heatmap-skeleton-row:nth-child(even) { animation-delay: 0.3s; }
+
+@keyframes activity-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.35; }
+}
+
+/* ── Scrollbars ───────────────────────────────────────────────────────────────── */
 
 .activity-modal::-webkit-scrollbar {
   width: 8px;

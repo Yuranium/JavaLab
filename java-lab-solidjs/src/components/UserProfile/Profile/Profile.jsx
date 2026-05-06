@@ -11,6 +11,7 @@ import ProfileStatus from '../ProfileStatus/ProfileStatus';
 import ProfileSettings from '../ProfileSettings/ProfileSettings';
 import ProfileActions from '../ProfileActions/ProfileActions';
 import ProfileUserDates from '../ProfileUserDates/ProfileUserDates';
+import ProfileAchievements from '../ProfileAchievements/ProfileAchievements';
 import ActivityModal from '../../ProgressActivity/ActivityModal';
 import UsernameField from '../UsernameField/UsernameField';
 
@@ -209,6 +210,7 @@ export default function Profile() {
                 onActivityClick={() => setIsActivityModalOpen(true)}
               />
               <ProfileStatus isVerified={user().isVerified} />
+              <ProfileAchievements />
               <ProfileUserDates
                 registrationDate={user().registrationDate}
                 lastLogin={user().lastLogin}
