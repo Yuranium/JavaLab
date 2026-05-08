@@ -242,6 +242,13 @@
 }
 
 
+/* When AI chat is active, enable flex layout so AiChat can fill the remaining panel height */
+.resizable-panel-content:has(.ai-chat) {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 @media (max-width: 1024px) {
   .task-profile-panels {
     flex-direction: column;

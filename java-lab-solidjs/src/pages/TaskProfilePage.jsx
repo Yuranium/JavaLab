@@ -10,6 +10,7 @@ import TaskEditForm from '../components/Tasks/TaskProfile/TaskEditForm/TaskEditF
 import TaskTestCases from '../components/Tasks/TaskProfile/TaskTestCases/TaskTestCases';
 import TaskCodeEditor from '../components/Tasks/TaskProfile/TaskCodeEditor/TaskCodeEditor';
 import TaskAttempts from '../components/Tasks/TaskProfile/TaskAttempts/TaskAttempts';
+import AiChat from '../components/Tasks/TaskProfile/AiChat/AiChat';
 import './TaskProfilePage.css';
 
 export default function TaskProfilePage() {
@@ -211,20 +212,7 @@ export default function TaskProfilePage() {
                 </Show>
 
                 <Show when={activeTab() === 'ai' && auth.isAuthenticated()}>
-                  <div class="task-profile-placeholder">
-                    <svg class="task-profile-placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                      <path d="M12 2a4 4 0 0 1 4 4c0 1.95-1.4 3.58-3.25 3.93" />
-                      <path d="M8.56 6.22A4 4 0 0 1 12 2" />
-                      <path d="M12 18a8 8 0 0 0 8-8" />
-                      <path d="M12 18a8 8 0 0 1-8-8" />
-                      <path d="M12 18v4" />
-                      <circle cx="12" cy="10" r="2" />
-                    </svg>
-                    <p>AI-помощник скоро будет доступен</p>
-                    <p class="task-profile-placeholder-subtext">
-                      В будущем здесь появится возможность получать помощь от AI
-                    </p>
-                  </div>
+                  <AiChat />
                 </Show>
 
                 <Show when={activeTab() === 'solutions' && auth.isAuthenticated()}>
