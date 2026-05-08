@@ -28,6 +28,13 @@
             text-align: center;
         }
 
+        .email-header h1 {
+            color: #ffffff;
+            margin-top: 20px;
+            margin-left: 30px;
+            font-size: 22px;
+        }
+
         .email-logo-text {
             color: #fff;
             font-size: 28px;
@@ -80,8 +87,21 @@
 
                 <!-- HEADER -->
                 <div class="email-header">
-                    <span class="email-logo-text">JavaLab</span>
-                    <h1 th:text="${isLock} ? 'Аккаунт заблокирован' : 'Аккаунт разблокирован'"></h1>
+                    <table role="presentation" class="email-logo-table" style="margin: 0 auto; border-collapse: collapse;">
+                        <tr>
+                            <td style="vertical-align: middle; padding: 0;">
+                                <img src="https://icon-icons.com/download-file?file=https%3A%2F%2Fimages.icon-icons.com%2F2389%2FPNG%2F512%2Fjava_logo_icon_145156.png&id=145156&pack_or_individual=pack"
+                                     alt="Java"
+                                     style="display: block; height: 42px; width: auto;"
+                                     width="42"
+                                     height="42" />
+                            </td>
+                            <td style="vertical-align: middle; padding-left: 12px;">
+                                <span class="email-logo-text">JavaLab</span>
+                            </td>
+                        </tr>
+                    </table>
+                    <h1 th:text="${isLock} ? 'Аккаунт заблокирован' : 'Аккаунт разблокирован'">Аккаунт заблокирован</h1>
                 </div>
 
                 <!-- BODY -->

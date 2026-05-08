@@ -5,6 +5,8 @@ import com.wenn.aiservice.service.AiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
@@ -15,15 +17,9 @@ public class AiController {
 
     private final AiService aiService;
 
-    @PostMapping("/chat")
-    public ResponseEntity<String> chat(@RequestBody ChatDto request) {
-        String response = aiService.chat(request.userId(), request.message());
-        return ResponseEntity.ok(response);
-    }
-
     @PostMapping(value = "/chat/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public ResponseEntity<Flux<String>> chatStream(@RequestBody ChatDto request) {
-        Flux<String> response = aiService.streamChat(request.userId(), request.message());
+    public ResponseEntity<Flux<String>> chatStream(@AuthenticationPrincipal Jwt jwt, @RequestBody ChatDto request) {
+        Flux<String> response = aiService.streamChat(jwt.getSubject(), request.message());
         return ResponseEntity.ok(response);
     }
 

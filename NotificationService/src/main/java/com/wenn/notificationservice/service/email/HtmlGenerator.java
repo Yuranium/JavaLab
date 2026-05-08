@@ -33,7 +33,7 @@ public class HtmlGenerator {
         Context context = new Context();
         context.setVariable("title", title);
         context.setVariable("difficulty", difficulty);
-        context.setVariable("categories", categories);
+        context.setVariable("categories", String.join(", ", categories));
         context.setVariable("year", Year.now().getValue());
 
         return templateEngine.process("email/task-created", context);
